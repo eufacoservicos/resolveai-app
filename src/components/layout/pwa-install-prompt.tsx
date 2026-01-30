@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Download, X } from "lucide-react";
+import { Download, Share, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -9,18 +9,48 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+function isIos() {
+  if (typeof window === "undefined") return false;
+  const ua = window.navigator.userAgent.toLowerCase();
+  return /iphone|ipad|ipod/.test(ua);
+}
+
+function isInStandaloneMode() {
+  if (typeof window === "undefined") return false;
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    !!(window.navigator as Navigator & { standalone?: boolean }).standalone
+  );
+}
+
 export function PwaInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
+  const [showIosBanner, setShowIosBanner] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [standalone, setStandalone] = useState(true); // default true to avoid flash
 
   useEffect(() => {
-    // Check if user already dismissed
-    if (localStorage.getItem("pwa-install-dismissed")) {
+    // Already installed as PWA
+    if (isInStandaloneMode()) {
+      setStandalone(true);
+      return;
+    }
+    setStandalone(false);
+
+    // Dismissed this session
+    if (sessionStorage.getItem("pwa-install-dismissed")) {
       setDismissed(true);
       return;
     }
 
+    // iOS: no beforeinstallprompt, show manual instructions
+    if (isIos()) {
+      setShowIosBanner(true);
+      return;
+    }
+
+    // Android/Chrome: capture beforeinstallprompt
     function handleBeforeInstall(e: Event) {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -31,7 +61,9 @@ export function PwaInstallPrompt() {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
   }, []);
 
-  if (!deferredPrompt || dismissed) return null;
+  // Nothing to show
+  if (standalone || dismissed) return null;
+  if (!deferredPrompt && !showIosBanner) return null;
 
   async function handleInstall() {
     if (!deferredPrompt) return;
@@ -45,11 +77,12 @@ export function PwaInstallPrompt() {
   function handleDismiss() {
     setDismissed(true);
     setDeferredPrompt(null);
-    localStorage.setItem("pwa-install-dismissed", "1");
+    setShowIosBanner(false);
+    sessionStorage.setItem("pwa-install-dismissed", "1");
   }
 
   return (
-    <div className="fixed bottom-20 left-4 right-4 z-40 md:bottom-4 md:left-auto md:right-4 md:w-80">
+    <div className="fixed bottom-20 left-4 right-4 z-50 md:bottom-4 md:left-auto md:right-4 md:w-80">
       <div className="rounded-xl border border-border bg-white p-4 shadow-lg">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg gradient-bg">
@@ -59,26 +92,36 @@ export function PwaInstallPrompt() {
             <h4 className="font-semibold text-foreground text-sm">
               Instalar ResolveAí
             </h4>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              Acesse mais rápido direto da tela inicial
-            </p>
-            <div className="mt-3 flex gap-2">
-              <Button
-                size="sm"
-                className="h-8 rounded-lg gradient-bg text-xs font-semibold"
-                onClick={handleInstall}
-              >
-                Instalar
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 rounded-lg text-xs text-muted-foreground"
-                onClick={handleDismiss}
-              >
-                Agora não
-              </Button>
-            </div>
+            {showIosBanner ? (
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Toque em{" "}
+                <Share className="inline h-3.5 w-3.5 -mt-0.5 text-primary" />{" "}
+                e depois <strong>&quot;Adicionar à Tela Inicial&quot;</strong>
+              </p>
+            ) : (
+              <>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Acesse mais rápido direto da tela inicial
+                </p>
+                <div className="mt-3 flex gap-2">
+                  <Button
+                    size="sm"
+                    className="h-8 rounded-lg gradient-bg text-xs font-semibold"
+                    onClick={handleInstall}
+                  >
+                    Instalar
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 rounded-lg text-xs text-muted-foreground"
+                    onClick={handleDismiss}
+                  >
+                    Agora não
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
           <button
             onClick={handleDismiss}
