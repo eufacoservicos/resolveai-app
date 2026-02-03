@@ -8,16 +8,18 @@ export function HomeHero() {
     <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">
-          Olá! O que você
-          <br />
-          precisa resolver?
+          Encontre o profissional{" "}
+          <span className="text-primary">ideal</span>
         </h1>
+        <p className="text-sm text-muted-foreground">
+          Conecte-se com os melhores prestadores da sua região
+        </p>
       </div>
 
       <Link href="/search" className="block">
         <div className="flex items-center gap-3 rounded-xl border border-border bg-white px-4 py-3 text-muted-foreground shadow-sm transition-shadow hover:shadow-md">
           <Search className="h-5 w-5" />
-          <span className="text-sm">Buscar profissionais...</span>
+          <span className="text-sm">O que você precisa?</span>
         </div>
       </Link>
     </div>
