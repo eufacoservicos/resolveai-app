@@ -35,7 +35,7 @@ export function CategoryFilter({ categories, activeSlug, limit }: CategoryFilter
         <h2 className="text-lg font-semibold">Categorias</h2>
         {hasMore && (
           <Link
-            href="/categorias"
+            href="/categories"
             className="flex items-center gap-1 text-sm font-medium text-primary"
           >
             Ver todas
