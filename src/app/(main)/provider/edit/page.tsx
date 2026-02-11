@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser, getProviderByUserId, getCategories } from "@/lib/supabase/queries";
 import { ProviderProfileForm } from "@/components/providers/provider-profile-form";
+import { BusinessHoursEditor } from "@/components/providers/business-hours-editor";
 
 export default async function EditProviderPage() {
   const supabase = await createClient();
@@ -27,6 +28,10 @@ export default async function EditProviderPage() {
         profile={providerProfile}
         categories={categories}
         userId={user.id}
+      />
+      <BusinessHoursEditor
+        providerId={providerProfile.id}
+        initialHours={providerProfile.business_hours ?? []}
       />
     </div>
   );

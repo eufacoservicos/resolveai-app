@@ -29,7 +29,14 @@ export async function getCategories(supabase: SupabaseClient) {
     .select("*")
     .order("name");
 
-  return data ?? [];
+  // Return only leaf categories (subcategories), not parent groups
+  // If parent_id system is not yet set up, return all categories
+  const allData = data ?? [];
+  const parentIds = new Set(allData.filter((c) => c.parent_id).map((c) => c.parent_id));
+  if (parentIds.size > 0) {
+    return allData.filter((c) => c.parent_id !== null);
+  }
+  return allData;
 }
 
 // ============================================
@@ -56,7 +63,8 @@ export async function getActiveProviders(
       categories:provider_categories(
         category:categories(*)
       ),
-      ratings:provider_ratings(average_rating, review_count)
+      ratings:provider_ratings(average_rating, review_count),
+      business_hours(*)
     `
     )
     .eq("is_active", true);
@@ -79,6 +87,14 @@ export async function getActiveProviders(
         ?.average_rating ?? null,
       review_count: (p.ratings as { average_rating: number; review_count: number }[])?.[0]
         ?.review_count ?? 0,
+      business_hours: (p.business_hours ?? []) as {
+        id: string;
+        provider_id: string;
+        day_of_week: number;
+        open_time: string | null;
+        close_time: string | null;
+        is_closed: boolean;
+      }[],
     }));
 
   // Filter by category
@@ -137,7 +153,8 @@ export async function getProviderById(
         category:categories(*)
       ),
       portfolio:portfolio_images(*),
-      ratings:provider_ratings(average_rating, review_count)
+      ratings:provider_ratings(average_rating, review_count),
+      business_hours(*)
     `
     )
     .eq("id", providerId)
@@ -162,6 +179,14 @@ export async function getProviderById(
       ?.average_rating ?? null,
     review_count: (data.ratings as { average_rating: number; review_count: number }[])?.[0]
       ?.review_count ?? 0,
+    business_hours: (data.business_hours ?? []) as {
+      id: string;
+      provider_id: string;
+      day_of_week: number;
+      open_time: string | null;
+      close_time: string | null;
+      is_closed: boolean;
+    }[],
   };
 }
 
@@ -178,7 +203,8 @@ export async function getProviderByUserId(
         category:categories(*)
       ),
       portfolio:portfolio_images(*),
-      ratings:provider_ratings(average_rating, review_count)
+      ratings:provider_ratings(average_rating, review_count),
+      business_hours(*)
     `
     )
     .eq("user_id", userId)
@@ -202,6 +228,14 @@ export async function getProviderByUserId(
       ?.average_rating ?? null,
     review_count: (data.ratings as { average_rating: number; review_count: number }[])?.[0]
       ?.review_count ?? 0,
+    business_hours: (data.business_hours ?? []) as {
+      id: string;
+      provider_id: string;
+      day_of_week: number;
+      open_time: string | null;
+      close_time: string | null;
+      is_closed: boolean;
+    }[],
   };
 }
 
