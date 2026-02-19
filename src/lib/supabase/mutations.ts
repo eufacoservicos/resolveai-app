@@ -43,6 +43,10 @@ export async function signInWithGoogle(supabase: SupabaseClient) {
     provider: "google",
     options: {
       redirectTo: `${window.location.origin}/callback`,
+      queryParams: {
+        access_type: "offline",
+        prompt: "consent",
+      },
     },
   });
   return { data, error };

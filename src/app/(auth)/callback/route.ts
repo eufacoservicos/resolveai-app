@@ -20,7 +20,31 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error: exchangeError } =
       await supabase.auth.exchangeCodeForSession(code);
+
     if (!exchangeError) {
+      // Check if user was just created (Google OAuth first login)
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const { data: existingUser } = await supabase
+          .from("users")
+          .select("id, role")
+          .eq("id", user.id)
+          .single();
+
+        // If user exists and was created via Google (no role metadata set),
+        // check if created_at is very recent (within last 30 seconds) = new user
+        const isNewUser =
+          existingUser &&
+          new Date().getTime() - new Date(user.created_at).getTime() < 30000;
+
+        if (isNewUser) {
+          return NextResponse.redirect(`${origin}/complete-profile`);
+        }
+      }
+
       return NextResponse.redirect(`${origin}${next}`);
     }
   }

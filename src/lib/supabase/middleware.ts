@@ -62,6 +62,11 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Allow authenticated users to access /complete-profile without redirect
+  if (pathname.startsWith("/complete-profile")) {
+    return supabaseResponse;
+  }
+
   // If user is authenticated and trying to access auth routes, redirect to home
   if (user && isPublicRoute && pathname !== "/callback" && !pathname.startsWith("/auth") && pathname !== "/reset-password") {
     const url = request.nextUrl.clone();
