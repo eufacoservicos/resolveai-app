@@ -40,7 +40,7 @@ export function ProviderCard({ provider, featured, userId, isFavorited }: Provid
       <div className="relative h-full overflow-hidden rounded-xl border border-border bg-white shadow-sm transition-shadow hover:shadow-md">
         <div className="flex gap-3 p-3">
           {/* Square avatar */}
-          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
+          <div className="relative h-16 w-16 sm:h-20 sm:w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
             <Avatar className="h-full w-full rounded-lg">
               <AvatarImage
                 src={provider.user.avatar_url ?? undefined}
@@ -61,8 +61,8 @@ export function ProviderCard({ provider, featured, userId, isFavorited }: Provid
 
           {/* Info */}
           <div className="flex flex-1 flex-col justify-center min-w-0">
-            <div className="flex items-start gap-1">
-              <h3 className="font-semibold text-foreground leading-tight truncate">
+            <div className="flex items-start gap-1 min-w-0">
+              <h3 className="min-w-0 font-semibold text-foreground leading-tight truncate">
                 {provider.user.full_name}
               </h3>
               {provider.is_verified && <VerifiedBadge size="sm" className="shrink-0 mt-0.5" />}

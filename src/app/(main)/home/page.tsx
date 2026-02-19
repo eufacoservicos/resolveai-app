@@ -71,7 +71,7 @@ export default async function HomePage({
           </div>
           <div className="flex gap-3 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-none sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:overflow-visible">
             {featured.slice(0, 6).map((provider) => (
-              <div key={provider.id} className="min-w-[280px] sm:min-w-0">
+              <div key={provider.id} className="min-w-65 sm:min-w-0">
                 <ProviderCard
                   provider={provider}
                   featured
