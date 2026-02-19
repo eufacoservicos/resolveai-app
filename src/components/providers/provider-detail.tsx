@@ -409,7 +409,7 @@ export function ProviderDetail({
         <div className="fixed bottom-20 left-0 right-0 z-40 px-4 md:bottom-6">
           <div className="mx-auto max-w-5xl">
             <a
-              href={getWhatsAppUrl(provider.whatsapp)}
+              href={getWhatsAppUrl(provider.whatsapp, provider.user.full_name)}
               target="_blank"
               rel="noopener noreferrer"
               className="block"

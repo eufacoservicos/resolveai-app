@@ -1,11 +1,13 @@
-export const WHATSAPP_DEFAULT_MESSAGE =
-  "Olá! Encontrei seu perfil no eufaço! e gostaria de um orçamento.";
-
-export function getWhatsAppUrl(phone: string, message?: string) {
+export function getWhatsAppUrl(
+  phone: string,
+  providerName?: string,
+  message?: string,
+) {
   const cleanPhone = phone.replace(/\D/g, "");
-  const encodedMessage = encodeURIComponent(
-    message ?? WHATSAPP_DEFAULT_MESSAGE
-  );
+  const defaultMessage = providerName
+    ? `Olá, ${providerName}! Encontrei o seu perfil na plataforma *eufaço!* e tenho interesse em solicitar um orçamento. Podemos conversar sobre o serviço?`
+    : "Olá! Encontrei o seu perfil na plataforma *eufaço!* e tenho interesse em solicitar um orçamento. Podemos conversar sobre o serviço?";
+  const encodedMessage = encodeURIComponent(message ?? defaultMessage);
   return `https://wa.me/55${cleanPhone}?text=${encodedMessage}`;
 }
 
