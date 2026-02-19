@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getActiveProviders, getCategories, getCurrentUser, getUserFavorites } from "@/lib/supabase/queries";
+import { getActiveProviders, getCurrentUser, getUserFavorites } from "@/lib/supabase/queries";
 
 export const metadata: Metadata = {
   title: "eufaço! - Encontre Serviços Locais",
@@ -16,6 +16,8 @@ export const metadata: Metadata = {
 };
 import { ProviderCard } from "@/components/providers/provider-card";
 import { CategoryFilter } from "@/components/providers/category-filter";
+import { CategoryPendingProvider } from "@/components/providers/category-pending";
+import { ProviderListLoading } from "@/components/providers/provider-list-loading";
 import { HomeHero } from "@/components/layout/home-hero";
 import { ProviderGrid } from "@/components/providers/provider-grid";
 import { ArrowRight, Wrench } from "lucide-react";
@@ -27,12 +29,11 @@ export default async function HomePage({
 }) {
   const params = await searchParams;
   const supabase = await createClient();
-  const [providersResult, categories, currentUser] = await Promise.all([
+  const [providersResult, currentUser] = await Promise.all([
     getActiveProviders(supabase, {
       categorySlug: params.categoria,
       orderBy: params.ordenar === "avaliacao" ? "rating" : "recent",
     }),
-    getCategories(supabase),
     getCurrentUser(supabase),
   ]);
   const providers = providersResult.providers;
@@ -50,80 +51,83 @@ export default async function HomePage({
     <div className="space-y-6">
       <HomeHero />
 
-      <CategoryFilter
-        categories={categories}
-        activeSlug={params.categoria}
-        limit={6}
-      />
+      <CategoryPendingProvider>
+        <CategoryFilter
+          activeSlug={params.categoria}
+          limit={6}
+        />
 
-      {/* Featured section */}
-      {featured.length > 0 && !params.categoria && (
-        <div>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Em destaque</h2>
-            <Link
-              href="/search?ordenar=avaliacao"
-              className="flex items-center gap-1 text-sm font-medium text-primary"
-            >
-              Ver todos
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-none sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:overflow-visible">
-            {featured.slice(0, 6).map((provider) => (
-              <div key={provider.id} className="min-w-65 sm:min-w-0">
-                <ProviderCard
-                  provider={provider}
-                  featured
-                  userId={currentUser?.id ?? null}
-                  isFavorited={favoriteIds.includes(provider.id)}
-                />
+        <ProviderListLoading>
+          {/* Featured section */}
+          {featured.length > 0 && !params.categoria && (
+            <div>
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Em destaque</h2>
+                <Link
+                  href="/search?ordenar=avaliacao"
+                  className="flex items-center gap-1 text-sm font-medium text-primary"
+                >
+                  Ver todos
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* All providers */}
-      <div>
-        <h2 className="mb-3 text-lg font-semibold">Profissionais</h2>
-        {providers.length === 0 ? (
-          <div className="flex flex-col items-center py-12 text-center">
-            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
-              <svg
-                className="h-7 w-7 text-muted-foreground"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+              <div className="flex gap-3 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-none sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:overflow-visible">
+                {featured.slice(0, 6).map((provider) => (
+                  <div key={provider.id} className="min-w-65 sm:min-w-0">
+                    <ProviderCard
+                      provider={provider}
+                      featured
+                      userId={currentUser?.id ?? null}
+                      isFavorited={favoriteIds.includes(provider.id)}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
-            <p className="font-medium text-foreground">
-              Nenhum prestador encontrado
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Tente buscar por outra categoria
-            </p>
+          )}
+
+          {/* All providers */}
+          <div>
+            <h2 className="mb-3 text-lg font-semibold">Profissionais</h2>
+            {providers.length === 0 ? (
+              <div className="flex flex-col items-center py-12 text-center">
+                <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
+                  <svg
+                    className="h-7 w-7 text-muted-foreground"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
+                <p className="font-medium text-foreground">
+                  Nenhum prestador encontrado
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Tente buscar por outra categoria
+                </p>
+              </div>
+            ) : (
+              <ProviderGrid>
+                {providers.map((provider) => (
+                  <ProviderCard
+                    key={provider.id}
+                    provider={provider}
+                    userId={currentUser?.id ?? null}
+                    isFavorited={favoriteIds.includes(provider.id)}
+                  />
+                ))}
+              </ProviderGrid>
+            )}
           </div>
-        ) : (
-          <ProviderGrid>
-            {providers.map((provider) => (
-              <ProviderCard
-                key={provider.id}
-                provider={provider}
-                userId={currentUser?.id ?? null}
-                isFavorited={favoriteIds.includes(provider.id)}
-              />
-            ))}
-          </ProviderGrid>
-        )}
-      </div>
+        </ProviderListLoading>
+      </CategoryPendingProvider>
 
       {/* CTA Banner - only for CLIENT users or unauthenticated */}
       {(!currentUser || currentUser.role === "CLIENT") && (

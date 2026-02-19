@@ -1,4 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
+import { CATEGORY_GROUPS } from "@/lib/constants";
 
 // ============================================
 // USER QUERIES
@@ -127,11 +128,19 @@ export async function getActiveProviders(
     providers = providers.filter((p) => nearbyMap!.has(p.id));
   }
 
-  // Filter by category
+  // Filter by category (supports both individual slugs and group slugs)
   if (filters?.categorySlug) {
-    providers = providers.filter((p) =>
-      p.categories.some((c: { slug: string }) => c.slug === filters.categorySlug)
-    );
+    const group = CATEGORY_GROUPS.find((g) => g.slug === filters.categorySlug);
+    if (group) {
+      const groupSlugs = group.subcategories as readonly string[];
+      providers = providers.filter((p) =>
+        p.categories.some((c: { slug: string }) => groupSlugs.includes(c.slug))
+      );
+    } else {
+      providers = providers.filter((p) =>
+        p.categories.some((c: { slug: string }) => c.slug === filters.categorySlug)
+      );
+    }
   }
 
   // Filter by text search (name or description)
@@ -157,10 +166,22 @@ export async function getActiveProviders(
       (a, b) => (b.average_rating ?? 0) - (a.average_rating ?? 0)
     );
   } else {
-    providers.sort(
-      (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
+    // Default: priority sort (verified + rated first)
+    providers.sort((a, b) => {
+      const aVerified = a.is_verified ? 1 : 0;
+      const bVerified = b.is_verified ? 1 : 0;
+      if (aVerified !== bVerified) return bVerified - aVerified;
+
+      const aHasRating = a.average_rating !== null ? 1 : 0;
+      const bHasRating = b.average_rating !== null ? 1 : 0;
+      if (aHasRating !== bHasRating) return bHasRating - aHasRating;
+
+      if (a.average_rating !== null && b.average_rating !== null) {
+        return b.average_rating - a.average_rating;
+      }
+
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
   }
 
   // Pagination
