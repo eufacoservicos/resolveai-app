@@ -30,6 +30,7 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   const initials = user.full_name
     .split(" ")
@@ -65,17 +66,22 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
 
     // Upload avatar if changed
     if (avatarFile) {
+      setAvatarUploading(true);
       const { error: avatarError, url } = await uploadAvatar(
         supabase,
         user.id,
         avatarFile
       );
+      setAvatarUploading(false);
       if (avatarError) {
         toast.error("Erro ao enviar foto.");
         setLoading(false);
         return;
       }
-      if (url) setAvatarUrl(url);
+      if (url) {
+        setAvatarUrl(url);
+        toast.success("Foto atualizada!");
+      }
     }
 
     const { error } = await updateUser(supabase, user.id, {
@@ -117,9 +123,15 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
                 {initials}
               </div>
             )}
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Camera className="h-6 w-6 text-white" />
-            </div>
+            {avatarUploading ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                <Loader2 className="h-6 w-6 animate-spin text-white" />
+              </div>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Camera className="h-6 w-6 text-white" />
+              </div>
+            )}
           </button>
           <input
             ref={fileInputRef}

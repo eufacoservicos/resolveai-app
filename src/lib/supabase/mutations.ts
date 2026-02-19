@@ -124,6 +124,7 @@ export async function createProviderProfile(
   }
 ) {
   // Update user role to PROVIDER
+  // Note: this triggers `on_user_role_change` which creates a minimal provider_profiles row.
   const { error: roleError } = await supabase
     .from("users")
     .update({ role: "PROVIDER" as UserRole, updated_at: new Date().toISOString() })
@@ -131,25 +132,35 @@ export async function createProviderProfile(
 
   if (roleError) return { error: roleError, profileId: null };
 
-  // Create provider profile
+  // Upsert provider profile to handle the trigger-created row
   const { data: profile, error } = await supabase
     .from("provider_profiles")
-    .insert({
-      user_id: userId,
-      description: data.description,
-      city: data.city,
-      neighborhood: data.neighborhood ?? "",
-      cep: data.cep ?? null,
-      state: data.state ?? null,
-      latitude: data.latitude ?? null,
-      longitude: data.longitude ?? null,
-      whatsapp: data.whatsapp,
-      is_active: true,
-    })
+    .upsert(
+      {
+        user_id: userId,
+        description: data.description,
+        city: data.city,
+        neighborhood: data.neighborhood ?? "",
+        cep: data.cep ?? null,
+        state: data.state ?? null,
+        latitude: data.latitude ?? null,
+        longitude: data.longitude ?? null,
+        whatsapp: data.whatsapp,
+        is_active: true,
+      },
+      { onConflict: "user_id" }
+    )
     .select("id")
     .single();
 
-  if (error || !profile) return { error, profileId: null };
+  if (error || !profile) {
+    // Rollback role change if profile creation fails
+    await supabase
+      .from("users")
+      .update({ role: "CLIENT" as UserRole, updated_at: new Date().toISOString() })
+      .eq("id", userId);
+    return { error, profileId: null };
+  }
 
   // Create default business hours (Mon-Fri 08:00-18:00, Sat-Sun closed)
   const defaultHours = getDefaultBusinessHours().map((h) => ({
@@ -160,7 +171,9 @@ export async function createProviderProfile(
     is_closed: h.is_closed,
   }));
 
-  await supabase.from("business_hours").insert(defaultHours);
+  await supabase
+    .from("business_hours")
+    .upsert(defaultHours, { onConflict: "provider_id,day_of_week" });
 
   return { error: null, profileId: profile.id };
 }

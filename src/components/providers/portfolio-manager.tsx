@@ -37,6 +37,7 @@ export function PortfolioManager({
   const [images, setImages] = useState(initialImages);
   const [pending, setPending] = useState<PendingUpload[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
 
   const totalSlots = MAX_PORTFOLIO_IMAGES;
   const usedSlots = images.length + pending.filter((p) => p.status !== "error").length;
@@ -88,8 +89,13 @@ export function PortfolioManager({
     if (toUpload.length === 0) return;
 
     setIsUploading(true);
+    let successCount = 0;
+    let errorCount = 0;
 
-    for (const item of toUpload) {
+    for (let i = 0; i < toUpload.length; i++) {
+      const item = toUpload[i];
+      setUploadProgress({ current: i + 1, total: toUpload.length });
+
       setPending((prev) =>
         prev.map((p) => (p.id === item.id ? { ...p, status: "uploading" } : p))
       );
@@ -102,6 +108,7 @@ export function PortfolioManager({
       );
 
       if (error) {
+        errorCount++;
         setPending((prev) =>
           prev.map((p) => (p.id === item.id ? { ...p, status: "error" } : p))
         );
@@ -109,6 +116,7 @@ export function PortfolioManager({
           "message" in error ? error.message : `Erro ao enviar "${item.file.name}".`
         );
       } else {
+        successCount++;
         setPending((prev) => {
           const p = prev.find((p) => p.id === item.id);
           if (p) URL.revokeObjectURL(p.preview);
@@ -117,6 +125,13 @@ export function PortfolioManager({
       }
     }
 
+    if (successCount > 0) {
+      toast.success(
+        `${successCount} ${successCount === 1 ? "imagem enviada" : "imagens enviadas"} com sucesso!`
+      );
+    }
+
+    setUploadProgress(null);
     setIsUploading(false);
     router.refresh();
   }
@@ -225,7 +240,9 @@ export function PortfolioManager({
               {isUploading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Enviando...
+                  {uploadProgress
+                    ? `Enviando ${uploadProgress.current} de ${uploadProgress.total}...`
+                    : "Enviando..."}
                 </>
               ) : (
                 <>
