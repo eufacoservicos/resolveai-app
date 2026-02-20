@@ -21,6 +21,7 @@ export const CATEGORY_GROUPS = [
     subcategories: [
       "pedreiro", "pintor", "gesseiro", "azulejista", "vidraceiro",
       "serralheiro", "marceneiro", "carpinteiro", "impermeabilizador", "mestre-de-obras",
+      "arquiteto", "engenheiro-civil", "designer-de-interiores", "paisagista",
     ],
   },
   {
@@ -115,6 +116,10 @@ export const SERVICE_CATEGORIES = [
   { name: "Carpinteiro", slug: "carpinteiro" },
   { name: "Impermeabilizador", slug: "impermeabilizador" },
   { name: "Mestre de Obras", slug: "mestre-de-obras" },
+  { name: "Arquiteto", slug: "arquiteto" },
+  { name: "Engenheiro Civil", slug: "engenheiro-civil" },
+  { name: "Designer de Interiores", slug: "designer-de-interiores" },
+  { name: "Paisagista", slug: "paisagista" },
 
   // Instalações
   { name: "Eletricista", slug: "eletricista" },

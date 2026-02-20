@@ -66,6 +66,8 @@ import {
   WashingMachine,
   Flame,
   CircleHelp,
+  Compass,
+  Lamp,
 } from "lucide-react";
 import type React from "react";
 
@@ -84,6 +86,10 @@ export const categoryIconMap: Record<string, React.ElementType> = {
   carpinteiro: Axe,
   impermeabilizador: Umbrella,
   "mestre-de-obras": Building2,
+  arquiteto: Compass,
+  "engenheiro-civil": HardHat,
+  "designer-de-interiores": Lamp,
+  paisagista: TreePine,
 
   // Instalações
   "instalador-ar-condicionado": Wind,
