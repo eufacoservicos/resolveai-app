@@ -3,19 +3,31 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Home, Search, Heart, User } from "lucide-react"
+import { Home, Search, Heart, User, LayoutGrid, LogIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-const navItems = [
+interface HeaderProps {
+	isAuthenticated?: boolean;
+}
+
+const authNavItems = [
 	{ href: "/home", label: "Início", icon: Home },
 	{ href: "/search", label: "Buscar", icon: Search },
 	{ href: "/favorites", label: "Favoritos", icon: Heart },
 	{ href: "/profile", label: "Perfil", icon: User }
 ]
 
-export function Header() {
+const publicNavItems = [
+	{ href: "/home", label: "Início", icon: Home },
+	{ href: "/search", label: "Buscar", icon: Search },
+	{ href: "/categories", label: "Categorias", icon: LayoutGrid },
+	{ href: "/login", label: "Entrar", icon: LogIn }
+]
+
+export function Header({ isAuthenticated = false }: HeaderProps) {
 	const pathname = usePathname()
+	const navItems = isAuthenticated ? authNavItems : publicNavItems
 
 	return (
 		<header className='sticky top-0 z-40 border-b border-border/60 bg-white'>

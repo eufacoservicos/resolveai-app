@@ -45,6 +45,17 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith(route)
   );
 
+  // Browsable routes - accessible without authentication
+  const browsableRoutes = ["/home", "/search", "/categories"];
+  const protectedSubRoutes = ["/provider/edit", "/provider/portfolio", "/provider/verification"];
+  const isProtectedSubRoute =
+    protectedSubRoutes.some((route) => pathname.startsWith(route)) ||
+    pathname.endsWith("/review");
+  const isBrowsableRoute =
+    !isProtectedSubRoute &&
+    (browsableRoutes.some((route) => pathname.startsWith(route)) ||
+      pathname.startsWith("/provider/"));
+
   // Shared routes (termos, privacidade) are accessible by anyone
   if (isSharedRoute) {
     return supabaseResponse;
@@ -56,7 +67,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // If user is not authenticated and trying to access a protected route
-  if (!user && !isPublicRoute) {
+  if (!user && !isPublicRoute && !isBrowsableRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

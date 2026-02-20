@@ -190,6 +190,7 @@ export const categoryIconMap: Record<string, React.ElementType> = {
   "transporte-mudancas": Truck,
   "servicos-profissionais": FileText,
   "pets": PawPrint,
+  "outros-servicos": CircleHelp,
 };
 
 export function getCategoryIcon(slug: string): React.ElementType {

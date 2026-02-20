@@ -31,7 +31,15 @@ export function FavoriteButton({
     e.stopPropagation();
 
     if (!userId) {
-      toast.error("Faça login para salvar favoritos.");
+      toast(
+        <div className="text-sm">
+          <p>Para favoritar, você precisa ter uma conta.</p>
+          <div className="mt-2 flex gap-3">
+            <a href="/register" className="font-semibold text-primary hover:underline">Criar uma conta</a>
+            <a href="/login" className="font-semibold text-primary hover:underline">Entrar</a>
+          </div>
+        </div>
+      );
       return;
     }
 

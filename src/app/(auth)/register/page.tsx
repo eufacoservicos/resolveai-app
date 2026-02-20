@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { signUpWithEmail, signInWithGoogle } from "@/lib/supabase/mutations";
+import { signUpWithEmail, signInWithGoogle, createCustomCategory } from "@/lib/supabase/mutations";
 import { UserRole } from "@/types/database";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,6 @@ import { Loader2, Search as SearchIcon, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CategoryMultiSelect } from "@/components/ui/category-multi-select";
 import { fetchCepData, geocodeAddress, formatCep } from "@/lib/cep";
-import { getDefaultBusinessHours } from "@/lib/business-hours";
 
 function formatWhatsApp(value: string): string {
   const digits = value.replace(/\D/g, "");
@@ -72,6 +71,18 @@ export default function RegisterPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role]);
+
+  async function handleAddCustomCategory(name: string) {
+    const { data, error } = await createCustomCategory(supabase, name);
+    if (error || !data) {
+      toast.error("Erro ao adicionar categoria.");
+      return null;
+    }
+    setCategories((prev) =>
+      [...prev, data].sort((a, b) => a.name.localeCompare(b.name))
+    );
+    return data;
+  }
 
   function handleWhatsAppChange(e: React.ChangeEvent<HTMLInputElement>) {
     const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
@@ -147,7 +158,20 @@ export default function RegisterPage() {
       email.trim(),
       password,
       fullName.trim(),
-      role
+      role,
+      role === "PROVIDER"
+        ? {
+            description,
+            whatsapp: whatsapp.replace(/\D/g, ""),
+            cep: cep.replace(/\D/g, ""),
+            city: addressInfo!.city,
+            state: addressInfo!.state,
+            neighborhood: addressInfo!.neighborhood,
+            latitude: addressInfo!.latitude,
+            longitude: addressInfo!.longitude,
+            categoryIds: selectedCategories,
+          }
+        : undefined
     );
 
     if (error) {
@@ -161,54 +185,6 @@ export default function RegisterPage() {
       toast.error("Este email já está cadastrado. Tente fazer login.");
       setLoading(false);
       return;
-    }
-
-    // Save provider extra data
-    if (role === "PROVIDER" && data.user) {
-      const rawWa = whatsapp.replace(/\D/g, "");
-      await new Promise((r) => setTimeout(r, 1000));
-
-      const { data: profile } = await supabase
-        .from("provider_profiles")
-        .select("id")
-        .eq("user_id", data.user.id)
-        .single();
-
-      if (profile) {
-        await supabase
-          .from("provider_profiles")
-          .update({
-            description,
-            city: addressInfo!.city,
-            neighborhood: addressInfo!.neighborhood,
-            cep: cep.replace(/\D/g, ""),
-            state: addressInfo!.state,
-            latitude: addressInfo!.latitude,
-            longitude: addressInfo!.longitude,
-            whatsapp: rawWa,
-            is_active: true,
-          })
-          .eq("id", profile.id);
-
-        if (selectedCategories.length > 0) {
-          await supabase.from("provider_categories").insert(
-            selectedCategories.map((catId) => ({
-              provider_id: profile.id,
-              category_id: catId,
-            }))
-          );
-        }
-
-        // Auto-create default business hours
-        const defaultHours = getDefaultBusinessHours().map((h) => ({
-          provider_id: profile.id,
-          day_of_week: h.day_of_week,
-          open_time: h.is_closed ? null : h.open_time,
-          close_time: h.is_closed ? null : h.close_time,
-          is_closed: h.is_closed,
-        }));
-        await supabase.from("business_hours").insert(defaultHours);
-      }
     }
 
     toast.success("Conta criada! Verifique seu email para confirmar.");
@@ -363,6 +339,7 @@ export default function RegisterPage() {
                     categories={categories}
                     selected={selectedCategories}
                     onChange={setSelectedCategories}
+                    onAddCustom={handleAddCustomCategory}
                   />
                 )}
               </div>

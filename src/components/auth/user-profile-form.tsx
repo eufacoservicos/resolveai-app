@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Save, ArrowLeft, Loader2, Camera } from "lucide-react";
+import { AvatarCropModal } from "@/components/ui/avatar-crop-modal";
 
 interface UserProfileFormProps {
   user: {
@@ -31,6 +32,8 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
 
   const initials = user.full_name
     .split(" ")
@@ -43,15 +46,33 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("A imagem deve ter no máximo 2MB.");
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("A imagem deve ter no máximo 5MB.");
       return;
     }
 
-    setAvatarFile(file);
     const reader = new FileReader();
-    reader.onload = () => setAvatarPreview(reader.result as string);
+    reader.onload = () => {
+      setCropImageSrc(reader.result as string);
+      setCropModalOpen(true);
+    };
     reader.readAsDataURL(file);
+
+    // Reset input so the same file can be selected again
+    e.target.value = "";
+  }
+
+  function handleCropConfirm(blob: Blob) {
+    const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(blob));
+    setCropModalOpen(false);
+    setCropImageSrc(null);
+  }
+
+  function handleCropCancel() {
+    setCropModalOpen(false);
+    setCropImageSrc(null);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -203,6 +224,15 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
           </Button>
         </div>
       </form>
+
+      {cropImageSrc && (
+        <AvatarCropModal
+          open={cropModalOpen}
+          imageSrc={cropImageSrc}
+          onConfirm={handleCropConfirm}
+          onCancel={handleCropCancel}
+        />
+      )}
     </div>
   );
 }

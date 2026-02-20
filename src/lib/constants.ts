@@ -100,6 +100,13 @@ export const CATEGORY_GROUPS = [
       "pet-sitter", "dog-walker", "banho-tosa", "veterinario",
     ],
   },
+  {
+    name: "Outros",
+    slug: "outros-servicos",
+    subcategories: [
+      "costureira", "sapateiro", "lavanderia", "soldador", "outros",
+    ],
+  },
 ] as const;
 
 // All service categories available in the platform

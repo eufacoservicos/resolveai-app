@@ -24,6 +24,27 @@ export async function GET(request: NextRequest) {
       } else if (type === "recovery") {
         redirectTo.pathname = "/reset-password";
       } else {
+        // Check if PROVIDER user needs to complete profile
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        const providerData = user?.user_metadata?.provider_data;
+        const userRole = user?.user_metadata?.role;
+
+        if (userRole === "PROVIDER" && providerData) {
+          // Check if profile is already complete
+          const { data: profile } = await supabase
+            .from("provider_profiles")
+            .select("id, whatsapp")
+            .eq("user_id", user!.id)
+            .single();
+
+          if (!profile || !profile.whatsapp) {
+            redirectTo.pathname = "/complete-profile";
+            return NextResponse.redirect(redirectTo);
+          }
+        }
+
         redirectTo.pathname = "/home";
       }
       return NextResponse.redirect(redirectTo);

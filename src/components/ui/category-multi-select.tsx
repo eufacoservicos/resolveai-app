@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Search, Check, X, ChevronDown } from "lucide-react";
+import { Search, Check, X, ChevronDown, Plus, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Category {
@@ -14,6 +14,7 @@ interface CategoryMultiSelectProps {
   categories: Category[];
   selected: string[];
   onChange: (selected: string[]) => void;
+  onAddCustom?: (name: string) => Promise<Category | null>;
   placeholder?: string;
 }
 
@@ -21,10 +22,12 @@ export function CategoryMultiSelect({
   categories,
   selected,
   onChange,
+  onAddCustom,
   placeholder = "Buscar categorias...",
 }: CategoryMultiSelectProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [addingCustom, setAddingCustom] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const filtered = search
@@ -45,6 +48,17 @@ export function CategoryMultiSelect({
 
   function remove(id: string) {
     onChange(selected.filter((s) => s !== id));
+  }
+
+  async function handleAddCustom() {
+    if (!onAddCustom || !search.trim() || search.trim().length < 2) return;
+    setAddingCustom(true);
+    const newCat = await onAddCustom(search.trim());
+    if (newCat) {
+      toggle(newCat.id);
+      setSearch("");
+    }
+    setAddingCustom(false);
   }
 
   // Close on click outside
@@ -125,9 +139,25 @@ export function CategoryMultiSelect({
           {/* Options list */}
           <div className="max-h-48 overflow-y-auto p-1">
             {filtered.length === 0 ? (
-              <p className="px-3 py-4 text-center text-sm text-muted-foreground">
-                Nenhuma categoria encontrada
-              </p>
+              onAddCustom && search.trim().length >= 2 ? (
+                <button
+                  type="button"
+                  onClick={handleAddCustom}
+                  disabled={addingCustom}
+                  className="flex w-full items-center gap-2 rounded-md px-3 py-2.5 text-sm text-primary hover:bg-primary/5 transition-colors"
+                >
+                  {addingCustom ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Plus className="h-4 w-4" />
+                  )}
+                  Adicionar &quot;{search.trim()}&quot;
+                </button>
+              ) : (
+                <p className="px-3 py-4 text-center text-sm text-muted-foreground">
+                  Nenhuma categoria encontrada
+                </p>
+              )
             ) : (
               filtered.map((cat) => {
                 const isSelected = selected.includes(cat.id);

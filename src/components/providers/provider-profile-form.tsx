@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import {
   updateProviderProfile,
   setProviderCategories,
+  createCustomCategory,
 } from "@/lib/supabase/mutations";
 import { fetchCepData, geocodeAddress, formatCep } from "@/lib/cep";
 import { Button } from "@/components/ui/button";
@@ -48,11 +49,12 @@ function unformatWhatsApp(value: string): string {
 
 export function ProviderProfileForm({
   profile,
-  categories,
+  categories: initialCategories,
 }: ProviderProfileFormProps) {
   const router = useRouter();
   const supabase = createClient();
 
+  const [allCategories, setAllCategories] = useState(initialCategories);
   const [description, setDescription] = useState(profile.description);
   const [cep, setCep] = useState(profile.cep ? formatCep(profile.cep) : "");
   const [cepLoading, setCepLoading] = useState(false);
@@ -79,6 +81,18 @@ export function ProviderProfileForm({
     profile.categories.map((c) => c.id)
   );
   const [loading, setLoading] = useState(false);
+
+  async function handleAddCustomCategory(name: string) {
+    const { data, error } = await createCustomCategory(supabase, name);
+    if (error || !data) {
+      toast.error("Erro ao adicionar categoria.");
+      return null;
+    }
+    setAllCategories((prev) =>
+      [...prev, data].sort((a, b) => a.name.localeCompare(b.name))
+    );
+    return data;
+  }
 
   function handleWhatsAppChange(e: React.ChangeEvent<HTMLInputElement>) {
     const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
@@ -227,9 +241,10 @@ export function ProviderProfileForm({
             Categorias de serviço
           </Label>
           <CategoryMultiSelect
-            categories={categories}
+            categories={allCategories}
             selected={selectedCategories}
             onChange={setSelectedCategories}
+            onAddCustom={handleAddCustomCategory}
           />
         </div>
 

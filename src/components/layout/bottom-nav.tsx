@@ -2,18 +2,30 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Heart, User } from "lucide-react";
+import { Home, Search, Heart, User, LayoutGrid, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const navItems = [
+interface BottomNavProps {
+  isAuthenticated?: boolean;
+}
+
+const authNavItems = [
   { href: "/home", label: "Início", icon: Home },
   { href: "/search", label: "Buscar", icon: Search },
   { href: "/favorites", label: "Favoritos", icon: Heart },
   { href: "/profile", label: "Perfil", icon: User },
 ];
 
-export function BottomNav() {
+const publicNavItems = [
+  { href: "/home", label: "Início", icon: Home },
+  { href: "/search", label: "Buscar", icon: Search },
+  { href: "/categories", label: "Categorias", icon: LayoutGrid },
+  { href: "/login", label: "Entrar", icon: LogIn },
+];
+
+export function BottomNav({ isAuthenticated = false }: BottomNavProps) {
   const pathname = usePathname();
+  const navItems = isAuthenticated ? authNavItems : publicNavItems;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/60 bg-white md:hidden">

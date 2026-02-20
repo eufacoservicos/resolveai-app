@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -65,6 +65,25 @@ export function ProviderDetail({
     "portfolio"
   );
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const touchStartX = useRef<number>(0);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (lightboxIndex === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    const threshold = 50;
+    if (diff > threshold) {
+      setLightboxIndex((lightboxIndex + 1) % provider.portfolio.length);
+    } else if (diff < -threshold) {
+      setLightboxIndex(
+        (lightboxIndex - 1 + provider.portfolio.length) %
+          provider.portfolio.length
+      );
+    }
+  }
 
   const initials = provider.user.full_name
     .split(" ")
@@ -310,7 +329,7 @@ export function ProviderDetail({
                     </p>
                   </div>
                 </div>
-                {canReview && (
+                {canReview ? (
                   <Link href={`/provider/${provider.id}/review`}>
                     <Button
                       size="sm"
@@ -319,7 +338,25 @@ export function ProviderDetail({
                       Avaliar
                     </Button>
                   </Link>
-                )}
+                ) : !currentUser ? (
+                  <Button
+                    size="sm"
+                    className="rounded-lg font-medium gradient-bg"
+                    onClick={() =>
+                      toast(
+                        <div className="text-sm">
+                          <p>Para avaliar, você precisa ter uma conta.</p>
+                          <div className="mt-2 flex gap-3">
+                            <a href="/register" className="font-semibold text-primary hover:underline">Criar uma conta</a>
+                            <a href="/login" className="font-semibold text-primary hover:underline">Entrar</a>
+                          </div>
+                        </div>
+                      )
+                    }
+                  >
+                    Avaliar
+                  </Button>
+                ) : null}
               </div>
 
               {reviews.length === 0 ? (
@@ -350,17 +387,27 @@ export function ProviderDetail({
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
           onClick={() => setLightboxIndex(null)}
         >
-          <button
-            className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-            onClick={() => setLightboxIndex(null)}
+          {/* Image container */}
+          <div
+            className="relative h-[80vh] w-[90vw] max-w-3xl"
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
           >
-            <X className="h-5 w-5" />
-          </button>
+            <Image
+              src={provider.portfolio[lightboxIndex].image_url}
+              alt="Portfólio"
+              fill
+              className="object-contain"
+              sizes="90vw"
+            />
+          </div>
 
+          {/* Navigation arrows - rendered after image for z-index stacking */}
           {provider.portfolio.length > 1 && (
             <>
               <button
-                className="absolute left-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
                   setLightboxIndex(
@@ -372,7 +419,7 @@ export function ProviderDetail({
                 <ChevronLeft className="h-5 w-5" />
               </button>
               <button
-                className="absolute right-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
                   setLightboxIndex(
@@ -385,20 +432,15 @@ export function ProviderDetail({
             </>
           )}
 
-          <div
-            className="relative h-[80vh] w-[90vw] max-w-3xl"
-            onClick={(e) => e.stopPropagation()}
+          {/* Close button */}
+          <button
+            className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+            onClick={() => setLightboxIndex(null)}
           >
-            <Image
-              src={provider.portfolio[lightboxIndex].image_url}
-              alt="Portfólio"
-              fill
-              className="object-contain"
-              sizes="90vw"
-            />
-          </div>
+            <X className="h-5 w-5" />
+          </button>
 
-          <div className="absolute bottom-4 text-sm text-white/60">
+          <div className="absolute bottom-4 z-10 text-sm text-white/60">
             {lightboxIndex + 1} / {provider.portfolio.length}
           </div>
         </div>

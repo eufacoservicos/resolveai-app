@@ -11,7 +11,18 @@ export async function signUpWithEmail(
   email: string,
   password: string,
   fullName: string,
-  role: UserRole
+  role: UserRole,
+  providerData?: {
+    description: string;
+    whatsapp: string;
+    cep: string;
+    city: string;
+    state: string;
+    neighborhood: string;
+    latitude: number | null;
+    longitude: number | null;
+    categoryIds: string[];
+  }
 ) {
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -20,6 +31,7 @@ export async function signUpWithEmail(
       data: {
         full_name: fullName,
         role,
+        ...(providerData ? { provider_data: providerData } : {}),
       },
     },
   });
@@ -223,6 +235,52 @@ export async function setProviderCategories(
   }
 
   return { error: null };
+}
+
+// ============================================
+// CATEGORY MUTATIONS
+// ============================================
+
+export async function createCustomCategory(
+  supabase: SupabaseClient,
+  name: string
+) {
+  const slug = name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  // Find "Outros" parent category
+  const { data: outrosParent } = await supabase
+    .from("categories")
+    .select("id")
+    .eq("slug", "outros-servicos")
+    .single();
+
+  // Try to insert the new category
+  const { data, error } = await supabase
+    .from("categories")
+    .insert({
+      name,
+      slug,
+      parent_id: outrosParent?.id ?? null,
+    })
+    .select("id, name, slug")
+    .single();
+
+  // If slug conflict, return the existing category
+  if (error && error.code === "23505") {
+    const { data: existing } = await supabase
+      .from("categories")
+      .select("id, name, slug")
+      .eq("slug", slug)
+      .single();
+    return { data: existing, error: null };
+  }
+
+  return { data, error };
 }
 
 // ============================================

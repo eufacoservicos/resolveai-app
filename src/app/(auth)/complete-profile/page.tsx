@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { createProviderProfile, setProviderCategories } from "@/lib/supabase/mutations";
+import { createProviderProfile, setProviderCategories, createCustomCategory } from "@/lib/supabase/mutations";
 import { UserRole } from "@/types/database";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,6 +57,25 @@ export default function CompleteProfilePage() {
       }
       setUserId(user.id);
       setUserName(user.user_metadata?.full_name ?? user.user_metadata?.name ?? "");
+
+      // Pre-fill from metadata if available (email signup provider)
+      const providerData = user.user_metadata?.provider_data;
+      if (providerData) {
+        setRole("PROVIDER");
+        setDescription(providerData.description ?? "");
+        setWhatsapp(formatWhatsApp(providerData.whatsapp ?? ""));
+        setCep(formatCep(providerData.cep ?? ""));
+        setSelectedCategories(providerData.categoryIds ?? []);
+        if (providerData.city) {
+          setAddressInfo({
+            city: providerData.city,
+            state: providerData.state ?? "",
+            neighborhood: providerData.neighborhood ?? "",
+            latitude: providerData.latitude ?? null,
+            longitude: providerData.longitude ?? null,
+          });
+        }
+      }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -79,6 +98,18 @@ export default function CompleteProfilePage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role]);
+
+  async function handleAddCustomCategory(name: string) {
+    const { data, error } = await createCustomCategory(supabase, name);
+    if (error || !data) {
+      toast.error("Erro ao adicionar categoria.");
+      return null;
+    }
+    setCategories((prev) =>
+      [...prev, data].sort((a, b) => a.name.localeCompare(b.name))
+    );
+    return data;
+  }
 
   function handleWhatsAppChange(e: React.ChangeEvent<HTMLInputElement>) {
     const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
@@ -163,6 +194,11 @@ export default function CompleteProfilePage() {
     if (selectedCategories.length > 0) {
       await setProviderCategories(supabase, profileId, selectedCategories);
     }
+
+    // Clean up provider_data from metadata
+    await supabase.auth.updateUser({
+      data: { provider_data: null },
+    });
 
     toast.success("Perfil configurado com sucesso!");
     router.push("/home");
@@ -289,6 +325,7 @@ export default function CompleteProfilePage() {
                     categories={categories}
                     selected={selectedCategories}
                     onChange={setSelectedCategories}
+                    onAddCustom={handleAddCustomCategory}
                   />
                 )}
               </div>
