@@ -24,25 +24,32 @@ export async function GET(request: NextRequest) {
       } else if (type === "recovery") {
         redirectTo.pathname = "/reset-password";
       } else {
-        // Check if PROVIDER user needs to complete profile
         const {
           data: { user },
         } = await supabase.auth.getUser();
-        const providerData = user?.user_metadata?.provider_data;
         const userRole = user?.user_metadata?.role;
 
-        if (userRole === "PROVIDER" && providerData) {
-          // Check if profile is already complete
+        if (userRole === "PROVIDER") {
+          // Check if the provider profile was already populated
+          // (by the DB trigger from migration-v7, or by a previous submission)
           const { data: profile } = await supabase
             .from("provider_profiles")
             .select("id, whatsapp")
             .eq("user_id", user!.id)
             .single();
 
-          if (!profile || !profile.whatsapp) {
+          if (profile && profile.whatsapp) {
+            // Profile already populated (by DB trigger or previous submission)
+            // Clean up provider_data from metadata if it exists
+            if (user?.user_metadata?.provider_data) {
+              await supabase.auth.updateUser({ data: { provider_data: null } });
+            }
+            redirectTo.pathname = "/home";
+          } else {
+            // Profile not populated - send to complete-profile as fallback
             redirectTo.pathname = "/complete-profile";
-            return NextResponse.redirect(redirectTo);
           }
+          return NextResponse.redirect(redirectTo);
         }
 
         redirectTo.pathname = "/home";

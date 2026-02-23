@@ -29,6 +29,7 @@ interface ProviderProfileFormProps {
     latitude: number | null;
     longitude: number | null;
     whatsapp: string;
+    instagram: string | null;
     is_active: boolean;
     categories: { id: string; name: string; slug: string }[];
   };
@@ -76,6 +77,7 @@ export function ProviderProfileForm({
       : null
   );
   const [whatsapp, setWhatsapp] = useState(formatWhatsApp(profile.whatsapp));
+  const [instagram, setInstagram] = useState(profile.instagram ?? "");
   const [isActive, setIsActive] = useState(profile.is_active);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     profile.categories.map((c) => c.id)
@@ -154,6 +156,7 @@ export function ProviderProfileForm({
         latitude: addressInfo?.latitude,
         longitude: addressInfo?.longitude,
         whatsapp: rawWhatsapp,
+        instagram: instagram || null,
         is_active: isActive,
       }
     );
@@ -176,7 +179,7 @@ export function ProviderProfileForm({
   }
 
   return (
-    <div className="rounded-xl border border-border bg-white p-5">
+    <div className="rounded-xl border border-border bg-card p-5">
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Description */}
         <div className="space-y-1.5">
@@ -233,6 +236,23 @@ export function ProviderProfileForm({
             className="h-11 rounded-lg border-border"
             inputMode="tel"
           />
+        </div>
+
+        {/* Instagram */}
+        <div className="space-y-1.5">
+          <Label htmlFor="instagram" className="text-sm font-medium">
+            Instagram (opcional)
+          </Label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">@</span>
+            <Input
+              id="instagram"
+              placeholder="seuperfil"
+              value={instagram}
+              onChange={(e) => setInstagram(e.target.value.replace(/^@/, ""))}
+              className="h-11 rounded-lg border-border pl-8"
+            />
+          </div>
         </div>
 
         {/* Categories */}

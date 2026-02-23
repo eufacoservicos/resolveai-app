@@ -16,7 +16,12 @@ import {
   Briefcase,
   ImageIcon,
   ShieldCheck,
+  CheckCircle2,
+  Circle,
+  Camera,
+  Clock,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ProfileViewProps {
   user: {
@@ -32,10 +37,101 @@ interface ProfileViewProps {
     city: string;
     whatsapp: string;
     is_active: boolean;
+    is_verified?: boolean;
     categories: { id: string; name: string; slug: string }[];
+    portfolio?: { id: string; image_url: string; created_at: string }[];
+    business_hours?: { id: string; day_of_week: number; open_time: string | null; close_time: string | null; is_closed: boolean }[];
     average_rating?: number | null;
     review_count?: number;
   } | null;
+}
+
+function ProfileChecklist({ user, provider }: {
+  user: ProfileViewProps["user"];
+  provider: NonNullable<ProfileViewProps["providerProfile"]>;
+}) {
+  const steps = [
+    {
+      label: "Foto de perfil",
+      done: !!user.avatar_url,
+      href: "/profile/edit",
+      icon: Camera,
+    },
+    {
+      label: "Descrição dos serviços",
+      done: !!provider.description && provider.description.length > 10,
+      href: "/provider/edit",
+      icon: Settings,
+    },
+    {
+      label: "Portfólio de trabalhos",
+      done: (provider.portfolio?.length ?? 0) > 0,
+      href: "/provider/portfolio",
+      icon: ImageIcon,
+    },
+    {
+      label: "Horário de funcionamento",
+      done: (provider.business_hours?.length ?? 0) > 0 && provider.business_hours!.some(h => !h.is_closed),
+      href: "/provider/edit",
+      icon: Clock,
+    },
+    {
+      label: "Verificação de identidade",
+      done: !!provider.is_verified,
+      href: "/provider/verification",
+      icon: ShieldCheck,
+    },
+  ];
+
+  const completedCount = steps.filter((s) => s.done).length;
+  const progress = Math.round((completedCount / steps.length) * 100);
+
+  if (completedCount === steps.length) return null;
+
+  return (
+    <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-semibold text-foreground">Complete seu perfil</p>
+        <span className="text-xs font-medium text-muted-foreground">
+          {completedCount}/{steps.length}
+        </span>
+      </div>
+
+      {/* Progress bar */}
+      <div className="h-1.5 rounded-full bg-amber-200/50 overflow-hidden">
+        <div
+          className="h-full rounded-full bg-primary transition-all duration-500"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
+      <div className="space-y-1">
+        {steps.map((step) => (
+          <Link
+            key={step.label}
+            href={step.href}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-2 py-2 text-sm transition-colors",
+              step.done
+                ? "text-muted-foreground"
+                : "text-foreground hover:bg-amber-100/50"
+            )}
+          >
+            {step.done ? (
+              <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+            ) : (
+              <Circle className="h-4 w-4 text-muted-foreground/50 shrink-0" />
+            )}
+            <step.icon className={cn("h-3.5 w-3.5 shrink-0", step.done ? "text-muted-foreground" : "text-foreground")} />
+            <span className={step.done ? "line-through" : ""}>{step.label}</span>
+            {!step.done && (
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground ml-auto shrink-0" />
+            )}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export function ProfileView({ user, providerProfile }: ProfileViewProps) {
@@ -90,6 +186,11 @@ export function ProfileView({ user, providerProfile }: ProfileViewProps) {
         </div>
       </div>
 
+      {/* Profile checklist for providers */}
+      {isProvider && (
+        <ProfileChecklist user={user} provider={providerProfile} />
+      )}
+
       {/* Provider profile card */}
       {isProvider && (
         <Link href={`/provider/${providerProfile.id}`} className="block">
@@ -113,7 +214,7 @@ export function ProfileView({ user, providerProfile }: ProfileViewProps) {
       )}
 
       {/* Menu items */}
-      <div className="rounded-xl border border-border bg-white divide-y divide-border">
+      <div className="rounded-xl border border-border bg-card divide-y divide-border">
         <Link
           href="/profile/edit"
           className="flex items-center justify-between p-4 transition-colors hover:bg-muted/50"
@@ -195,7 +296,7 @@ export function ProfileView({ user, providerProfile }: ProfileViewProps) {
       {/* Sign out */}
       <button
         onClick={handleSignOut}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-destructive/30 bg-white p-3 text-destructive transition-colors hover:bg-destructive/5"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-destructive/30 bg-card p-3 text-destructive transition-colors hover:bg-destructive/5"
       >
         <LogOut className="h-4 w-4" />
         <span className="text-sm font-semibold">Sair da conta</span>

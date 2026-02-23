@@ -7,7 +7,6 @@ import {
   Star,
   MapPin,
   MessageCircle,
-  ArrowLeft,
   ImageIcon,
   MessageSquare,
   Share2,
@@ -24,7 +23,6 @@ import { VerifiedBadge } from "@/components/ui/verified-badge";
 import { BusinessHoursDisplay } from "@/components/providers/business-hours-display";
 import { BusinessHours } from "@/types/database";
 import { getWhatsAppUrl } from "@/lib/constants";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 interface ProviderDetailProps {
@@ -35,6 +33,7 @@ interface ProviderDetailProps {
     city: string;
     state: string | null;
     whatsapp: string;
+    instagram?: string | null;
     is_verified?: boolean;
     user: { full_name: string; avatar_url: string | null };
     categories: { id: string; name: string; slug: string }[];
@@ -60,7 +59,6 @@ export function ProviderDetail({
   currentUser,
   alreadyReviewed,
 }: ProviderDetailProps) {
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"portfolio" | "reviews">(
     "portfolio"
   );
@@ -140,35 +138,11 @@ export function ProviderDetail({
             </>
           )}
 
-          {/* Back button on banner */}
-          <button
-            onClick={() => router.back()}
-            className={cn(
-              "absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full transition-colors",
-              provider.portfolio.length > 0
-                ? "bg-black/20 text-white hover:bg-black/30"
-                : "bg-white/80 text-foreground hover:bg-white shadow-sm"
-            )}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </button>
-          {/* Share button on banner */}
-          <button
-            onClick={handleShare}
-            className={cn(
-              "absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full transition-colors",
-              provider.portfolio.length > 0
-                ? "bg-black/20 text-white hover:bg-black/30"
-                : "bg-white/80 text-foreground hover:bg-white shadow-sm"
-            )}
-          >
-            <Share2 className="h-4 w-4" />
-          </button>
         </div>
 
         {/* Avatar overlapping the banner */}
         <div className="px-4 -mt-14">
-          <Avatar className="h-28 w-28 border-4 border-white shadow-lg">
+          <Avatar className="h-28 w-28 border-4 border-background shadow-lg">
             <AvatarImage src={provider.user.avatar_url ?? undefined} />
             <AvatarFallback className="bg-primary/10 text-primary font-bold text-3xl">
               {initials}
@@ -194,6 +168,19 @@ export function ProviderDetail({
               ].filter(Boolean).join(", ")}
             </div>
           )}
+          {provider.instagram && (
+            <a
+              href={`https://instagram.com/${provider.instagram}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 inline-flex items-center gap-1.5 text-sm text-pink-600 hover:underline"
+            >
+              <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+              </svg>
+              @{provider.instagram}
+            </a>
+          )}
         </div>
 
         {provider.categories.length > 0 && (
@@ -212,7 +199,7 @@ export function ProviderDetail({
 
       {/* Stats card */}
       <div className="mt-4 grid grid-cols-3 gap-3">
-        <div className="rounded-xl border border-border bg-white p-3 text-center">
+        <div className="rounded-xl border border-border bg-card p-3 text-center">
           <div className="flex items-center justify-center gap-1">
             <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
             <span className="text-lg font-bold">
@@ -221,11 +208,11 @@ export function ProviderDetail({
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">Nota</p>
         </div>
-        <div className="rounded-xl border border-border bg-white p-3 text-center">
+        <div className="rounded-xl border border-border bg-card p-3 text-center">
           <span className="text-lg font-bold">{provider.review_count}</span>
           <p className="text-xs text-muted-foreground mt-0.5">Avaliações</p>
         </div>
-        <div className="rounded-xl border border-border bg-white p-3 text-center">
+        <div className="rounded-xl border border-border bg-card p-3 text-center">
           <span className="text-lg font-bold">
             {provider.portfolio.length}
           </span>
@@ -235,7 +222,7 @@ export function ProviderDetail({
 
       {/* Description */}
       {provider.description && (
-        <div className="mt-4 rounded-xl border border-border bg-white p-4">
+        <div className="mt-4 rounded-xl border border-border bg-card p-4">
           <h2 className="mb-2 text-sm font-semibold">Sobre</h2>
           <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
             {provider.description}
@@ -315,7 +302,7 @@ export function ProviderDetail({
           ) : (
             <div className="space-y-3">
               {/* Rating summary header */}
-              <div className="flex items-center justify-between rounded-xl border border-border bg-white p-4">
+              <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50">
                     <Star className="h-6 w-6 fill-amber-400 text-amber-400" />
@@ -446,21 +433,28 @@ export function ProviderDetail({
         </div>
       )}
 
-      {/* Fixed WhatsApp button */}
+      {/* Fixed WhatsApp + Share buttons */}
       {provider.whatsapp && (
         <div className="fixed bottom-20 left-0 right-0 z-40 px-4 md:bottom-6">
-          <div className="mx-auto max-w-5xl">
+          <div className="mx-auto flex max-w-5xl gap-2">
             <a
               href={getWhatsAppUrl(provider.whatsapp, provider.user.full_name)}
               target="_blank"
               rel="noopener noreferrer"
-              className="block"
+              className="flex-1"
             >
               <Button className="w-full h-12 rounded-xl gap-2.5 bg-emerald-500 text-white font-semibold text-base shadow-lg hover:bg-emerald-600 transition-colors">
                 <MessageCircle className="h-5 w-5" />
                 Chamar no WhatsApp
               </Button>
             </a>
+            <Button
+              onClick={handleShare}
+              variant="outline"
+              className="h-12 w-12 shrink-0 rounded-xl border-border shadow-lg"
+            >
+              <Share2 className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       )}

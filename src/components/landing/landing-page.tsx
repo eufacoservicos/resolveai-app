@@ -40,7 +40,6 @@ const serviceImages = {
 	stepSearch: "https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=800&h=600&fit=crop&crop=center",
 	stepCompare: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&h=600&fit=crop&crop=center",
 	stepHire: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&h=600&fit=crop&crop=center",
-	statsBg: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1200&h=400&fit=crop&crop=center",
 	ctaBg: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200&h=600&fit=crop&crop=center",
 }
 
@@ -77,51 +76,6 @@ const staggerItem = {
 	},
 }
 
-// ─── Animated Counter ───────────────────────────────────────────────
-function AnimatedCounter({
-	target,
-	suffix = ""
-}: {
-	target: number
-	suffix?: string
-}) {
-	const [count, setCount] = useState(0)
-	const ref = useRef<HTMLSpanElement>(null)
-	const [hasAnimated, setHasAnimated] = useState(false)
-
-	useEffect(() => {
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				if (entry.isIntersecting && !hasAnimated) {
-					setHasAnimated(true)
-					let start = 0
-					const duration = 2000
-					const startTime = performance.now()
-
-					function animate(currentTime: number) {
-						const elapsed = currentTime - startTime
-						const progress = Math.min(elapsed / duration, 1)
-						const eased = 1 - Math.pow(1 - progress, 3)
-						start = Math.floor(eased * target)
-						setCount(start)
-						if (progress < 1) requestAnimationFrame(animate)
-					}
-					requestAnimationFrame(animate)
-				}
-			},
-			{ threshold: 0.5 }
-		)
-		if (ref.current) observer.observe(ref.current)
-		return () => observer.disconnect()
-	}, [target, hasAnimated])
-
-	return (
-		<span ref={ref}>
-			{count}
-			{suffix}
-		</span>
-	)
-}
 
 // ─── Section wrapper with viewport animation ────────────────────────
 function Section({
@@ -176,33 +130,6 @@ const popularCategories = [
 	{ slug: "personal-trainer", label: "Personal Trainer" }
 ]
 
-// ─── Testimonials ───────────────────────────────────────────────────
-const testimonials = [
-	{
-		name: "Mariana Silva",
-		role: "Cliente",
-		text:
-			"Encontrei um eletricista excelente em minutos. O serviço foi rápido e o preço justo. Recomendo demais!",
-		rating: 5,
-		avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face"
-	},
-	{
-		name: "Carlos Oliveira",
-		role: "Prestador",
-		text:
-			"Desde que criei meu perfil, meus clientes aumentaram muito. A plataforma é simples e eficiente.",
-		rating: 5,
-		avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face"
-	},
-	{
-		name: "Ana Costa",
-		role: "Cliente",
-		text:
-			"Precisava de uma diarista de confiança e achei pelo eufaço! Já contratei 3 vezes!",
-		rating: 5,
-		avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&crop=face"
-	}
-]
 
 // ─── Main Component ─────────────────────────────────────────────────
 export function LandingPage() {
@@ -326,11 +253,11 @@ export function LandingPage() {
 								initial={{ opacity: 0, y: 30 }}
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ duration: 0.6, delay: 0.5 }}>
-								<Link href='/register'>
+								<Link href='/home'>
 									<Button
 										size='lg'
 										className='gradient-bg text-white border-0 shadow-lg hover:shadow-xl transition-all text-base px-8 h-12 rounded-xl gap-2 group'>
-										Começar agora
+										Explorar profissionais
 										<ArrowRight className='h-4 w-4 transition-transform group-hover:translate-x-1' />
 									</Button>
 								</Link>
@@ -350,7 +277,7 @@ export function LandingPage() {
 								initial={{ opacity: 0, y: 30 }}
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ duration: 0.6, delay: 0.6 }}>
-								<Link href='/register' className='block'>
+								<Link href='/search' className='block'>
 									<div className='glass flex items-center gap-3 rounded-2xl border border-border/50 px-5 py-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer overflow-hidden'>
 										<Search className='h-5 w-5 text-muted-foreground shrink-0' />
 										<span className='text-muted-foreground truncate'>
@@ -641,7 +568,7 @@ export function LandingPage() {
 					</motion.div>
 
 					<div className='mt-10 text-center'>
-						<Link href='/register'>
+						<Link href='/search'>
 							<Button size='lg' className='gradient-bg text-white border-0 shadow-lg rounded-xl gap-2 group'>
 								Explorar todos os serviços
 								<ArrowRight className='h-4 w-4 transition-transform group-hover:translate-x-1' />
@@ -765,7 +692,7 @@ export function LandingPage() {
 					</div>
 
 					<div className='mt-10 text-center'>
-						<Link href='/register'>
+						<Link href='/categories'>
 							<Button variant='outline' size='lg' className='rounded-xl gap-2 group'>
 								Ver todas as categorias
 								<ChevronRight className='h-4 w-4 transition-transform group-hover:translate-x-1' />
@@ -775,96 +702,6 @@ export function LandingPage() {
 				</div>
 			</Section>
 
-			{/* ─── Estatísticas ─────────────────────────────────────── */}
-			<Section className='py-20 sm:py-28 px-4 sm:px-6 lg:px-8'>
-				<div className='mx-auto max-w-6xl'>
-					<div className='rounded-3xl relative overflow-hidden'>
-						<Image
-							src={serviceImages.statsBg}
-							alt=''
-							fill
-							sizes='100vw'
-							className='object-cover'
-						/>
-						<div className='absolute inset-0 gradient-bg opacity-90' />
-
-						<div className='relative z-10 p-10 sm:p-16 text-white'>
-							{/* Decorative elements */}
-							<div className='absolute top-0 right-0 h-64 w-64 rounded-full bg-white/5 blur-2xl' />
-							<div className='absolute bottom-0 left-0 h-48 w-48 rounded-full bg-white/5 blur-2xl' />
-
-							<div className='relative grid gap-8 sm:grid-cols-3 text-center'>
-								{[
-									{ value: 60, suffix: "+", label: "Categorias de serviços" },
-									{ value: 100, suffix: "+", label: "Cidades atendidas" },
-									{ value: 1000, suffix: "+", label: "Profissionais cadastrados" }
-								].map((stat, i) => (
-									<motion.div
-										key={stat.label}
-										initial={{ opacity: 0, y: 20 }}
-										whileInView={{ opacity: 1, y: 0 }}
-										viewport={{ once: true }}
-										transition={{ duration: 0.5, delay: i * 0.15 }}>
-										<div className='text-4xl sm:text-5xl font-extrabold'>
-											<AnimatedCounter target={stat.value} suffix={stat.suffix} />
-										</div>
-										<p className='mt-2 text-white/80 text-sm sm:text-base'>{stat.label}</p>
-									</motion.div>
-								))}
-							</div>
-						</div>
-					</div>
-				</div>
-			</Section>
-
-			{/* ─── Depoimentos ──────────────────────────────────────── */}
-			<Section className='py-20 sm:py-28 px-4 sm:px-6 lg:px-8' id='depoimentos'>
-				<div className='mx-auto max-w-6xl'>
-					<div className='text-center mb-16'>
-						<h2 className='text-3xl font-bold sm:text-4xl'>
-							O que dizem nossos <span className='gradient-text'>usuários</span>
-						</h2>
-						<p className='mt-4 text-muted-foreground text-lg'>
-							Histórias reais de quem já usa o eufaço!
-						</p>
-					</div>
-
-					<div className='grid gap-6 md:grid-cols-3'>
-						{testimonials.map((t, i) => (
-							<motion.div
-								key={t.name}
-								className='rounded-2xl glass border border-border/50 p-6 space-y-4'
-								initial={{ opacity: 0, y: 20 }}
-								whileInView={{ opacity: 1, y: 0 }}
-								viewport={{ once: true }}
-								transition={{ duration: 0.4, delay: i * 0.1 }}
-								whileHover={{ y: -4 }}>
-								<div className='flex items-center gap-1'>
-									{Array.from({ length: t.rating }).map((_, j) => (
-										<Star key={j} className='h-4 w-4 fill-amber-400 text-amber-400' />
-									))}
-								</div>
-								<p className='text-sm text-muted-foreground leading-relaxed'>
-									&ldquo;{t.text}&rdquo;
-								</p>
-								<div className='flex items-center gap-3 pt-2 border-t border-border/50'>
-									<Image
-										src={t.avatar}
-										alt={t.name}
-										width={40}
-										height={40}
-										className='rounded-full object-cover h-10 w-10'
-									/>
-									<div>
-										<p className='text-sm font-semibold'>{t.name}</p>
-										<p className='text-xs text-muted-foreground'>{t.role}</p>
-									</div>
-								</div>
-							</motion.div>
-						))}
-					</div>
-				</div>
-			</Section>
 
 			{/* ─── CTA Final ────────────────────────────────────────── */}
 			<Section className='py-20 sm:py-28 px-4 sm:px-6 lg:px-8'>
@@ -908,7 +745,7 @@ export function LandingPage() {
 									whileInView={{ opacity: 1, y: 0 }}
 									viewport={{ once: true }}
 									transition={{ duration: 0.5, delay: 0.2 }}>
-									<Link href='/register'>
+									<Link href='/home'>
 										<Button
 											size='lg'
 											className='gradient-bg text-white border-0 shadow-lg hover:shadow-xl transition-all text-base px-8 h-12 rounded-xl gap-2 group'>

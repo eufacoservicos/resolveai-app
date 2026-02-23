@@ -46,6 +46,7 @@ export function BecomeProviderForm({
     longitude: number | null;
   } | null>(null);
   const [whatsapp, setWhatsapp] = useState("");
+  const [instagram, setInstagram] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -116,6 +117,7 @@ export function BecomeProviderForm({
         latitude: addressInfo.latitude,
         longitude: addressInfo.longitude,
         whatsapp: rawWhatsapp,
+        instagram: instagram || undefined,
       }
     );
 
@@ -215,6 +217,23 @@ export function BecomeProviderForm({
             className="h-11 rounded-lg border-border"
             inputMode="tel"
           />
+        </div>
+
+        {/* Instagram */}
+        <div className="space-y-1.5">
+          <Label htmlFor="instagram" className="text-sm font-medium">
+            Instagram (opcional)
+          </Label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">@</span>
+            <Input
+              id="instagram"
+              placeholder="seuperfil"
+              value={instagram}
+              onChange={(e) => setInstagram(e.target.value.replace(/^@/, ""))}
+              className="h-11 rounded-lg border-border pl-8"
+            />
+          </div>
         </div>
 
         {/* Categories */}

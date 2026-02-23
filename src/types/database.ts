@@ -21,6 +21,7 @@ export interface ProviderProfile {
   latitude: number | null;
   longitude: number | null;
   whatsapp: string;
+  instagram: string | null;
   is_active: boolean;
   is_verified: boolean;
   verified_at: string | null;

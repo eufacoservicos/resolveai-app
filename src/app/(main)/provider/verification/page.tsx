@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser, getProviderByUserId } from "@/lib/supabase/queries";
 import { VerificationRequest } from "@/components/providers/verification-request";
-import { BackButton } from "@/components/ui/back-button";
 
 export default async function VerificationPage() {
   const supabase = await createClient();
@@ -41,10 +40,7 @@ export default async function VerificationPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <BackButton />
-        <h1 className="text-2xl font-bold">Verificação de perfil</h1>
-      </div>
+      <h1 className="text-2xl font-bold">Verificação de perfil</h1>
       <VerificationRequest
         providerId={providerProfile.id}
         userId={user.id}

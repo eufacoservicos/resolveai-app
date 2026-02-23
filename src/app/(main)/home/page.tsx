@@ -19,8 +19,9 @@ import { CategoryFilter } from "@/components/providers/category-filter";
 import { CategoryPendingProvider } from "@/components/providers/category-pending";
 import { ProviderListLoading } from "@/components/providers/provider-list-loading";
 import { HomeHero } from "@/components/layout/home-hero";
+import { AdBanner } from "@/components/layout/ad-banner";
 import { ProviderGrid } from "@/components/providers/provider-grid";
-import { ArrowRight, Wrench } from "lucide-react";
+import { ArrowRight, Star, Wrench } from "lucide-react";
 
 export default async function HomePage({
   searchParams,
@@ -51,6 +52,8 @@ export default async function HomePage({
     <div className="space-y-6">
       <HomeHero />
 
+      <AdBanner />
+
       <CategoryPendingProvider>
         <CategoryFilter
           activeSlug={params.categoria}
@@ -58,11 +61,14 @@ export default async function HomePage({
         />
 
         <ProviderListLoading>
-          {/* Featured section */}
+          {/* Featured professionals section */}
           {featured.length > 0 && !params.categoria && (
-            <div>
+            <div className="rounded-xl bg-linear-to-r from-amber-50/80 to-orange-50/50 p-4 -mx-4 sm:mx-0 sm:p-5">
               <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Em destaque</h2>
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
+                  <h2 className="text-lg font-semibold">Profissionais em Destaque</h2>
+                </div>
                 <Link
                   href="/search?ordenar=avaliacao"
                   className="flex items-center gap-1 text-sm font-medium text-primary"
@@ -71,7 +77,7 @@ export default async function HomePage({
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
-              <div className="flex gap-3 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-none sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:overflow-visible">
+              <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-none sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:overflow-visible">
                 {featured.slice(0, 6).map((provider) => (
                   <div key={provider.id} className="min-w-65 sm:min-w-0">
                     <ProviderCard

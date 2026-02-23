@@ -1,9 +1,22 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
-import Link from "next/link";
 
 export function HomeHero() {
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  function handleSearch() {
+    const term = searchTerm.trim();
+    if (term) {
+      router.push(`/search?q=${encodeURIComponent(term)}`);
+    } else {
+      router.push("/search");
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div>
@@ -16,12 +29,23 @@ export function HomeHero() {
         </p>
       </div>
 
-      <Link href="/search" className="block">
-        <div className="flex items-center gap-3 rounded-xl border border-border bg-white px-4 py-3 text-muted-foreground shadow-sm transition-shadow hover:shadow-md">
-          <Search className="h-5 w-5" />
-          <span className="text-sm">O que você precisa?</span>
-        </div>
-      </Link>
+      <div
+        className="flex items-center gap-3 rounded-xl border border-border bg-white px-4 py-3 shadow-sm transition-shadow hover:shadow-md cursor-text"
+        onClick={() => document.getElementById("home-search")?.focus()}
+      >
+        <Search className="h-5 w-5 text-muted-foreground shrink-0" />
+        <input
+          id="home-search"
+          type="text"
+          placeholder="O que você precisa? Ex: eletricista, pintor..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSearch();
+          }}
+          className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+        />
+      </div>
     </div>
   );
 }

@@ -133,6 +133,7 @@ export async function createProviderProfile(
     latitude?: number | null;
     longitude?: number | null;
     whatsapp: string;
+    instagram?: string;
   }
 ) {
   // Update user role to PROVIDER
@@ -158,6 +159,7 @@ export async function createProviderProfile(
         latitude: data.latitude ?? null,
         longitude: data.longitude ?? null,
         whatsapp: data.whatsapp,
+        instagram: data.instagram ?? null,
         is_active: true,
       },
       { onConflict: "user_id" }
@@ -202,6 +204,7 @@ export async function updateProviderProfile(
     latitude?: number | null;
     longitude?: number | null;
     whatsapp?: string;
+    instagram?: string | null;
     is_active?: boolean;
   }
 ) {

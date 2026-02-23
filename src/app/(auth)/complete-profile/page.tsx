@@ -48,6 +48,7 @@ export default function CompleteProfilePage() {
     { id: string; name: string; slug: string }[]
   >([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
+  const [autoSubmitting, setAutoSubmitting] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -75,6 +76,12 @@ export default function CompleteProfilePage() {
             longitude: providerData.longitude ?? null,
           });
         }
+
+        // Auto-submit if all provider data is already available from email registration
+        if (providerData.whatsapp && providerData.city && providerData.categoryIds?.length > 0) {
+          setAutoSubmitting(true);
+          autoCompleteProfile(user.id, providerData);
+        }
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -98,6 +105,67 @@ export default function CompleteProfilePage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role]);
+
+  async function autoCompleteProfile(uid: string, providerData: {
+    description?: string;
+    whatsapp: string;
+    cep?: string;
+    city: string;
+    state?: string;
+    neighborhood?: string;
+    latitude?: number | null;
+    longitude?: number | null;
+    categoryIds: string[];
+  }) {
+    try {
+      // Check if the DB trigger already populated the profile (migration-v7)
+      const { data: existingProfile } = await supabase
+        .from("provider_profiles")
+        .select("id, whatsapp")
+        .eq("user_id", uid)
+        .single();
+
+      if (existingProfile && existingProfile.whatsapp) {
+        // Profile already populated by DB trigger - just clean up metadata and redirect
+        await supabase.auth.updateUser({ data: { provider_data: null } });
+        toast.success("Perfil configurado com sucesso!");
+        router.push("/home");
+        router.refresh();
+        return;
+      }
+
+      // Fallback: populate profile via client-side upsert
+      const { error, profileId } = await createProviderProfile(supabase, uid, {
+        description: providerData.description ?? "",
+        city: providerData.city,
+        neighborhood: providerData.neighborhood ?? "",
+        cep: providerData.cep ?? "",
+        state: providerData.state ?? "",
+        latitude: providerData.latitude ?? null,
+        longitude: providerData.longitude ?? null,
+        whatsapp: providerData.whatsapp,
+      });
+
+      if (error || !profileId) {
+        console.error("autoCompleteProfile: createProviderProfile failed", error);
+        setAutoSubmitting(false);
+        return;
+      }
+
+      if (providerData.categoryIds.length > 0) {
+        await setProviderCategories(supabase, profileId, providerData.categoryIds);
+      }
+
+      await supabase.auth.updateUser({ data: { provider_data: null } });
+
+      toast.success("Perfil configurado com sucesso!");
+      router.push("/home");
+      router.refresh();
+    } catch (err) {
+      console.error("autoCompleteProfile: unexpected error", err);
+      setAutoSubmitting(false);
+    }
+  }
 
   async function handleAddCustomCategory(name: string) {
     const { data, error } = await createCustomCategory(supabase, name);
@@ -205,6 +273,15 @@ export default function CompleteProfilePage() {
     router.refresh();
   }
 
+  if (autoSubmitting) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+        <p className="text-sm text-muted-foreground">Configurando seu perfil...</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="mb-6 flex flex-col items-center text-center">
@@ -214,7 +291,7 @@ export default function CompleteProfilePage() {
         </p>
       </div>
 
-      <div className="rounded-xl border border-border bg-white p-6">
+      <div className="rounded-xl border border-border bg-card p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Role selector */}
           <div className="space-y-2">

@@ -2,8 +2,8 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { usePathname } from "next/navigation"
-import { Home, Search, Heart, User, LayoutGrid, LogIn } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { Home, Search, Heart, User, LayoutGrid, LogIn, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -27,21 +27,33 @@ const publicNavItems = [
 
 export function Header({ isAuthenticated = false }: HeaderProps) {
 	const pathname = usePathname()
+	const router = useRouter()
 	const navItems = isAuthenticated ? authNavItems : publicNavItems
+	const showBackButton = pathname !== "/home"
 
 	return (
 		<header className='sticky top-0 z-40 border-b border-border/60 bg-white'>
 			<div className='mx-auto flex h-14 max-w-5xl items-center justify-between px-4'>
-				<Link href='/home' className='flex items-center'>
-					<Image
-						src='/logo.svg'
-						alt='eufaço!'
-						width={220}
-						height={80}
-						className='h-12 w-auto'
-						priority
-					/>
-				</Link>
+				<div className='flex items-center gap-2'>
+					{showBackButton && (
+						<button
+							onClick={() => router.back()}
+							className='flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted transition-colors'
+						>
+							<ArrowLeft className='h-5 w-5' />
+						</button>
+					)}
+					<Link href='/home' className='flex items-center'>
+						<Image
+							src='/logo.svg'
+							alt='eufaço!'
+							width={220}
+							height={80}
+							className='h-12 w-auto'
+							priority
+						/>
+					</Link>
+				</div>
 
 				<nav className='hidden items-center gap-1 md:flex'>
 					{navItems.map((item) => {
