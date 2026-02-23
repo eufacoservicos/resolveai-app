@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { Home, Search, Heart, User, LayoutGrid, LogIn, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -51,13 +50,14 @@ export function Header({ isAuthenticated = false }: HeaderProps) {
 						</button>
 					)}
 					<Link href='/home' className='flex items-center'>
-						<Image
+						{/* eslint-disable-next-line @next/next/no-img-element */}
+						<img
 							src='/logo.svg'
 							alt='eufaço!'
-							width={220}
-							height={80}
-							className='h-12 w-auto'
-							priority
+							width={132}
+							height={48}
+							className='h-10 w-auto'
+							fetchPriority='high'
 						/>
 					</Link>
 				</div>

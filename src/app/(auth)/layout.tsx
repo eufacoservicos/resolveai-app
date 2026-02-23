@@ -1,5 +1,3 @@
-import Image from "next/image"
-
 export default function AuthLayout({
 	children
 }: {
@@ -9,13 +7,14 @@ export default function AuthLayout({
 		<div className='flex min-h-screen flex-col items-center justify-center bg-background px-4 py-6'>
 			<div className='w-full max-w-md'>
 				<div className='mb-8 flex flex-col items-center gap-2'>
-					<Image
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img
 						src='/logo.svg'
 						alt='eufaço!'
-						width={320}
-						height={120}
-						className='h-25 w-auto'
-						priority
+						width={240}
+						height={88}
+						className='h-20 w-auto'
+						fetchPriority='high'
 					/>
 				</div>
 				{children}

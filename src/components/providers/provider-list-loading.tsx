@@ -10,7 +10,7 @@ export function ProviderListLoading({ children }: { children: React.ReactNode })
     <div className="relative space-y-6">
       {children}
       {isPending && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/60 rounded-xl">
+        <div className="absolute inset-0 flex items-center justify-center bg-background/60 rounded-xl">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
       )}

@@ -30,7 +30,7 @@ export function HomeHero() {
       </div>
 
       <div
-        className="flex items-center gap-3 rounded-xl border border-border bg-white px-4 py-3 shadow-sm transition-shadow hover:shadow-md cursor-text"
+        className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm transition-shadow hover:shadow-md cursor-text"
         onClick={() => document.getElementById("home-search")?.focus()}
       >
         <Search className="h-5 w-5 text-muted-foreground shrink-0" />

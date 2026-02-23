@@ -64,7 +64,7 @@ export function CategoryFilter({ activeSlug, limit }: CategoryFilterProps) {
 						"flex shrink-0 flex-col items-center gap-1.5 rounded-sm border w-18 py-3 transition-all",
 						isAllActive
 							? "border-primary bg-primary/5 text-primary"
-							: "border-border bg-white text-muted-foreground hover:border-primary/30 hover:text-foreground"
+							: "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"
 					)}>
 					<div
 						className={cn(
@@ -88,7 +88,7 @@ export function CategoryFilter({ activeSlug, limit }: CategoryFilterProps) {
 								"flex shrink-0 flex-col items-center gap-1.5 rounded-sm border w-18 py-3 transition-all",
 								isActive
 									? "border-primary bg-primary/5 text-primary"
-									: "border-border bg-white text-muted-foreground hover:border-primary/30 hover:text-foreground"
+									: "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"
 							)}>
 							<div
 								className={cn(

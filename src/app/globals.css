@@ -124,9 +124,7 @@
   }
 }
 
-/* Smooth scroll */
 html {
-  scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -165,11 +163,6 @@ html {
   background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
 }
 
-/* Subtle gradient for cards */
-.gradient-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
-}
-
 /* Hide scrollbar */
 .scrollbar-none {
   -ms-overflow-style: none;
@@ -201,4 +194,20 @@ html {
 }
 .animate-float-reverse {
   animation: float-reverse 7s ease-in-out infinite;
+}
+
+/* Landing page navbar entrance */
+@keyframes slide-down {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+/* Landing page floating badges */
+@keyframes badge-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes badge-float-alt {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
 }

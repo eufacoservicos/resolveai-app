@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
-import { PwaInstallPrompt } from "@/components/layout/pwa-install-prompt";
+import { LazyPwaPrompt } from "@/components/layout/lazy-pwa-prompt";
 import "./globals.css";
 
 const geist = Geist({
@@ -44,7 +44,7 @@ export default function RootLayout({
       </head>
       <body className={`${geist.variable} font-sans antialiased`}>
         {children}
-        <PwaInstallPrompt />
+        <LazyPwaPrompt />
         <Toaster position="top-center" richColors closeButton />
       </body>
     </html>

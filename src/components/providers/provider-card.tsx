@@ -45,7 +45,7 @@ export function ProviderCard({ provider, featured, userId, isFavorited }: Provid
 
   return (
     <Link href={`/provider/${provider.id}`} className="block">
-      <div className="relative flex gap-3 rounded-xl border border-border bg-card p-3 transition-all hover:shadow-md hover:border-border/80">
+      <div className="flex gap-3 rounded-xl border border-border bg-card p-3 transition-all hover:shadow-md hover:border-border/80">
         {/* Square photo */}
         <div className="relative h-18 w-18 shrink-0 overflow-hidden rounded-lg bg-muted">
           {hasImage ? (
@@ -54,6 +54,7 @@ export function ProviderCard({ provider, featured, userId, isFavorited }: Provid
               alt={provider.user.full_name}
               fill
               sizes="72px"
+              loading="lazy"
               className="object-cover"
               onError={() => setImgError(true)}
             />
@@ -71,30 +72,34 @@ export function ProviderCard({ provider, featured, userId, isFavorited }: Provid
 
         {/* Info */}
         <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
-          {/* Name + verified + rating */}
+          {/* Name + verified */}
           <div className="flex items-center gap-1 min-w-0">
             <h3 className="font-semibold text-sm text-foreground leading-tight truncate">
               {provider.user.full_name}
             </h3>
             {provider.is_verified && <VerifiedBadge size="sm" className="shrink-0" />}
-            {provider.average_rating !== null && (
-              <span className="ml-auto flex items-center gap-0.5 shrink-0 text-xs">
-                <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                <span className="font-bold text-foreground">{provider.average_rating}</span>
-                <span className="text-muted-foreground">({provider.review_count})</span>
-              </span>
-            )}
           </div>
 
-          {/* Category */}
-          {provider.categories.length > 0 && (
-            <span className="text-xs font-medium text-primary truncate">
-              {provider.categories[0].name}
-              {provider.categories.length > 1 && (
-                <span className="text-muted-foreground font-normal"> +{provider.categories.length - 1}</span>
-              )}
-            </span>
-          )}
+          {/* Category + rating */}
+          <div className="flex items-center gap-1.5 text-xs min-w-0">
+            {provider.categories.length > 0 && (
+              <span className="font-medium text-primary truncate">
+                {provider.categories[0].name}
+                {provider.categories.length > 1 && (
+                  <span className="text-muted-foreground font-normal"> +{provider.categories.length - 1}</span>
+                )}
+              </span>
+            )}
+            {provider.average_rating !== null && (
+              <>
+                <span className="text-muted-foreground/40">·</span>
+                <span className="flex items-center gap-0.5 shrink-0">
+                  <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                  <span className="font-bold text-foreground">{provider.average_rating}</span>
+                </span>
+              </>
+            )}
+          </div>
 
           {/* Location + availability */}
           <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
@@ -122,7 +127,7 @@ export function ProviderCard({ provider, featured, userId, isFavorited }: Provid
 
         {/* Favorite */}
         {userId !== undefined && (
-          <div className="absolute top-2 right-2">
+          <div className="shrink-0 self-start">
             <FavoriteButton
               providerId={provider.id}
               userId={userId}
