@@ -14,6 +14,7 @@ interface HeaderProps {
 const authNavItems = [
 	{ href: "/home", label: "Início", icon: Home },
 	{ href: "/search", label: "Buscar", icon: Search },
+	{ href: "/categories", label: "Categorias", icon: LayoutGrid },
 	{ href: "/favorites", label: "Favoritos", icon: Heart },
 	{ href: "/profile", label: "Perfil", icon: User }
 ]
@@ -32,12 +33,18 @@ export function Header({ isAuthenticated = false }: HeaderProps) {
 	const showBackButton = pathname !== "/home"
 
 	return (
-		<header className='sticky top-0 z-40 border-b border-border/60 bg-white'>
+		<header className='sticky top-0 z-40 border-b border-border/60 bg-background'>
 			<div className='mx-auto flex h-14 max-w-5xl items-center justify-between px-4'>
 				<div className='flex items-center gap-2'>
 					{showBackButton && (
 						<button
-							onClick={() => router.back()}
+							onClick={() => {
+							if (window.history.length > 2) {
+								router.back()
+							} else {
+								router.push("/home")
+							}
+						}}
 							className='flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted transition-colors'
 						>
 							<ArrowLeft className='h-5 w-5' />

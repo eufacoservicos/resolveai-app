@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CATEGORY_GROUPS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface SearchFiltersProps {
@@ -154,13 +155,23 @@ export function SearchFilters({
       </div>
 
       {/* Filter bottom sheet */}
-      {showFilters && (
-        <div className="fixed inset-0 z-50">
+      <div
+        className={cn(
+          "fixed inset-0 z-50 transition-all duration-300",
+          showFilters ? "visible" : "invisible pointer-events-none"
+        )}
+      >
           <div
-            className="absolute inset-0 bg-black/40"
+            className={cn(
+              "absolute inset-0 bg-black/40 transition-opacity duration-300",
+              showFilters ? "opacity-100" : "opacity-0"
+            )}
             onClick={() => setShowFilters(false)}
           />
-          <div className="absolute bottom-0 left-0 right-0 rounded-t-2xl bg-white p-5 shadow-xl max-h-[80vh] overflow-y-auto">
+          <div className={cn(
+            "absolute bottom-0 left-0 right-0 rounded-t-2xl bg-card p-5 shadow-xl max-h-[80vh] overflow-y-auto transition-transform duration-300",
+            showFilters ? "translate-y-0" : "translate-y-full"
+          )}>
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold">Filtros</h3>
               <button
@@ -272,7 +283,6 @@ export function SearchFilters({
             </div>
           </div>
         </div>
-      )}
     </div>
   );
 }

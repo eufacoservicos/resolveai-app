@@ -307,7 +307,8 @@ export async function getProviderReviews(
     .select(
       `
       *,
-      client:users!reviews_client_id_fkey(full_name, avatar_url)
+      client:users!reviews_client_id_fkey(full_name, avatar_url),
+      reply:review_replies(content, created_at)
     `
     )
     .eq("provider_id", providerId)
@@ -316,6 +317,7 @@ export async function getProviderReviews(
   return (data ?? []).map((r) => ({
     ...r,
     client: r.client as { full_name: string; avatar_url: string | null },
+    reply: (r.reply as { content: string; created_at: string }[] | null)?.[0] ?? null,
   }));
 }
 

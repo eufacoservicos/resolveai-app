@@ -28,12 +28,13 @@ export function BottomNav({ isAuthenticated = false }: BottomNavProps) {
   const navItems = isAuthenticated ? authNavItems : publicNavItems;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/60 bg-white md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/60 bg-background md:hidden">
       <div className="flex h-16 items-center justify-around">
         {navItems.map((item) => {
           const isActive =
             pathname === item.href ||
-            pathname.startsWith(item.href + "/");
+            pathname.startsWith(item.href + "/") ||
+            (item.href === "/search" && pathname.startsWith("/categories"));
           return (
             <Link
               key={item.href}

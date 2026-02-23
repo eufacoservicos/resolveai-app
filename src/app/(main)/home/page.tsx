@@ -77,9 +77,9 @@ export default async function HomePage({
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
-              <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-none sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:overflow-visible">
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:overflow-visible">
                 {featured.slice(0, 6).map((provider) => (
-                  <div key={provider.id} className="min-w-65 sm:min-w-0">
+                  <div key={provider.id} className="min-w-70 sm:min-w-0">
                     <ProviderCard
                       provider={provider}
                       featured

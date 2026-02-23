@@ -58,12 +58,6 @@ function ProfileChecklist({ user, provider }: {
       icon: Camera,
     },
     {
-      label: "Descrição dos serviços",
-      done: !!provider.description && provider.description.length > 10,
-      href: "/provider/edit",
-      icon: Settings,
-    },
-    {
       label: "Portfólio de trabalhos",
       done: (provider.portfolio?.length ?? 0) > 0,
       href: "/provider/portfolio",

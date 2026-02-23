@@ -28,6 +28,9 @@ export async function generateMetadata({
     ? ` | ${provider.average_rating} estrelas`
     : "";
 
+  const ogImage =
+    provider.portfolio?.[0]?.image_url ?? provider.user.avatar_url;
+
   return {
     title: `${name} - ${category} | eufaço!`,
     description: provider.description
@@ -39,6 +42,7 @@ export async function generateMetadata({
         ? provider.description.slice(0, 160)
         : `Prestador de serviços no eufaço!.`,
       type: "profile",
+      ...(ogImage ? { images: [{ url: ogImage }] } : {}),
     },
   };
 }

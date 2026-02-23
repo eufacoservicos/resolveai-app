@@ -22,7 +22,9 @@ import {
 	Paintbrush,
 	Wrench,
 	Scissors,
-	Hammer
+	Hammer,
+	ChevronDown,
+	HelpCircle
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { categoryIconMap } from "@/lib/category-icons"
@@ -129,6 +131,74 @@ const popularCategories = [
 	{ slug: "fotografo", label: "Fotógrafo" },
 	{ slug: "personal-trainer", label: "Personal Trainer" }
 ]
+
+
+// ─── FAQ Data & Component ────────────────────────────────────────────
+const faqItems = [
+	{
+		question: "O que é o eufaço!?",
+		answer: "O eufaço! é uma plataforma que conecta você a prestadores de serviços locais. Encontre eletricistas, encanadores, pintores e dezenas de outros profissionais na sua região, veja avaliações e entre em contato diretamente pelo WhatsApp."
+	},
+	{
+		question: "O eufaço! é gratuito?",
+		answer: "Sim! O uso da plataforma é totalmente gratuito para clientes e prestadores. Você pode buscar profissionais, ver perfis e entrar em contato sem nenhum custo."
+	},
+	{
+		question: "Como encontro um profissional?",
+		answer: "Use a busca na página inicial ou navegue pelas categorias. Você pode filtrar por localização, tipo de serviço e avaliação. Ao encontrar o profissional ideal, clique no botão do WhatsApp para entrar em contato direto."
+	},
+	{
+		question: "Como me cadastro como prestador?",
+		answer: "Clique em \"Quero oferecer serviços\" na página de registro. Preencha seus dados, selecione suas categorias de serviço e informe seu WhatsApp. Após criar a conta, complete seu perfil com fotos do portfólio e horário de funcionamento."
+	},
+	{
+		question: "Como funciona o contato com o profissional?",
+		answer: "O contato é feito diretamente pelo WhatsApp do prestador. Ao clicar no botão de contato no perfil do profissional, uma conversa é iniciada automaticamente. Não há intermediários."
+	},
+	{
+		question: "Como verifico meu perfil de prestador?",
+		answer: "Na sua área de perfil, acesse \"Verificar perfil\" e envie uma foto do seu documento de identidade. Nossa equipe analisa e aprova a verificação, que adiciona um selo de confiança ao seu perfil."
+	},
+]
+
+function FaqAccordion() {
+	const [openIndex, setOpenIndex] = useState<number | null>(null)
+
+	return (
+		<div className='space-y-3'>
+			{faqItems.map((item, i) => (
+				<motion.div
+					key={i}
+					initial={{ opacity: 0, y: 10 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true }}
+					transition={{ duration: 0.3, delay: i * 0.05 }}
+				>
+					<button
+						onClick={() => setOpenIndex(openIndex === i ? null : i)}
+						className='flex w-full items-center justify-between rounded-xl border border-border/60 bg-white/50 backdrop-blur-sm p-4 sm:p-5 text-left transition-all hover:border-primary/30 hover:bg-white/80'
+					>
+						<span className='text-sm sm:text-base font-medium pr-4'>{item.question}</span>
+						<ChevronDown
+							className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200 ${
+								openIndex === i ? "rotate-180" : ""
+							}`}
+						/>
+					</button>
+					<div
+						className={`overflow-hidden transition-all duration-300 ${
+							openIndex === i ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
+						}`}
+					>
+						<p className='px-4 sm:px-5 py-3 text-sm text-muted-foreground leading-relaxed'>
+							{item.answer}
+						</p>
+					</div>
+				</motion.div>
+			))}
+		</div>
+	)
+}
 
 
 // ─── Main Component ─────────────────────────────────────────────────
@@ -699,6 +769,23 @@ export function LandingPage() {
 							</Button>
 						</Link>
 					</div>
+				</div>
+			</Section>
+
+
+			{/* ─── FAQ ─────────────────────────────────────────────── */}
+			<Section className='py-20 sm:py-28 px-4 sm:px-6 lg:px-8' id='faq'>
+				<div className='mx-auto max-w-3xl'>
+					<div className='text-center mb-12'>
+						<div className='mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10'>
+							<HelpCircle className='h-6 w-6 text-primary' />
+						</div>
+						<h2 className='text-3xl font-bold sm:text-4xl'>
+							Perguntas <span className='gradient-text'>frequentes</span>
+						</h2>
+					</div>
+
+					<FaqAccordion />
 				</div>
 			</Section>
 

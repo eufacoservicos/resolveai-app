@@ -401,3 +401,20 @@ export async function createReview(
   });
   return { error };
 }
+
+export async function createReviewReply(
+  supabase: SupabaseClient,
+  reviewId: string,
+  providerId: string,
+  content: string
+) {
+  const { error } = await supabase.from("review_replies").upsert(
+    {
+      review_id: reviewId,
+      provider_id: providerId,
+      content,
+    },
+    { onConflict: "review_id" }
+  );
+  return { error };
+}
