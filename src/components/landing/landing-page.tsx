@@ -814,8 +814,7 @@ export function LandingPage() {
 									<Link href='/register'>
 										<Button
 											size='lg'
-											variant='outline'
-											className='border-white/20 text-white hover:bg-white/10 text-base px-8 h-12 rounded-xl gap-2 group'>
+											className='bg-white/10 border border-white/20 text-white hover:bg-white/20 text-base px-8 h-12 rounded-xl gap-2 group shadow-xs'>
 											<Briefcase className='h-4 w-4' />
 											Quero oferecer serviços
 										</Button>
