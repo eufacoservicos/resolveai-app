@@ -51,7 +51,7 @@ export default function RootLayout({
             position: "fixed",
             inset: 0,
             zIndex: 9999,
-            display: "flex",
+            display: "none",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
@@ -95,6 +95,7 @@ export default function RootLayout({
         <style
           dangerouslySetInnerHTML={{
             __html: [
+              "@media(display-mode:standalone){#splash{display:flex!important}}",
               "@keyframes splash-logo{from{opacity:0;transform:translateY(16px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}",
               "@keyframes splash-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.04);opacity:0.85}}",
               "@keyframes splash-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}",
