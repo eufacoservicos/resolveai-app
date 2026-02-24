@@ -95,95 +95,92 @@ export default async function SearchPage({
         activeSearch={params.q}
         activeRadius={params.raio}
         hasGeolocation={!!(params.lat && params.lng)}
-      />
-
-      <p className="text-sm text-muted-foreground">
-        {total} resultado{total !== 1 ? "s" : ""}
-      </p>
-
-      {providers.length === 0 ? (
-        <div className="flex flex-col items-center py-12 text-center">
-          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
-            <Search className="h-7 w-7 text-muted-foreground" />
+        resultCount={total}
+      >
+        {providers.length === 0 ? (
+          <div className="flex flex-col items-center py-12 text-center">
+            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
+              <Search className="h-7 w-7 text-muted-foreground" />
+            </div>
+            <p className="font-medium text-foreground">
+              Nenhum resultado encontrado
+            </p>
+            <p className="mt-1 max-w-xs text-sm text-muted-foreground">
+              Tente ajustar os filtros
+            </p>
           </div>
-          <p className="font-medium text-foreground">
-            Nenhum resultado encontrado
-          </p>
-          <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-            Tente ajustar os filtros
-          </p>
-        </div>
-      ) : (
-        <>
-          <ProviderGrid>
-            {providers.map((provider) => (
-              <ProviderCard
-                key={provider.id}
-                provider={provider}
-                userId={currentUser?.id ?? null}
-                isFavorited={favoriteIds.includes(provider.id)}
-              />
-            ))}
-          </ProviderGrid>
+        ) : (
+          <>
+            <ProviderGrid>
+              {providers.map((provider) => (
+                <ProviderCard
+                  key={provider.id}
+                  provider={provider}
+                  userId={currentUser?.id ?? null}
+                  isFavorited={favoriteIds.includes(provider.id)}
+                />
+              ))}
+            </ProviderGrid>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <nav className="flex items-center justify-center gap-2 pt-4">
-              {page > 1 && (
-                <a
-                  href={pageUrl(page - 1)}
-                  className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted"
-                >
-                  Anterior
-                </a>
-              )}
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter(
-                  (p) =>
-                    p === 1 ||
-                    p === totalPages ||
-                    Math.abs(p - page) <= 1
-                )
-                .reduce<(number | "...")[]>((acc, p, i, arr) => {
-                  if (i > 0 && p - (arr[i - 1] as number) > 1)
-                    acc.push("...");
-                  acc.push(p);
-                  return acc;
-                }, [])
-                .map((item, i) =>
-                  item === "..." ? (
-                    <span
-                      key={`dots-${i}`}
-                      className="px-1 text-muted-foreground"
-                    >
-                      ...
-                    </span>
-                  ) : (
-                    <a
-                      key={item}
-                      href={pageUrl(item as number)}
-                      className={`inline-flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium ${
-                        item === page
-                          ? "bg-primary text-white"
-                          : "border border-border hover:bg-muted"
-                      }`}
-                    >
-                      {item}
-                    </a>
-                  )
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <nav className="flex items-center justify-center gap-2 pt-4">
+                {page > 1 && (
+                  <a
+                    href={pageUrl(page - 1)}
+                    className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted"
+                  >
+                    Anterior
+                  </a>
                 )}
-              {page < totalPages && (
-                <a
-                  href={pageUrl(page + 1)}
-                  className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted"
-                >
-                  Próximo
-                </a>
-              )}
-            </nav>
-          )}
-        </>
-      )}
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(
+                    (p) =>
+                      p === 1 ||
+                      p === totalPages ||
+                      Math.abs(p - page) <= 1
+                  )
+                  .reduce<(number | "...")[]>((acc, p, i, arr) => {
+                    if (i > 0 && p - (arr[i - 1] as number) > 1)
+                      acc.push("...");
+                    acc.push(p);
+                    return acc;
+                  }, [])
+                  .map((item, i) =>
+                    item === "..." ? (
+                      <span
+                        key={`dots-${i}`}
+                        className="px-1 text-muted-foreground"
+                      >
+                        ...
+                      </span>
+                    ) : (
+                      <a
+                        key={item}
+                        href={pageUrl(item as number)}
+                        className={`inline-flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium ${
+                          item === page
+                            ? "bg-primary text-white"
+                            : "border border-border hover:bg-muted"
+                        }`}
+                      >
+                        {item}
+                      </a>
+                    )
+                  )}
+                {page < totalPages && (
+                  <a
+                    href={pageUrl(page + 1)}
+                    className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted"
+                  >
+                    Próximo
+                  </a>
+                )}
+              </nav>
+            )}
+          </>
+        )}
+      </SearchFilters>
     </div>
   );
 }

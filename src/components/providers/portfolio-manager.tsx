@@ -10,6 +10,16 @@ import {
 } from "@/lib/supabase/mutations";
 import { Button } from "@/components/ui/button";
 import { Trash2, Upload, ImagePlus, Loader2, X } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { MAX_PORTFOLIO_IMAGES } from "@/lib/constants";
 
@@ -38,6 +48,8 @@ export function PortfolioManager({
   const [pending, setPending] = useState<PendingUpload[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; url: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const totalSlots = MAX_PORTFOLIO_IMAGES;
   const usedSlots = images.length + pending.filter((p) => p.status !== "error").length;
@@ -100,7 +112,7 @@ export function PortfolioManager({
         prev.map((p) => (p.id === item.id ? { ...p, status: "uploading" } : p))
       );
 
-      const { error } = await uploadPortfolioImage(
+      const { data, error } = await uploadPortfolioImage(
         supabase,
         providerId,
         userId,
@@ -117,6 +129,9 @@ export function PortfolioManager({
         );
       } else {
         successCount++;
+        if (data) {
+          setImages((prev) => [...prev, data]);
+        }
         setPending((prev) => {
           const p = prev.find((p) => p.id === item.id);
           if (p) URL.revokeObjectURL(p.preview);
@@ -136,21 +151,27 @@ export function PortfolioManager({
     router.refresh();
   }
 
-  async function handleDelete(imageId: string, imageUrl: string) {
-    const { error } = await deletePortfolioImage(supabase, imageId, imageUrl);
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+
+    const { error } = await deletePortfolioImage(supabase, deleteTarget.id, deleteTarget.url);
 
     if (error) {
       toast.error("Erro ao remover imagem.");
     } else {
-      setImages((prev) => prev.filter((img) => img.id !== imageId));
+      setImages((prev) => prev.filter((img) => img.id !== deleteTarget.id));
       toast.success("Imagem removida!");
     }
+
+    setIsDeleting(false);
+    setDeleteTarget(null);
   }
 
   const hasPending = pending.some((p) => p.status === "pending" || p.status === "error");
 
   return (
-    <div className="rounded-xl border border-border bg-white p-5 space-y-5">
+    <div className="rounded-xl border border-border bg-card p-5 space-y-5">
       {/* Header with counter and upload */}
       <div className="flex items-center justify-between">
         <div>
@@ -282,8 +303,8 @@ export function PortfolioManager({
               />
               <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
               <button
-                onClick={() => handleDelete(img.id, img.image_url)}
-                className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100"
+                onClick={() => setDeleteTarget({ id: img.id, url: img.image_url })}
+                className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-white shadow-lg transition-opacity opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -291,6 +312,35 @@ export function PortfolioManager({
           ))}
         </div>
       ) : null}
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir foto</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir esta foto do portfólio? Essa ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Excluindo...
+                </>
+              ) : (
+                "Excluir"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

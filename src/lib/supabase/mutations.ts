@@ -321,12 +321,16 @@ export async function uploadPortfolioImage(
     data: { publicUrl },
   } = supabase.storage.from("portfolio").getPublicUrl(fileName);
 
-  const { error: dbError } = await supabase.from("portfolio_images").insert({
-    provider_id: providerId,
-    image_url: publicUrl,
-  });
+  const { data, error: dbError } = await supabase
+    .from("portfolio_images")
+    .insert({
+      provider_id: providerId,
+      image_url: publicUrl,
+    })
+    .select("id, image_url, created_at")
+    .single();
 
-  return { error: dbError };
+  return { data, error: dbError };
 }
 
 export async function deletePortfolioImage(

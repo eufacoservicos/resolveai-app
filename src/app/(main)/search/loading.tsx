@@ -21,7 +21,7 @@ export default function SearchLoading() {
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-xl border border-border bg-white p-3"
+            className="rounded-xl border border-border bg-card p-3"
           >
             <div className="flex gap-3">
               <Skeleton className="h-20 w-20 shrink-0 rounded-lg" />

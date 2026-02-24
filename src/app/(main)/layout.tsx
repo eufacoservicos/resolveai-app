@@ -1,5 +1,6 @@
 import { Header } from "@/components/layout/header";
 import { BottomNav } from "@/components/layout/bottom-nav";
+import { FloatingIcons } from "@/components/layout/floating-icons";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/supabase/queries";
 
@@ -12,9 +13,10 @@ export default async function MainLayout({
   const user = await getCurrentUser(supabase);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background overflow-x-hidden">
+      <FloatingIcons />
       <Header isAuthenticated={!!user} />
-      <main className="mx-auto max-w-5xl px-4 pb-28 pt-6 md:pb-10">
+      <main className="relative mx-auto max-w-5xl px-4 pb-28 pt-6 md:pb-10">
         {children}
       </main>
       <BottomNav isAuthenticated={!!user} />

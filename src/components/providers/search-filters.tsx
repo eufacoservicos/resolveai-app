@@ -1,8 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, SlidersHorizontal, X, MapPin, Loader2 } from "lucide-react";
+import {
+  Search,
+  SlidersHorizontal,
+  X,
+  MapPin,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -24,6 +30,8 @@ interface SearchFiltersProps {
   activeSearch?: string;
   activeRadius?: string;
   hasGeolocation?: boolean;
+  resultCount: number;
+  children: React.ReactNode;
 }
 
 export function SearchFilters({
@@ -33,12 +41,21 @@ export function SearchFilters({
   activeSearch,
   activeRadius,
   hasGeolocation,
+  resultCount,
+  children,
 }: SearchFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState(activeSearch ?? "");
   const [geoLoading, setGeoLoading] = useState(false);
+
+  function navigate(url: string) {
+    startTransition(() => {
+      router.push(url);
+    });
+  }
 
   function updateParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -48,7 +65,18 @@ export function SearchFilters({
       params.set(key, value);
     }
     params.delete("pagina");
-    router.push(`/search?${params.toString()}`);
+    navigate(`/search?${params.toString()}`);
+  }
+
+  function removeParam(key: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(key);
+    params.delete("pagina");
+    navigate(`/search?${params.toString()}`);
+  }
+
+  function handleSearch() {
+    updateParam("q", searchTerm.trim() || "all");
   }
 
   function handleUseMyLocation() {
@@ -67,11 +95,13 @@ export function SearchFilters({
         params.delete("cidade");
         params.delete("pagina");
         params.set("ordenar", "distancia");
-        router.push(`/search?${params.toString()}`);
+        navigate(`/search?${params.toString()}`);
         setGeoLoading(false);
       },
       () => {
-        toast.error("Não foi possível obter sua localização. Verifique as permissões do navegador.");
+        toast.error(
+          "Não foi possível obter sua localização. Verifique as permissões do navegador."
+        );
         setGeoLoading(false);
       },
       { enableHighAccuracy: false, timeout: 10000 }
@@ -87,20 +117,27 @@ export function SearchFilters({
       params.delete("ordenar");
     }
     params.delete("pagina");
-    router.push(`/search?${params.toString()}`);
+    navigate(`/search?${params.toString()}`);
   }
 
-  const hasActiveFilters = activeCategory || hasGeolocation;
+  const activeCategoryName = categories.find(
+    (c) => c.slug === activeCategory
+  )?.name;
 
   // Build grouped categories for the dropdown
   const groupedCategories = CATEGORY_GROUPS.map((group) => ({
     ...group,
-    items: categories.filter((c) => (group.subcategories as readonly string[]).includes(c.slug)),
+    items: categories.filter((c) =>
+      (group.subcategories as readonly string[]).includes(c.slug)
+    ),
   })).filter((g) => g.items.length > 0);
 
-  // Categories that don't belong to any group
-  const allGroupedSlugs: string[] = CATEGORY_GROUPS.flatMap((g) => [...g.subcategories]);
-  const ungrouped = categories.filter((c) => !allGroupedSlugs.includes(c.slug));
+  const allGroupedSlugs: string[] = CATEGORY_GROUPS.flatMap((g) => [
+    ...g.subcategories,
+  ]);
+  const ungrouped = categories.filter(
+    (c) => !allGroupedSlugs.includes(c.slug)
+  );
 
   return (
     <div className="space-y-3">
@@ -111,40 +148,40 @@ export function SearchFilters({
           <input
             type="text"
             placeholder="Buscar profissionais..."
-            className="h-10 w-full rounded-lg border border-border bg-white pl-10 pr-4 text-sm outline-none transition-colors focus:border-primary"
+            className="h-10 w-full rounded-xl border border-border bg-card pl-10 pr-4 text-sm outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary/20"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                updateParam("q", searchTerm.trim() || "all");
-              }
+              if (e.key === "Enter") handleSearch();
             }}
           />
         </div>
         <Button
           variant="outline"
           size="icon"
-          className={`h-10 w-10 shrink-0 rounded-lg border ${
-            hasActiveFilters
+          className={cn(
+            "h-10 w-10 shrink-0 rounded-xl border transition-colors",
+            showFilters || activeCategory || hasGeolocation
               ? "border-primary bg-primary/5 text-primary"
               : "border-border"
-          }`}
+          )}
           onClick={() => setShowFilters(!showFilters)}
         >
           <SlidersHorizontal className="h-4 w-4" />
         </Button>
       </div>
 
-      {/* Sort dropdown */}
-      <div className="flex items-center justify-between">
+      {/* Sort + active filter chips */}
+      <div className="flex items-center gap-2 overflow-x-auto scrollbar-none -mx-1 px-1 pb-0.5">
+        {/* Sort chip */}
         <Select
           value={activeOrder ?? "recentes"}
           onValueChange={(v) => updateParam("ordenar", v)}
         >
-          <SelectTrigger className="h-8 w-auto gap-1.5 rounded-lg border-border bg-white px-3 text-xs font-medium">
+          <SelectTrigger className="h-8 w-auto gap-1 rounded-full border-border bg-card px-3 text-xs font-medium shrink-0">
             <SelectValue placeholder="Ordenar" />
           </SelectTrigger>
-          <SelectContent className="rounded-lg">
+          <SelectContent className="rounded-xl">
             <SelectItem value="recentes">Mais recentes</SelectItem>
             <SelectItem value="avaliacao">Melhor avaliação</SelectItem>
             {hasGeolocation && (
@@ -152,7 +189,59 @@ export function SearchFilters({
             )}
           </SelectContent>
         </Select>
+
+        {/* Active category chip */}
+        {activeCategoryName && (
+          <button
+            onClick={() => removeParam("categoria")}
+            className="flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 h-8 text-xs font-medium text-primary shrink-0 hover:bg-primary/15 transition-colors"
+          >
+            {activeCategoryName}
+            <X className="h-3 w-3" />
+          </button>
+        )}
+
+        {/* Active geolocation chip */}
+        {hasGeolocation && (
+          <button
+            onClick={handleClearLocation}
+            className="flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 h-8 text-xs font-medium text-primary shrink-0 hover:bg-primary/15 transition-colors"
+          >
+            <MapPin className="h-3 w-3" />
+            {activeRadius ?? 25} km
+            <X className="h-3 w-3" />
+          </button>
+        )}
+
+        {/* Active search chip */}
+        {activeSearch && (
+          <button
+            onClick={() => {
+              setSearchTerm("");
+              removeParam("q");
+            }}
+            className="flex items-center gap-1.5 rounded-full bg-muted border border-border px-3 h-8 text-xs font-medium text-foreground shrink-0 hover:bg-muted/80 transition-colors"
+          >
+            &ldquo;{activeSearch}&rdquo;
+            <X className="h-3 w-3 text-muted-foreground" />
+          </button>
+        )}
       </div>
+
+      {/* Result count + results */}
+      {isPending ? (
+        <div className="flex flex-col items-center justify-center py-16 gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="text-sm text-muted-foreground">Buscando profissionais...</span>
+        </div>
+      ) : (
+        <>
+          <p className="text-sm text-muted-foreground">
+            {resultCount} resultado{resultCount !== 1 ? "s" : ""}
+          </p>
+          {children}
+        </>
+      )}
 
       {/* Filter bottom sheet */}
       <div
@@ -161,128 +250,153 @@ export function SearchFilters({
           showFilters ? "visible" : "invisible pointer-events-none"
         )}
       >
-          <div
-            className={cn(
-              "absolute inset-0 bg-black/40 transition-opacity duration-300",
-              showFilters ? "opacity-100" : "opacity-0"
-            )}
-            onClick={() => setShowFilters(false)}
-          />
-          <div className={cn(
+        <div
+          className={cn(
+            "absolute inset-0 bg-black/40 transition-opacity duration-300",
+            showFilters ? "opacity-100" : "opacity-0"
+          )}
+          onClick={() => setShowFilters(false)}
+        />
+        <div
+          className={cn(
             "absolute bottom-0 left-0 right-0 rounded-t-2xl bg-card p-5 shadow-xl max-h-[80vh] overflow-y-auto transition-transform duration-300",
             showFilters ? "translate-y-0" : "translate-y-full"
-          )}>
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Filtros</h3>
-              <button
-                onClick={() => setShowFilters(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-muted"
+          )}
+        >
+          <div className="mb-5 flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Filtros</h3>
+            <button
+              onClick={() => setShowFilters(false)}
+              className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-muted"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="space-y-5">
+            {/* Category */}
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Categoria
+              </label>
+              <Select
+                value={activeCategory ?? "all"}
+                onValueChange={(v) => {
+                  updateParam("categoria", v);
+                  setShowFilters(false);
+                }}
               >
-                <X className="h-5 w-5" />
-              </button>
+                <SelectTrigger className="h-11 rounded-xl border-border">
+                  <SelectValue placeholder="Todas categorias" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl max-h-60">
+                  <SelectItem value="all">Todas categorias</SelectItem>
+                  {groupedCategories.map((group) => (
+                    <SelectGroup key={group.slug}>
+                      <SelectLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1.5">
+                        {group.name}
+                      </SelectLabel>
+                      {group.items.map((cat) => (
+                        <SelectItem
+                          key={cat.id}
+                          value={cat.slug}
+                          className="pl-6"
+                        >
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  ))}
+                  {ungrouped.length > 0 && (
+                    <SelectGroup>
+                      <SelectLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1.5">
+                        Outros
+                      </SelectLabel>
+                      {ungrouped.map((cat) => (
+                        <SelectItem
+                          key={cat.id}
+                          value={cat.slug}
+                          className="pl-6"
+                        >
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  )}
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="mb-1.5 block text-sm font-medium">
-                  Categoria
-                </label>
-                <Select
-                  value={activeCategory ?? "all"}
-                  onValueChange={(v) => updateParam("categoria", v)}
-                >
-                  <SelectTrigger className="h-11 rounded-lg border-border">
-                    <SelectValue placeholder="Todas categorias" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-lg max-h-60">
-                    <SelectItem value="all">Todas categorias</SelectItem>
-                    {groupedCategories.map((group) => (
-                      <SelectGroup key={group.slug}>
-                        <SelectLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1.5">
-                          {group.name}
-                        </SelectLabel>
-                        {group.items.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.slug} className="pl-6">
-                            {cat.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    ))}
-                    {ungrouped.length > 0 && (
-                      <SelectGroup>
-                        <SelectLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1.5">
-                          Outros
-                        </SelectLabel>
-                        {ungrouped.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.slug} className="pl-6">
-                            {cat.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Location */}
-              <div>
-                <label className="mb-1.5 block text-sm font-medium">
-                  Localização
-                </label>
-                {hasGeolocation ? (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3">
-                      <MapPin className="h-4 w-4 text-primary shrink-0" />
-                      <span className="text-sm font-medium text-primary">Usando sua localização</span>
-                      <button
-                        onClick={handleClearLocation}
-                        className="ml-auto text-xs text-muted-foreground hover:text-foreground"
-                      >
-                        Remover
-                      </button>
-                    </div>
-                    <Select
-                      value={activeRadius ?? "25"}
-                      onValueChange={(v) => updateParam("raio", v)}
+            {/* Location */}
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Localização
+              </label>
+              {hasGeolocation ? (
+                <div className="space-y-2.5">
+                  <div className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 p-3">
+                    <MapPin className="h-4 w-4 text-primary shrink-0" />
+                    <span className="text-sm font-medium text-primary">
+                      Usando sua localização
+                    </span>
+                    <button
+                      onClick={() => {
+                        handleClearLocation();
+                        setShowFilters(false);
+                      }}
+                      className="ml-auto text-xs text-muted-foreground hover:text-foreground"
                     >
-                      <SelectTrigger className="h-11 rounded-lg border-border">
-                        <SelectValue placeholder="Raio de busca" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-lg">
-                        <SelectItem value="5">Até 5 km</SelectItem>
-                        <SelectItem value="10">Até 10 km</SelectItem>
-                        <SelectItem value="25">Até 25 km</SelectItem>
-                        <SelectItem value="50">Até 50 km</SelectItem>
-                        <SelectItem value="100">Até 100 km</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      Remover
+                    </button>
                   </div>
-                ) : (
-                  <Button
-                    variant="outline"
-                    className="w-full h-11 rounded-lg border-border gap-2"
-                    onClick={handleUseMyLocation}
-                    disabled={geoLoading}
+                  <Select
+                    value={activeRadius ?? "25"}
+                    onValueChange={(v) => {
+                      updateParam("raio", v);
+                      setShowFilters(false);
+                    }}
                   >
-                    {geoLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <MapPin className="h-4 w-4" />
-                    )}
-                    Usar minha localização
-                  </Button>
-                )}
-              </div>
-
-              <Button
-                className="w-full h-11 rounded-lg gradient-bg font-semibold"
-                onClick={() => setShowFilters(false)}
-              >
-                Aplicar filtros
-              </Button>
+                    <SelectTrigger className="h-11 rounded-xl border-border">
+                      <SelectValue placeholder="Raio de busca" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="5">Até 5 km</SelectItem>
+                      <SelectItem value="10">Até 10 km</SelectItem>
+                      <SelectItem value="25">Até 25 km</SelectItem>
+                      <SelectItem value="50">Até 50 km</SelectItem>
+                      <SelectItem value="100">Até 100 km</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : (
+                <Button
+                  variant="outline"
+                  className="w-full h-11 rounded-xl border-border gap-2"
+                  onClick={() => {
+                    handleUseMyLocation();
+                    setShowFilters(false);
+                  }}
+                  disabled={geoLoading}
+                >
+                  {geoLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <MapPin className="h-4 w-4" />
+                  )}
+                  Usar minha localização
+                </Button>
+              )}
             </div>
+
+            <Button
+              className="w-full h-11 rounded-xl gradient-bg font-semibold"
+              onClick={() => setShowFilters(false)}
+            >
+              Fechar
+            </Button>
           </div>
         </div>
+      </div>
     </div>
   );
 }
