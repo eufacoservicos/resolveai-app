@@ -44,8 +44,8 @@ export function ProviderCard({ provider, featured, userId, isFavorited }: Provid
     : null;
 
   return (
-    <Link href={`/provider/${provider.id}`} className="block">
-      <div className="flex gap-3 rounded-xl border border-border bg-card p-3 transition-all hover:shadow-md hover:border-border/80">
+    <Link href={`/provider/${provider.id}`} className="block min-w-0">
+      <div className="flex gap-3 rounded-xl border border-border bg-card p-3 transition-all hover:shadow-md hover:border-border/80 overflow-hidden">
         {/* Square photo */}
         <div className="relative h-18 w-18 shrink-0 overflow-hidden rounded-lg bg-muted">
           {hasImage ? (
