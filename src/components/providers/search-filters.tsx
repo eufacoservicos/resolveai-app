@@ -8,6 +8,7 @@ import {
   X,
   MapPin,
   Loader2,
+  Navigation,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,9 +20,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { CATEGORY_GROUPS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import {
+  LOCATION_COOKIE_NAME,
+  LOCATION_COOKIE_MAX_AGE,
+  serializeLocationCookie,
+} from "@/lib/location-cookie";
 
 interface SearchFiltersProps {
   categories: { id: string; name: string; slug: string }[];
@@ -31,6 +44,8 @@ interface SearchFiltersProps {
   activeRadius?: string;
   hasGeolocation?: boolean;
   resultCount: number;
+  autoLocationLabel?: string;
+  cities?: string[];
   children: React.ReactNode;
 }
 
@@ -42,6 +57,8 @@ export function SearchFilters({
   activeRadius,
   hasGeolocation,
   resultCount,
+  autoLocationLabel,
+  cities,
   children,
 }: SearchFiltersProps) {
   const router = useRouter();
@@ -50,6 +67,8 @@ export function SearchFilters({
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState(activeSearch ?? "");
   const [geoLoading, setGeoLoading] = useState(false);
+  const [showCitySelector, setShowCitySelector] = useState(false);
+  const [citySearch, setCitySearch] = useState("");
 
   function navigate(url: string) {
     startTransition(() => {
@@ -120,6 +139,40 @@ export function SearchFilters({
     navigate(`/search?${params.toString()}`);
   }
 
+  function handleClearAutoLocation() {
+    document.cookie = `${LOCATION_COOKIE_NAME}=; path=/; max-age=0`;
+    router.refresh();
+  }
+
+  function handleCitySelect(city: string) {
+    const value = serializeLocationCookie({ type: "city", city });
+    document.cookie = `${LOCATION_COOKIE_NAME}=${value}; path=/; max-age=${LOCATION_COOKIE_MAX_AGE}; samesite=lax`;
+    setShowCitySelector(false);
+    setCitySearch("");
+    router.refresh();
+  }
+
+  function handleUseGeoForCookie() {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const value = serializeLocationCookie({
+          type: "geo",
+          lat: parseFloat(position.coords.latitude.toFixed(6)),
+          lng: parseFloat(position.coords.longitude.toFixed(6)),
+          label: "Minha localização",
+        });
+        document.cookie = `${LOCATION_COOKIE_NAME}=${value}; path=/; max-age=${LOCATION_COOKIE_MAX_AGE}; samesite=lax`;
+        setShowCitySelector(false);
+        router.refresh();
+      },
+      () => {
+        toast.error("Não foi possível obter sua localização.");
+      },
+      { enableHighAccuracy: false, timeout: 10000 }
+    );
+  }
+
   const activeCategoryName = categories.find(
     (c) => c.slug === activeCategory
   )?.name;
@@ -137,6 +190,10 @@ export function SearchFilters({
   ]);
   const ungrouped = categories.filter(
     (c) => !allGroupedSlugs.includes(c.slug)
+  );
+
+  const filteredCities = (cities ?? []).filter((c) =>
+    c.toLowerCase().includes(citySearch.toLowerCase())
   );
 
   return (
@@ -161,7 +218,7 @@ export function SearchFilters({
           size="icon"
           className={cn(
             "h-10 w-10 shrink-0 rounded-xl border transition-colors",
-            showFilters || activeCategory || hasGeolocation
+            showFilters || activeCategory || hasGeolocation || autoLocationLabel
               ? "border-primary bg-primary/5 text-primary"
               : "border-border"
           )}
@@ -201,7 +258,7 @@ export function SearchFilters({
           </button>
         )}
 
-        {/* Active geolocation chip */}
+        {/* Active geolocation chip (URL-based) */}
         {hasGeolocation && (
           <button
             onClick={handleClearLocation}
@@ -209,6 +266,25 @@ export function SearchFilters({
           >
             <MapPin className="h-3 w-3" />
             {activeRadius ?? 25} km
+            <X className="h-3 w-3" />
+          </button>
+        )}
+
+        {/* Auto-location chip (cookie-based, only when no URL geolocation) */}
+        {!hasGeolocation && autoLocationLabel && (
+          <button
+            onClick={() => setShowCitySelector(true)}
+            className="flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 h-8 text-xs font-medium text-primary shrink-0 hover:bg-primary/15 transition-colors"
+          >
+            <MapPin className="h-3 w-3" />
+            {autoLocationLabel}
+          </button>
+        )}
+        {!hasGeolocation && autoLocationLabel && (
+          <button
+            onClick={handleClearAutoLocation}
+            className="flex items-center gap-1 rounded-full border border-border px-2.5 h-7 text-xs text-muted-foreground hover:bg-muted transition-colors shrink-0"
+          >
             <X className="h-3 w-3" />
           </button>
         )}
@@ -368,6 +444,24 @@ export function SearchFilters({
                     </SelectContent>
                   </Select>
                 </div>
+              ) : autoLocationLabel ? (
+                <div className="space-y-2.5">
+                  <div className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 p-3">
+                    <MapPin className="h-4 w-4 text-primary shrink-0" />
+                    <span className="text-sm font-medium text-primary">
+                      {autoLocationLabel}
+                    </span>
+                    <button
+                      onClick={() => {
+                        setShowCitySelector(true);
+                        setShowFilters(false);
+                      }}
+                      className="ml-auto text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Alterar
+                    </button>
+                  </div>
+                </div>
               ) : (
                 <Button
                   variant="outline"
@@ -397,6 +491,56 @@ export function SearchFilters({
           </div>
         </div>
       </div>
+
+      {/* City selector dialog */}
+      <Dialog open={showCitySelector} onOpenChange={setShowCitySelector}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Alterar localização</DialogTitle>
+            <DialogDescription>
+              Selecione uma cidade ou use sua localização
+            </DialogDescription>
+          </DialogHeader>
+
+          <button
+            onClick={handleUseGeoForCookie}
+            className="flex w-full items-center gap-2.5 rounded-xl border border-border px-3 py-2.5 text-sm hover:bg-muted transition-colors"
+          >
+            <Navigation className="h-4 w-4 text-primary shrink-0" />
+            Usar minha localização
+          </button>
+
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Buscar cidade..."
+              className="h-10 w-full rounded-xl border border-border bg-card pl-10 pr-4 text-sm outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary/20"
+              value={citySearch}
+              onChange={(e) => setCitySearch(e.target.value)}
+            />
+          </div>
+
+          <div className="max-h-60 overflow-y-auto space-y-1">
+            {filteredCities.length === 0 ? (
+              <p className="py-4 text-center text-sm text-muted-foreground">
+                Nenhuma cidade encontrada
+              </p>
+            ) : (
+              filteredCities.map((city) => (
+                <button
+                  key={city}
+                  onClick={() => handleCitySelect(city)}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-left hover:bg-muted transition-colors"
+                >
+                  <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
+                  {city}
+                </button>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

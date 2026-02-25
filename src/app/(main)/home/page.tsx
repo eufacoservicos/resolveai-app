@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getActiveProviders, getCurrentUser, getUserFavorites } from "@/lib/supabase/queries";
+import { getActiveProviders, getCities, getCurrentUser, getUserFavorites } from "@/lib/supabase/queries";
+import { getLocationFromCookie } from "@/lib/location";
+import { DEFAULT_RADIUS_KM } from "@/lib/location-cookie";
 
 export const metadata: Metadata = {
   title: "eufaço! - Encontre Serviços Locais",
@@ -21,7 +23,9 @@ import { ProviderListLoading } from "@/components/providers/provider-list-loadin
 import { HomeHero } from "@/components/layout/home-hero";
 import { AdBanner } from "@/components/layout/ad-banner";
 import { ProviderGrid } from "@/components/providers/provider-grid";
-import { ArrowRight, Wrench } from "lucide-react";
+import { LocationGate } from "@/components/location/location-gate";
+import { LocationChip } from "@/components/location/location-chip";
+import { ArrowRight, MapPinOff, Wrench } from "lucide-react";
 
 export default async function HomePage({
   searchParams,
@@ -30,11 +34,31 @@ export default async function HomePage({
 }) {
   const params = await searchParams;
   const supabase = await createClient();
-  const [providersResult, currentUser] = await Promise.all([
+
+  const location = await getLocationFromCookie();
+
+  // Build location filters from cookie
+  const locationFilters: {
+    latitude?: number;
+    longitude?: number;
+    radiusKm?: number;
+    city?: string;
+  } = {};
+  if (location?.type === "geo") {
+    locationFilters.latitude = location.lat;
+    locationFilters.longitude = location.lng;
+    locationFilters.radiusKm = DEFAULT_RADIUS_KM;
+  } else if (location?.type === "city") {
+    locationFilters.city = location.city;
+  }
+
+  const [providersResult, cities, currentUser] = await Promise.all([
     getActiveProviders(supabase, {
       categorySlug: params.categoria,
       orderBy: params.ordenar === "avaliacao" ? "rating" : "recent",
+      ...locationFilters,
     }),
+    getCities(supabase),
     getCurrentUser(supabase),
   ]);
   const providers = providersResult.providers;
@@ -43,9 +67,17 @@ export default async function HomePage({
     ? await getUserFavorites(supabase, currentUser.id)
     : [];
 
+  const isLocationFiltered = !!location;
+
   return (
     <div className="space-y-6">
+      <LocationGate cities={cities} />
+
       <HomeHero />
+
+      {isLocationFiltered && (
+        <LocationChip cities={cities} currentLocation={location} />
+      )}
 
       <AdBanner />
 
@@ -62,25 +94,33 @@ export default async function HomePage({
             {providers.length === 0 ? (
               <div className="flex flex-col items-center py-12 text-center">
                 <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
-                  <svg
-                    className="h-7 w-7 text-muted-foreground"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
+                  {isLocationFiltered ? (
+                    <MapPinOff className="h-7 w-7 text-muted-foreground" />
+                  ) : (
+                    <svg
+                      className="h-7 w-7 text-muted-foreground"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
+                  )}
                 </div>
                 <p className="font-medium text-foreground">
-                  Nenhum prestador encontrado
+                  {isLocationFiltered
+                    ? "Não há profissionais cadastrados na sua região"
+                    : "Nenhum prestador encontrado"}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Tente buscar por outra categoria
+                  {isLocationFiltered
+                    ? "Tente alterar sua localização ou buscar em outra cidade"
+                    : "Tente buscar por outra categoria"}
                 </p>
               </div>
             ) : (

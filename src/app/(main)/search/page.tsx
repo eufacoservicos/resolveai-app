@@ -3,9 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 import {
   getActiveProviders,
   getCategories,
+  getCities,
   getCurrentUser,
   getUserFavorites,
 } from "@/lib/supabase/queries";
+import { getLocationFromCookie } from "@/lib/location";
+import { DEFAULT_RADIUS_KM } from "@/lib/location-cookie";
 
 export const metadata: Metadata = {
   title: "Buscar Serviços - eufaço!",
@@ -15,7 +18,8 @@ export const metadata: Metadata = {
 import { ProviderCard } from "@/components/providers/provider-card";
 import { SearchFilters } from "@/components/providers/search-filters";
 import { ProviderGrid } from "@/components/providers/provider-grid";
-import { Search } from "lucide-react";
+import { LocationGate } from "@/components/location/location-gate";
+import { Search, MapPinOff } from "lucide-react";
 
 const PAGE_SIZE = 12;
 
@@ -37,21 +41,48 @@ export default async function SearchPage({
   const page = Math.max(1, parseInt(params.pagina ?? "1", 10) || 1);
   const supabase = await createClient();
 
-  const latitude = params.lat ? parseFloat(params.lat) : undefined;
-  const longitude = params.lng ? parseFloat(params.lng) : undefined;
-  const radiusKm = params.raio ? parseFloat(params.raio) : undefined;
+  const location = await getLocationFromCookie();
+
+  // URL params take priority over cookie
+  const hasUrlLocation = !!(params.lat && params.lng) || !!params.cidade;
+
+  let latitude = params.lat ? parseFloat(params.lat) : undefined;
+  let longitude = params.lng ? parseFloat(params.lng) : undefined;
+  let radiusKm = params.raio ? parseFloat(params.raio) : undefined;
+  let city = params.cidade;
+
+  // Fallback to cookie when no URL location params
+  if (!hasUrlLocation && location) {
+    if (location.type === "geo") {
+      latitude = location.lat;
+      longitude = location.lng;
+      radiusKm = DEFAULT_RADIUS_KM;
+    } else if (location.type === "city") {
+      city = location.city;
+    }
+  }
+
+  const isLocationFiltered = !!(latitude && longitude) || !!city;
 
   const orderByMap: Record<string, "rating" | "recent" | "distance"> = {
     avaliacao: "rating",
     distancia: "distance",
   };
 
-  const [{ providers, total }, categories, currentUser] =
+  // Auto-location label for the search filters chip
+  const autoLocationLabel =
+    !hasUrlLocation && location
+      ? location.type === "geo"
+        ? location.label
+        : location.city
+      : undefined;
+
+  const [{ providers, total }, categories, cities, currentUser] =
     await Promise.all([
       getActiveProviders(supabase, {
         search: params.q,
         categorySlug: params.categoria,
-        city: params.cidade,
+        city,
         latitude,
         longitude,
         radiusKm,
@@ -60,6 +91,7 @@ export default async function SearchPage({
         pageSize: PAGE_SIZE,
       }),
       getCategories(supabase),
+      getCities(supabase),
       getCurrentUser(supabase),
     ]);
 
@@ -86,6 +118,8 @@ export default async function SearchPage({
 
   return (
     <div className="space-y-4">
+      <LocationGate cities={cities} />
+
       <h1 className="text-xl font-bold tracking-tight">Buscar</h1>
 
       <SearchFilters
@@ -96,17 +130,27 @@ export default async function SearchPage({
         activeRadius={params.raio}
         hasGeolocation={!!(params.lat && params.lng)}
         resultCount={total}
+        autoLocationLabel={autoLocationLabel}
+        cities={cities}
       >
         {providers.length === 0 ? (
           <div className="flex flex-col items-center py-12 text-center">
             <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
-              <Search className="h-7 w-7 text-muted-foreground" />
+              {isLocationFiltered ? (
+                <MapPinOff className="h-7 w-7 text-muted-foreground" />
+              ) : (
+                <Search className="h-7 w-7 text-muted-foreground" />
+              )}
             </div>
             <p className="font-medium text-foreground">
-              Nenhum resultado encontrado
+              {isLocationFiltered
+                ? "Não há profissionais cadastrados na sua região"
+                : "Nenhum resultado encontrado"}
             </p>
             <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-              Tente ajustar os filtros
+              {isLocationFiltered
+                ? "Tente alterar sua localização ou buscar em outra cidade"
+                : "Tente ajustar os filtros"}
             </p>
           </div>
         ) : (
