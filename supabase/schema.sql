@@ -237,6 +237,66 @@ create policy "Users can delete own portfolio files"
   using (bucket_id = 'portfolio' and (storage.foldername(name))[1] = auth.uid()::text);
 
 -- ============================================
+-- ANALYTICS TABLES
+-- ============================================
+
+-- Profile views tracking
+create table public.profile_views (
+  id uuid primary key default uuid_generate_v4(),
+  provider_id uuid not null references public.provider_profiles(id) on delete cascade,
+  viewer_id uuid references public.users(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create index idx_profile_views_provider_id on public.profile_views(provider_id);
+create index idx_profile_views_created_at on public.profile_views(created_at);
+
+-- WhatsApp clicks tracking
+create table public.whatsapp_clicks (
+  id uuid primary key default uuid_generate_v4(),
+  provider_id uuid not null references public.provider_profiles(id) on delete cascade,
+  clicker_id uuid references public.users(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create index idx_whatsapp_clicks_provider_id on public.whatsapp_clicks(provider_id);
+create index idx_whatsapp_clicks_created_at on public.whatsapp_clicks(created_at);
+
+-- RLS for analytics tables
+alter table public.profile_views enable row level security;
+alter table public.whatsapp_clicks enable row level security;
+
+-- Anyone (including anonymous) can insert tracking events
+create policy "Anyone can track profile views"
+  on public.profile_views for insert
+  to anon, authenticated
+  with check (true);
+
+create policy "Anyone can track whatsapp clicks"
+  on public.whatsapp_clicks for insert
+  to anon, authenticated
+  with check (true);
+
+-- Providers can read only their own stats
+create policy "Providers can read own profile views"
+  on public.profile_views for select
+  to authenticated
+  using (
+    provider_id in (
+      select id from public.provider_profiles where user_id = auth.uid()
+    )
+  );
+
+create policy "Providers can read own whatsapp clicks"
+  on public.whatsapp_clicks for select
+  to authenticated
+  using (
+    provider_id in (
+      select id from public.provider_profiles where user_id = auth.uid()
+    )
+  );
+
+-- ============================================
 -- FUNCTION: Auto-create user profile on signup
 -- ============================================
 

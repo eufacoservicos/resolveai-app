@@ -25,6 +25,7 @@ import { BusinessHoursDisplay } from "@/components/providers/business-hours-disp
 import { BusinessHours } from "@/types/database";
 import { getWhatsAppUrl } from "@/lib/constants";
 import { isProviderOpenNow } from "@/lib/business-hours";
+import { trackWhatsAppClick } from "@/app/(main)/provider/[id]/actions";
 import { cn } from "@/lib/utils";
 
 interface ProviderDetailProps {
@@ -411,17 +412,20 @@ export function ProviderDetail({
       {provider.whatsapp && (
         <div className="fixed bottom-20 left-0 right-0 z-40 px-4 md:bottom-6">
           <div className="mx-auto flex max-w-5xl gap-2">
-            <a
-              href={getWhatsAppUrl(provider.whatsapp, provider.user.full_name)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1"
+            <Button
+              onClick={() => {
+                trackWhatsAppClick(provider.id);
+                window.open(
+                  getWhatsAppUrl(provider.whatsapp, provider.user.full_name),
+                  "_blank",
+                  "noopener,noreferrer"
+                );
+              }}
+              className="flex-1 h-12 rounded-xl gap-2.5 bg-emerald-500 text-white font-semibold text-base shadow-lg hover:bg-emerald-600 transition-colors"
             >
-              <Button className="w-full h-12 rounded-xl gap-2.5 bg-emerald-500 text-white font-semibold text-base shadow-lg hover:bg-emerald-600 transition-colors">
-                <MessageCircle className="h-5 w-5" />
-                Chamar no WhatsApp
-              </Button>
-            </a>
+              <MessageCircle className="h-5 w-5" />
+              Chamar no WhatsApp
+            </Button>
             <Button
               onClick={handleShare}
               variant="outline"

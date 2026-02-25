@@ -400,6 +400,48 @@ export async function getUserFavoriteProviders(
 }
 
 // ============================================
+// PROVIDER STATS (analytics)
+// ============================================
+
+export async function getProviderStats(
+  supabase: SupabaseClient,
+  providerId: string
+) {
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const since = sevenDaysAgo.toISOString();
+
+  const [totalViews, totalClicks, recentViews, recentClicks] =
+    await Promise.all([
+      supabase
+        .from("profile_views")
+        .select("id", { count: "exact", head: true })
+        .eq("provider_id", providerId),
+      supabase
+        .from("whatsapp_clicks")
+        .select("id", { count: "exact", head: true })
+        .eq("provider_id", providerId),
+      supabase
+        .from("profile_views")
+        .select("id", { count: "exact", head: true })
+        .eq("provider_id", providerId)
+        .gte("created_at", since),
+      supabase
+        .from("whatsapp_clicks")
+        .select("id", { count: "exact", head: true })
+        .eq("provider_id", providerId)
+        .gte("created_at", since),
+    ]);
+
+  return {
+    totalViews: totalViews.count ?? 0,
+    totalClicks: totalClicks.count ?? 0,
+    viewsLast7Days: recentViews.count ?? 0,
+    clicksLast7Days: recentClicks.count ?? 0,
+  };
+}
+
+// ============================================
 // CITIES (distinct values from providers)
 // ============================================
 

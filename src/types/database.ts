@@ -90,6 +90,27 @@ export interface BusinessHours {
   is_closed: boolean;
 }
 
+export interface ProfileView {
+  id: string;
+  provider_id: string;
+  viewer_id: string | null;
+  created_at: string;
+}
+
+export interface WhatsAppClick {
+  id: string;
+  provider_id: string;
+  clicker_id: string | null;
+  created_at: string;
+}
+
+export interface ProviderStats {
+  totalViews: number;
+  totalClicks: number;
+  viewsLast7Days: number;
+  clicksLast7Days: number;
+}
+
 // Joined / computed types
 
 export interface ProviderWithDetails extends ProviderProfile {

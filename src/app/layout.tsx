@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { LazyPwaPrompt } from "@/components/layout/lazy-pwa-prompt";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import "./globals.css";
 
 const geist = Geist({
@@ -108,6 +109,7 @@ export default function RootLayout({
             __html: `requestAnimationFrame(function c(){var m=document.querySelector('main,[data-nextjs-scroll-focus-boundary]');if(m){var s=document.getElementById('splash');if(s){s.classList.add('hide');setTimeout(function(){s.style.display='none'},400)}}else{requestAnimationFrame(c)}})`,
           }}
         />
+        <GoogleAnalytics />
         {children}
         <LazyPwaPrompt />
         <Toaster position="top-center" richColors closeButton />

@@ -8,6 +8,7 @@ import {
   hasUserReviewedProvider,
 } from "@/lib/supabase/queries";
 import { ProviderDetail } from "@/components/providers/provider-detail";
+import { TrackView } from "@/components/analytics/track-view";
 
 export async function generateMetadata({
   params,
@@ -70,11 +71,14 @@ export default async function ProviderPage({
     : true;
 
   return (
-    <ProviderDetail
-      provider={provider}
-      reviews={reviews}
-      currentUser={currentUser}
-      alreadyReviewed={alreadyReviewed}
-    />
+    <>
+      <TrackView providerId={id} />
+      <ProviderDetail
+        provider={provider}
+        reviews={reviews}
+        currentUser={currentUser}
+        alreadyReviewed={alreadyReviewed}
+      />
+    </>
   );
 }

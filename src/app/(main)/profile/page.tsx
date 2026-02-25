@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUser } from "@/lib/supabase/queries";
-import { getProviderByUserId } from "@/lib/supabase/queries";
+import { getCurrentUser, getProviderByUserId } from "@/lib/supabase/queries";
 import { ProfileView } from "@/components/auth/profile-view";
 
 export default async function ProfilePage() {
