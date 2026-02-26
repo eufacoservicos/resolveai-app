@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Geist } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { LazyPwaPrompt } from "@/components/layout/lazy-pwa-prompt";
@@ -42,6 +43,12 @@ export default function RootLayout({
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <Script
+          defer
+          data-domain="eufacooservico.com.br"
+          src="https://devsnorte-plausible.fly.dev/js/script.js"
+          strategy="afterInteractive"
+        />
       </head>
       <body className={`${geist.variable} font-sans antialiased`} suppressHydrationWarning>
         {/* Splash screen — pure HTML/CSS, renders before JS loads */}
