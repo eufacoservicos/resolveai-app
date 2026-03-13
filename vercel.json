@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/((?!\\.well-known).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.eufacooservico.com.br"
+        }
+      ],
+      "destination": "https://eufacooservico.com.br/$1",
+      "permanent": true
+    }
+  ]
+}
