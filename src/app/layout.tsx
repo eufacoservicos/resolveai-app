@@ -56,7 +56,7 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var standalone=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;var twa=document.referrer&&document.referrer.startsWith("android-app://");if(standalone||twa){document.documentElement.classList.add("app-shell")}}catch(_){}})();`,
+            __html: `(function(){try{var ref=document.referrer||"";var twaRef=ref.indexOf("android-app://")===0;var standalone=window.matchMedia("(display-mode: standalone)").matches||window.matchMedia("(display-mode: fullscreen)").matches||window.matchMedia("(display-mode: minimal-ui)").matches||window.navigator.standalone===true;if(twaRef){sessionStorage.setItem("eufaco:twa-launch","1")}var twaSession=sessionStorage.getItem("eufaco:twa-launch")==="1";if(standalone||twaRef||twaSession){document.documentElement.classList.add("app-shell")}}catch(_){}})();`,
           }}
         />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
