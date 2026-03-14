@@ -68,7 +68,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${geist.variable} font-sans antialiased`} suppressHydrationWarning>
-        {/* Splash screen — pure HTML/CSS, renders before JS loads */}
+        {/* Splash screen - pure HTML/CSS, renders before JS loads */}
         <div
           id="splash"
           suppressHydrationWarning
@@ -80,58 +80,77 @@ export default function RootLayout({
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            gap: "20px",
-            background: "linear-gradient(135deg, #f0f9ff 0%, #ffffff 50%, #ecfeff 100%)",
-            transition: "opacity 0.4s ease-out",
+            background:
+              "radial-gradient(circle at 22% 18%, #e0f2fe 0%, rgba(224,242,254,0) 44%), radial-gradient(circle at 80% 76%, #cffafe 0%, rgba(207,250,254,0) 42%), linear-gradient(160deg, #f0f9ff 0%, #ffffff 54%, #f0fdff 100%)",
+            transition: "opacity 0.42s ease-out",
             overflow: "hidden",
+            padding: "16px",
           }}
         >
-          {/* Gradient orbs */}
-          <div style={{ position: "absolute", top: "-80px", right: "-80px", width: 300, height: 300, borderRadius: "50%", background: "rgba(14,165,233,0.06)", filter: "blur(60px)" }} />
-          <div style={{ position: "absolute", bottom: "-60px", left: "-60px", width: 250, height: 250, borderRadius: "50%", background: "rgba(6,182,212,0.05)", filter: "blur(60px)" }} />
+          <div className="splash-blob b1" />
+          <div className="splash-blob b2" />
+          <div className="splash-blob b3" />
 
-          {/* Floating icons (pure SVG, no JS needed) */}
-          {/* Zap */}
-          <svg style={{ position: "absolute", top: "18%", left: "10%", opacity: 0.07, animation: "splash-float 6s ease-in-out infinite" }} width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-          {/* Paintbrush */}
-          <svg style={{ position: "absolute", top: "28%", right: "12%", opacity: 0.06, animation: "splash-float 8s ease-in-out 1s infinite" }} width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m14.622 17.897-10.68-2.913"/><path d="M18.376 2.622a1 1 0 1 1 3.002 3.002L17.36 9.643a.5.5 0 0 0 0 .707l.944.944a2.41 2.41 0 0 1 0 3.408l-.944.944a.5.5 0 0 1-.707 0L8.354 7.348a.5.5 0 0 1 0-.707l.944-.944a2.41 2.41 0 0 1 3.408 0l.944.944a.5.5 0 0 0 .707 0z"/><path d="M9 8c-1.804 2.71-3.97 3.46-6.583 3.948a.507.507 0 0 0-.302.819l7.32 8.883a1 1 0 0 0 1.185.204C12.735 20.405 16 16.792 16 15"/></svg>
-          {/* Wrench */}
-          <svg style={{ position: "absolute", bottom: "22%", left: "14%", opacity: 0.06, animation: "splash-float 7s ease-in-out 2s infinite", transform: "rotate(0deg)" }} width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-          {/* Scissors */}
-          <svg style={{ position: "absolute", top: "60%", right: "10%", opacity: 0.05, animation: "splash-float 6s ease-in-out 3s infinite" }} width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></svg>
-          {/* Droplets */}
-          <svg style={{ position: "absolute", top: "42%", left: "6%", opacity: 0.05, animation: "splash-float 7s ease-in-out 1.5s infinite" }} width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>
-
-          {/* Logo with entrance animation */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo.svg"
-            alt=""
-            width={180}
-            height={66}
-            style={{
-              height: 66,
-              width: "auto",
-              position: "relative",
-              animation: "splash-logo 0.6s ease-out both, splash-pulse 2s ease-in-out 0.6s infinite",
-            }}
-          />
+          <section id="splash-card" aria-label="Tela de abertura do aplicativo">
+            <div id="splash-logo-wrap">
+              <span id="splash-logo-ring" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img id="splash-logo" src="/logo.svg" alt="" width={220} height={80} />
+            </div>
+            <p id="splash-title">eufaco!</p>
+            <p id="splash-sub">Conectando voce aos melhores profissionais da sua regiao.</p>
+            <p id="splash-hint">Buscando profissionais verificados...</p>
+            <div id="splash-progress">
+              <span />
+            </div>
+            <div id="splash-actions">
+              <button id="splash-skip" type="button">
+                Entrar agora
+              </button>
+              <button id="splash-touch" type="button">
+                Toque para pular
+              </button>
+            </div>
+          </section>
         </div>
         <style
           dangerouslySetInnerHTML={{
             __html: [
               ".app-shell #splash{display:flex!important}",
               "@media(display-mode:standalone){#splash{display:flex!important}}",
-              "@keyframes splash-logo{from{opacity:0;transform:translateY(16px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}",
-              "@keyframes splash-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.04);opacity:0.85}}",
-              "@keyframes splash-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}",
               "#splash.hide{opacity:0;pointer-events:none}",
+              "#splash .splash-blob{position:absolute;border-radius:999px;filter:blur(48px);opacity:.55;animation:splash-blob 9s ease-in-out infinite}",
+              "#splash .splash-blob.b1{width:260px;height:260px;top:-78px;left:-56px;background:rgba(14,165,233,.28)}",
+              "#splash .splash-blob.b2{width:220px;height:220px;right:-46px;bottom:-72px;background:rgba(6,182,212,.28);animation-delay:1.2s}",
+              "#splash .splash-blob.b3{width:180px;height:180px;left:58%;top:10%;background:rgba(34,211,238,.22);animation-delay:2.2s}",
+              "#splash-card{position:relative;z-index:2;width:min(92vw,420px);padding:28px 22px 22px;border-radius:24px;background:rgba(255,255,255,.78);backdrop-filter:blur(10px);box-shadow:0 20px 50px rgba(2,132,199,.22);border:1px solid rgba(255,255,255,.65);display:flex;flex-direction:column;align-items:center;gap:12px;transform:translateY(14px) scale(.98);opacity:0;animation:splash-card-in .55s ease-out .12s forwards}",
+              "#splash-logo-wrap{position:relative;display:grid;place-items:center;width:150px;height:150px}",
+              "#splash-logo-ring{position:absolute;inset:8px;border-radius:999px;border:2px solid rgba(14,165,233,.25);animation:splash-spin 6s linear infinite}",
+              "#splash-logo-ring::after{content:'';position:absolute;inset:-8px;border-radius:inherit;border:1px dashed rgba(2,132,199,.35);animation:splash-spin-rev 9s linear infinite}",
+              "#splash-logo{width:118px;height:auto;filter:drop-shadow(0 8px 14px rgba(14,165,233,.2));animation:splash-logo-float 2.4s ease-in-out infinite}",
+              "#splash-title{margin:2px 0 0;font-size:24px;line-height:1.1;font-weight:800;color:#0f172a;text-align:center;letter-spacing:-.02em}",
+              "#splash-sub{margin:0;font-size:13px;line-height:1.45;color:#334155;text-align:center;max-width:300px}",
+              "#splash-hint{margin:0;font-size:12px;line-height:1.4;color:#0369a1;min-height:17px;text-align:center;transition:opacity .2s ease}",
+              "#splash-progress{width:100%;max-width:300px;height:7px;border-radius:999px;background:rgba(14,165,233,.14);overflow:hidden}",
+              "#splash-progress>span{display:block;height:100%;width:42%;border-radius:inherit;background:linear-gradient(90deg,#0ea5e9,#06b6d4,#22d3ee);animation:splash-progress 1.2s ease-in-out infinite}",
+              "#splash-actions{display:flex;gap:10px;margin-top:4px}",
+              "#splash-skip,#splash-touch{border:0;border-radius:999px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:transform .2s ease,opacity .2s ease;background:#0ea5e9;color:#fff;box-shadow:0 8px 18px rgba(14,165,233,.35);opacity:.45;pointer-events:none}",
+              "#splash-touch{background:rgba(15,23,42,.08);color:#0f172a;box-shadow:none}",
+              "#splash.can-skip #splash-skip,#splash.can-skip #splash-touch{opacity:1;pointer-events:auto}",
+              "#splash-skip:active,#splash-touch:active{transform:translateY(1px) scale(.98)}",
+              "@keyframes splash-card-in{to{transform:translateY(0) scale(1);opacity:1}}",
+              "@keyframes splash-logo-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}",
+              "@keyframes splash-spin{to{transform:rotate(360deg)}}",
+              "@keyframes splash-spin-rev{to{transform:rotate(-360deg)}}",
+              "@keyframes splash-progress{0%{transform:translateX(-130%)}100%{transform:translateX(260%)}}",
+              "@keyframes splash-blob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-14px) scale(1.08)}}",
+              "@media(max-width:420px){#splash-card{padding:24px 16px 18px;border-radius:20px}#splash-title{font-size:21px}}",
             ].join(""),
           }}
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `requestAnimationFrame(function c(){var m=document.querySelector('main,[data-nextjs-scroll-focus-boundary]');if(m){var s=document.getElementById('splash');if(s){s.classList.add('hide');setTimeout(function(){s.style.display='none'},400)}}else{requestAnimationFrame(c)}})`,
+            __html: `(function(){var splash=document.getElementById('splash');if(!splash)return;var skipBtn=document.getElementById('splash-skip');var touchBtn=document.getElementById('splash-touch');var hint=document.getElementById('splash-hint');var minMs=900;var start=Date.now();var hints=['Buscando profissionais verificados...','Carregando categorias e favoritos...','Preparando sua experiencia...'];var hintIndex=0;var hintTimer=null;function hideSplash(){if(!splash||splash.classList.contains('hide'))return;if(hintTimer){clearInterval(hintTimer);}splash.classList.add('hide');setTimeout(function(){if(splash){splash.style.display='none';}},420);}function onSkip(){if(!splash.classList.contains('can-skip'))return;hideSplash();}setTimeout(function(){if(splash){splash.classList.add('can-skip');}},750);if(hint){hint.textContent=hints[0];hintTimer=setInterval(function(){if(!document.body.contains(hint)){clearInterval(hintTimer);return;}hintIndex=(hintIndex+1)%hints.length;hint.style.opacity='0';setTimeout(function(){if(hint){hint.textContent=hints[hintIndex];hint.style.opacity='1';}},120);},1700);}if(skipBtn){skipBtn.addEventListener('click',onSkip);}if(touchBtn){touchBtn.addEventListener('click',onSkip);}splash.addEventListener('click',function(ev){if(ev.target===splash){onSkip();}});requestAnimationFrame(function waitMain(){var root=document.querySelector('main,[data-nextjs-scroll-focus-boundary]');if(root){var elapsed=Date.now()-start;var left=minMs-elapsed;if(left>0){setTimeout(hideSplash,left);}else{hideSplash();}}else{requestAnimationFrame(waitMain);}});})();`,
           }}
         />
         <GoogleAnalytics />
@@ -162,3 +181,4 @@ export default function RootLayout({
     </html>
   );
 }
+
