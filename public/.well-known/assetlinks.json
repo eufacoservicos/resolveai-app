@@ -3,6 +3,16 @@
 		"relation": ["delegate_permission/common.handle_all_urls"],
 		"target": {
 			"namespace": "android_app",
+			"package_name": "br.com.eufacooservico.twa",
+			"sha256_cert_fingerprints": [
+				"99:E9:94:1D:B0:CC:40:05:9B:0B:FB:92:F7:B4:8D:49:C8:DA:EB:B0:0D:DF:50:56:8B:DF:0D:1E:97:45:0A:2A"
+			]
+		}
+	},
+	{
+		"relation": ["delegate_permission/common.handle_all_urls"],
+		"target": {
+			"namespace": "android_app",
 			"package_name": "br.com.eufacooservico.www.twa",
 			"sha256_cert_fingerprints": [
 				"FE:8F:09:82:12:E3:16:99:E1:13:67:49:92:6C:9C:75:C0:D3:83:EF:7A:E9:78:99:15:A5:B6:18:CF:FA:12:61"
