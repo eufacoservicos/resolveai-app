@@ -62,14 +62,6 @@ const faqJsonLd = {
         text: "O contato é feito diretamente pelo WhatsApp do prestador. Ao clicar no botão de contato no perfil do profissional, uma conversa é iniciada automaticamente. Não há intermediários.",
       },
     },
-    {
-      "@type": "Question",
-      name: "Como verifico meu perfil de prestador?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: 'Na sua área de perfil, acesse "Verificar perfil" e envie uma foto do seu documento de identidade. Nossa equipe analisa e aprova a verificação, que adiciona um selo de confiança ao seu perfil.',
-      },
-    },
   ],
 };
 

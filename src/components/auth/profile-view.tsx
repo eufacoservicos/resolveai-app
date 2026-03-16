@@ -15,11 +15,11 @@ import {
   Star,
   Briefcase,
   ImageIcon,
-  ShieldCheck,
   CheckCircle2,
   Circle,
   Camera,
   Clock,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -68,12 +68,6 @@ function ProfileChecklist({ user, provider }: {
       done: (provider.business_hours?.length ?? 0) > 0 && provider.business_hours!.some(h => !h.is_closed),
       href: "/provider/edit",
       icon: Clock,
-    },
-    {
-      label: "Verificação de identidade",
-      done: !!provider.is_verified,
-      href: "/provider/verification",
-      icon: ShieldCheck,
     },
   ];
 
@@ -256,23 +250,6 @@ export function ProfileView({ user, providerProfile }: ProfileViewProps) {
           </Link>
         )}
 
-        {isProvider && (
-          <Link
-            href="/provider/verification"
-            className="flex items-center justify-between p-4 transition-colors hover:bg-muted/50"
-          >
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50">
-                <ShieldCheck className="h-4 w-4 text-blue-500" />
-              </div>
-              <span className="text-sm font-medium">
-                Verificar perfil
-              </span>
-            </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          </Link>
-        )}
-
         <Link
           href="/terms"
           className="flex items-center justify-between p-4 transition-colors hover:bg-muted/50"
@@ -286,6 +263,15 @@ export function ProfileView({ user, providerProfile }: ProfileViewProps) {
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </Link>
       </div>
+
+      {/* Delete account */}
+      <Link
+        href="/profile/delete"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card p-3 text-muted-foreground transition-colors hover:bg-muted/50"
+      >
+        <Trash2 className="h-4 w-4" />
+        <span className="text-sm font-medium">Excluir conta</span>
+      </Link>
 
       {/* Sign out */}
       <button

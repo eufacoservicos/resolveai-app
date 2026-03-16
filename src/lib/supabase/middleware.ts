@@ -47,7 +47,7 @@ export async function updateSession(request: NextRequest) {
 
   // Browsable routes - accessible without authentication
   const browsableRoutes = ["/home", "/search", "/categories", "/api/providers"];
-  const protectedSubRoutes = ["/provider/edit", "/provider/portfolio", "/provider/verification"];
+  const protectedSubRoutes = ["/provider/edit", "/provider/portfolio"];
   const isProtectedSubRoute =
     protectedSubRoutes.some((route) => pathname.startsWith(route)) ||
     pathname.endsWith("/review");
