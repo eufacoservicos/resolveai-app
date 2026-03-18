@@ -110,7 +110,7 @@ export function BusinessHoursEditor({
           return (
             <div
               key={day.day_of_week}
-              className="flex items-center gap-3 rounded-lg border border-border p-3"
+              className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-3"
             >
               <div className="w-12 shrink-0">
                 <span className="text-sm font-medium">{dayInfo.short}</span>
@@ -135,23 +135,23 @@ export function BusinessHoursEditor({
               </button>
 
               {!day.is_closed ? (
-                <div className="flex flex-1 items-center gap-2">
+                <div className="grid min-w-0 basis-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:flex-1 sm:basis-auto">
                   <input
                     type="time"
                     value={day.open_time}
                     onChange={(e) =>
                       updateDay(day.day_of_week, "open_time", e.target.value)
                     }
-                    className="h-8 rounded-md border border-border px-2 text-sm"
+                    className="h-8 w-full min-w-0 rounded-md border border-border px-2 text-sm"
                   />
-                  <span className="text-xs text-muted-foreground">às</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">às</span>
                   <input
                     type="time"
                     value={day.close_time}
                     onChange={(e) =>
                       updateDay(day.day_of_week, "close_time", e.target.value)
                     }
-                    className="h-8 rounded-md border border-border px-2 text-sm"
+                    className="h-8 w-full min-w-0 rounded-md border border-border px-2 text-sm"
                   />
                 </div>
               ) : (
@@ -177,3 +177,4 @@ export function BusinessHoursEditor({
     </div>
   );
 }
+
