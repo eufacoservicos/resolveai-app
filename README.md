@@ -43,6 +43,7 @@ Before publishing a new `.aab`:
 
 1. Confirm the `applicationId` in the Android project matches one of the `package_name` entries in `public/.well-known/assetlinks.json`.
 2. In Google Play Console, copy the **App signing certificate** SHA-256 (not only the upload key) and keep it in `sha256_cert_fingerprints`.
+   - If you test a locally generated APK (outside Play), include the APK signing SHA-256 as well.
 3. Keep `assetlinks.json` available on both:
    - `https://eufacooservico.com.br/.well-known/assetlinks.json`
    - `https://www.eufacooservico.com.br/.well-known/assetlinks.json`
