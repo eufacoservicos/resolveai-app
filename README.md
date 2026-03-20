@@ -34,3 +34,17 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Android TWA (Play Store) Checklist
+
+If the app opens with a URL bar on Android, TWA verification failed and Chrome fell back to Custom Tabs.
+
+Before publishing a new `.aab`:
+
+1. Confirm the `applicationId` in the Android project matches one of the `package_name` entries in `public/.well-known/assetlinks.json`.
+2. In Google Play Console, copy the **App signing certificate** SHA-256 (not only the upload key) and keep it in `sha256_cert_fingerprints`.
+3. Keep `assetlinks.json` available on both:
+   - `https://eufacooservico.com.br/.well-known/assetlinks.json`
+   - `https://www.eufacooservico.com.br/.well-known/assetlinks.json`
+4. After deployment, validate both URLs return HTTP `200` and valid JSON.
+5. Publish the web change before (or together with) the Play rollout to avoid temporary verification mismatch.
