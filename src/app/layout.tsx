@@ -12,7 +12,7 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://eufacooservico.com.br"),
+  metadataBase: new URL("https://www.eufacooservico.com.br"),
   title: {
     default: "eufaço! - Serviços Locais",
     template: "%s | eufaço!",
@@ -62,7 +62,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <Script
           defer
-          data-domain="eufacooservico.com.br"
+          data-domain="www.eufacooservico.com.br"
           src="https://devsnorte-plausible.fly.dev/js/script.js"
           strategy="afterInteractive"
         />
@@ -142,13 +142,13 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebSite",
               name: "eufaço!",
-              url: "https://eufacooservico.com.br",
+              url: "https://www.eufacooservico.com.br",
               potentialAction: {
                 "@type": "SearchAction",
                 target: {
                   "@type": "EntryPoint",
                   urlTemplate:
-                    "https://eufacooservico.com.br/search?q={search_term_string}",
+                    "https://www.eufacooservico.com.br/search?q={search_term_string}",
                 },
                 "query-input": "required name=search_term_string",
               },

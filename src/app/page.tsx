@@ -11,10 +11,10 @@ export const metadata: Metadata = {
     title: "eufaço! - Encontre Profissionais de Serviços Locais",
     description:
       "Conecte-se com prestadores de serviços verificados na sua região. Busque, compare avaliações e contrate com segurança.",
-    url: "https://eufacooservico.com.br",
+    url: "https://www.eufacooservico.com.br",
   },
   alternates: {
-    canonical: "https://eufacooservico.com.br",
+    canonical: "https://www.eufacooservico.com.br",
   },
 };
 

@@ -82,7 +82,7 @@ export default async function ProviderPage({
       addressRegion: provider.state || undefined,
       addressCountry: "BR",
     },
-    url: `https://eufacooservico.com.br/provider/${id}`,
+    url: `https://www.eufacooservico.com.br/provider/${id}`,
     ...(provider.categories.length > 0 && {
       category: provider.categories.map((c: { name: string }) => c.name).join(", "),
     }),

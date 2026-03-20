@@ -46,5 +46,6 @@ Before publishing a new `.aab`:
 3. Keep `assetlinks.json` available on both:
    - `https://eufacooservico.com.br/.well-known/assetlinks.json`
    - `https://www.eufacooservico.com.br/.well-known/assetlinks.json`
+   - Important: the TWA launch origin must be the same host that serves `200` directly (without `307/308` redirect).
 4. After deployment, validate both URLs return HTTP `200` and valid JSON.
 5. Publish the web change before (or together with) the Play rollout to avoid temporary verification mismatch.

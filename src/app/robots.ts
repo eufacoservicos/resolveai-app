@@ -21,6 +21,6 @@ export default function robots(): MetadataRoute.Robots {
         "/offline",
       ],
     },
-    sitemap: "https://eufacooservico.com.br/sitemap.xml",
+    sitemap: "https://www.eufacooservico.com.br/sitemap.xml",
   };
 }
