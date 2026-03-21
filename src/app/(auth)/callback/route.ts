@@ -1,10 +1,17 @@
+import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/home";
+
+  // Use x-forwarded-host in production (Vercel/reverse proxy)
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const isLocalEnv = process.env.NODE_ENV === "development";
+  const redirectOrigin =
+    isLocalEnv || !forwardedHost ? origin : `https://${forwardedHost}`;
 
   // Handle OAuth errors from Supabase
   const error = searchParams.get("error");
@@ -12,12 +19,42 @@ export async function GET(request: Request) {
     const desc =
       searchParams.get("error_description") ?? "Erro na autenticação";
     return NextResponse.redirect(
-      `${origin}/login?error=${encodeURIComponent(desc)}`
+      `${redirectOrigin}/login?error=${encodeURIComponent(desc)}`
     );
   }
 
   if (code) {
-    const supabase = await createClient();
+    const cookieStore = await cookies();
+
+    // Collect cookies to explicitly set on the redirect response
+    const cookiesToSet: Array<{
+      name: string;
+      value: string;
+      options: Record<string, unknown>;
+    }> = [];
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookies) {
+            cookies.forEach(({ name, value, options }) => {
+              cookiesToSet.push({ name, value, options });
+              try {
+                cookieStore.set(name, value, options);
+              } catch {
+                // May fail in certain contexts — cookies will be set on the response below
+              }
+            });
+          },
+        },
+      }
+    );
+
     const { error: exchangeError } =
       await supabase.auth.exchangeCodeForSession(code);
 
@@ -26,6 +63,8 @@ export async function GET(request: Request) {
       const {
         data: { user },
       } = await supabase.auth.getUser();
+
+      let redirectPath = next;
 
       if (user) {
         const { data: existingUser } = await supabase
@@ -41,13 +80,27 @@ export async function GET(request: Request) {
           new Date().getTime() - new Date(user.created_at).getTime() < 30000;
 
         if (isNewUser) {
-          return NextResponse.redirect(`${origin}/complete-profile`);
+          redirectPath = "/complete-profile";
         }
       }
 
-      return NextResponse.redirect(`${origin}${next}`);
+      const response = NextResponse.redirect(
+        `${redirectOrigin}${redirectPath}`
+      );
+
+      // Explicitly set session cookies on the redirect response
+      cookiesToSet.forEach(({ name, value, options }) => {
+        response.cookies.set(name, value, options);
+      });
+
+      return response;
     }
+
+    // Exchange failed — redirect with error message
+    return NextResponse.redirect(
+      `${redirectOrigin}/login?error=${encodeURIComponent("Erro ao autenticar com Google. Tente novamente.")}`
+    );
   }
 
-  return NextResponse.redirect(`${origin}/login`);
+  return NextResponse.redirect(`${redirectOrigin}/login`);
 }
