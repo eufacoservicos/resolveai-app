@@ -166,12 +166,8 @@ export async function getActiveProviders(
       (a, b) => (b.average_rating ?? 0) - (a.average_rating ?? 0)
     );
   } else {
-    // Default: priority sort (verified + rated first)
+    // Default: priority sort (rated first, then recent)
     providers.sort((a, b) => {
-      const aVerified = a.is_verified ? 1 : 0;
-      const bVerified = b.is_verified ? 1 : 0;
-      if (aVerified !== bVerified) return bVerified - aVerified;
-
       const aHasRating = a.average_rating !== null ? 1 : 0;
       const bHasRating = b.average_rating !== null ? 1 : 0;
       if (aHasRating !== bHasRating) return bHasRating - aHasRating;

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, Check, X, ChevronDown, Plus, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { containsProfanity, PROFANITY_ERROR_MESSAGE } from "@/lib/profanity";
 
 interface Category {
   id: string;
@@ -28,6 +29,7 @@ export function CategoryMultiSelect({
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [addingCustom, setAddingCustom] = useState(false);
+  const [profanityError, setProfanityError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const filtered = search
@@ -52,6 +54,13 @@ export function CategoryMultiSelect({
 
   async function handleAddCustom() {
     if (!onAddCustom || !search.trim() || search.trim().length < 2) return;
+
+    if (containsProfanity(search.trim())) {
+      setProfanityError(PROFANITY_ERROR_MESSAGE);
+      return;
+    }
+    setProfanityError(null);
+
     setAddingCustom(true);
     const newCat = await onAddCustom(search.trim());
     if (newCat) {
@@ -129,12 +138,22 @@ export function CategoryMultiSelect({
             <input
               type="text"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setProfanityError(null);
+              }}
               placeholder={placeholder}
               className="h-9 w-full rounded-md border border-border bg-muted/50 pl-9 pr-3 text-sm outline-none focus:border-primary"
               autoFocus
             />
           </div>
+
+          {/* Profanity warning */}
+          {profanityError && (
+            <p className="px-3 py-2 text-xs text-red-600 bg-red-50 border-b border-red-100">
+              {profanityError}
+            </p>
+          )}
 
           {/* Options list */}
           <div className="max-h-48 overflow-y-auto p-1">

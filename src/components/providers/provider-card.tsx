@@ -3,9 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { Star, MapPin } from "lucide-react";
+import { Star, MapPin, User, Briefcase } from "lucide-react";
 import { FavoriteButton } from "@/components/providers/favorite-button";
-import { VerifiedBadge } from "@/components/ui/verified-badge";
 import { BusinessHours } from "@/types/database";
 import { isProviderOpenNow } from "@/lib/business-hours";
 
@@ -20,6 +19,7 @@ interface ProviderCardProps {
     average_rating: number | null;
     review_count: number;
     is_verified?: boolean;
+    provider_type?: "individual" | "company" | null;
     business_hours?: BusinessHours[];
     distance_km?: number | null;
   };
@@ -77,7 +77,19 @@ export function ProviderCard({ provider, featured, userId, isFavorited }: Provid
             <h3 className="font-semibold text-sm text-foreground leading-tight truncate">
               {provider.user.full_name}
             </h3>
-            {provider.is_verified && <VerifiedBadge size="sm" className="shrink-0" />}
+            {provider.provider_type && (
+              <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium shrink-0 ${
+                provider.provider_type === "company"
+                  ? "bg-blue-50 text-blue-600"
+                  : "bg-amber-50 text-amber-600"
+              }`}>
+                {provider.provider_type === "company" ? (
+                  <><Briefcase className="h-2.5 w-2.5" /> Empresa</>
+                ) : (
+                  <><User className="h-2.5 w-2.5" /> Autônomo</>
+                )}
+              </span>
+            )}
           </div>
 
           {/* Category + rating */}

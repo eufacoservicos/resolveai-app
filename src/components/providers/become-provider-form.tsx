@@ -8,7 +8,9 @@ import {
   setProviderCategories,
 } from "@/lib/supabase/mutations";
 import { fetchCepData, geocodeAddress, formatCep } from "@/lib/cep";
-import { isValidCpf, formatCpf } from "@/lib/cpf";
+import { isValidCpf } from "@/lib/cpf";
+import { isValidCnpj } from "@/lib/cnpj";
+import { DocumentInput, getDocumentType, type ProviderType } from "@/components/ui/document-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,16 +48,12 @@ export function BecomeProviderForm({
     latitude: number | null;
     longitude: number | null;
   } | null>(null);
-  const [cpf, setCpf] = useState("");
+  const [providerType, setProviderType] = useState<ProviderType>("individual");
+  const [document, setDocument] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [instagram, setInstagram] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-
-  function handleCpfChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
-    setCpf(formatCpf(digits));
-  }
 
   function handleWhatsAppChange(e: React.ChangeEvent<HTMLInputElement>) {
     const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
@@ -91,11 +89,13 @@ export function BecomeProviderForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    const rawCpf = cpf.replace(/\D/g, "");
+    const rawDoc = document.replace(/\D/g, "");
     const rawWhatsapp = whatsapp.replace(/\D/g, "");
 
-    if (!rawCpf || !isValidCpf(rawCpf)) {
-      toast.error("CPF inválido. Verifique o número informado.");
+    const docType = getDocumentType(providerType);
+    const isValid = docType === "cpf" ? isValidCpf(rawDoc) : isValidCnpj(rawDoc);
+    if (!rawDoc || !isValid) {
+      toast.error(`${docType.toUpperCase()} inválido. Verifique o número informado.`);
       return;
     }
 
@@ -130,7 +130,8 @@ export function BecomeProviderForm({
         latitude: addressInfo.latitude,
         longitude: addressInfo.longitude,
         whatsapp: rawWhatsapp,
-        cpf: rawCpf,
+        cpf: rawDoc,
+        provider_type: providerType,
         instagram: instagram || undefined,
       }
     );
@@ -218,22 +219,13 @@ export function BecomeProviderForm({
           )}
         </div>
 
-        {/* CPF */}
-        <div className="space-y-1.5">
-          <Label htmlFor="cpf" className="text-sm font-medium">
-            CPF *
-          </Label>
-          <Input
-            id="cpf"
-            placeholder="000.000.000-00"
-            value={cpf}
-            onChange={handleCpfChange}
-            className="h-11 rounded-lg border-border"
-            inputMode="numeric"
-            maxLength={14}
-            required
-          />
-        </div>
+        {/* CPF / CNPJ */}
+        <DocumentInput
+          providerType={providerType}
+          onProviderTypeChange={setProviderType}
+          value={document}
+          onChange={setDocument}
+        />
 
         {/* WhatsApp */}
         <div className="space-y-1.5">

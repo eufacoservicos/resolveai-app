@@ -1,6 +1,7 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { UserRole } from "@/types/database";
 import { getDefaultBusinessHours } from "@/lib/business-hours";
+import { containsProfanity, PROFANITY_ERROR_MESSAGE } from "@/lib/profanity";
 
 // ============================================
 // AUTH MUTATIONS
@@ -14,6 +15,7 @@ export async function signUpWithEmail(
   role: UserRole,
   providerData?: {
     description: string;
+    cpf: string;
     whatsapp: string;
     cep: string;
     city: string;
@@ -146,6 +148,7 @@ export async function createProviderProfile(
     longitude?: number | null;
     whatsapp: string;
     cpf?: string;
+    provider_type?: "individual" | "company";
     instagram?: string;
   }
 ) {
@@ -173,6 +176,7 @@ export async function createProviderProfile(
         longitude: data.longitude ?? null,
         whatsapp: data.whatsapp,
         cpf: data.cpf ?? null,
+        provider_type: data.provider_type ?? "individual",
         instagram: data.instagram ?? null,
         is_active: true,
       },
@@ -219,6 +223,7 @@ export async function updateProviderProfile(
     longitude?: number | null;
     whatsapp?: string;
     cpf?: string | null;
+    provider_type?: "individual" | "company";
     instagram?: string | null;
     is_active?: boolean;
   }
@@ -263,6 +268,10 @@ export async function createCustomCategory(
   supabase: SupabaseClient,
   name: string
 ) {
+  if (containsProfanity(name)) {
+    return { data: null, error: { message: PROFANITY_ERROR_MESSAGE, code: "PROFANITY" } };
+  }
+
   const slug = name
     .toLowerCase()
     .normalize("NFD")

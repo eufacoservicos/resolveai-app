@@ -505,27 +505,4 @@ describe("ProviderDetail", () => {
     expect(screen.queryByText("Eletricista profissional")).not.toBeInTheDocument();
   });
 
-  it("shows verified badge", () => {
-    const { container } = render(
-      <ProviderDetail
-        provider={baseProvider}
-        reviews={[]}
-        currentUser={authUser}
-        alreadyReviewed={false}
-      />
-    );
-    expect(container.querySelector('[title="Perfil verificado"]')).toBeInTheDocument();
-  });
-
-  it("hides verified badge when not verified", () => {
-    const { container } = render(
-      <ProviderDetail
-        provider={{ ...baseProvider, is_verified: false }}
-        reviews={[]}
-        currentUser={authUser}
-        alreadyReviewed={false}
-      />
-    );
-    expect(container.querySelector('[title="Perfil verificado"]')).not.toBeInTheDocument();
-  });
 });

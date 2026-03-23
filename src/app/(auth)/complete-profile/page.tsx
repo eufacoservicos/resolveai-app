@@ -14,6 +14,9 @@ import { Loader2, Search as SearchIcon, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CategoryMultiSelect } from "@/components/ui/category-multi-select";
 import { fetchCepData, geocodeAddress, formatCep } from "@/lib/cep";
+import { isValidCpf } from "@/lib/cpf";
+import { isValidCnpj } from "@/lib/cnpj";
+import { DocumentInput, getDocumentType, type ProviderType } from "@/components/ui/document-input";
 import Link from "next/link";
 
 function formatWhatsApp(value: string): string {
@@ -33,6 +36,8 @@ export default function CompleteProfilePage() {
   const [userId, setUserId] = useState<string | null>(null);
 
   // Provider fields
+  const [providerType, setProviderType] = useState<ProviderType>("individual");
+  const [document, setDocument] = useState("");
   const [description, setDescription] = useState("");
   const [cep, setCep] = useState("");
   const [cepLoading, setCepLoading] = useState(false);
@@ -219,6 +224,13 @@ export default function CompleteProfilePage() {
     if (!userId) return;
 
     if (role === "PROVIDER") {
+      const rawDoc = document.replace(/\D/g, "");
+      const docType = getDocumentType(providerType);
+      const isValid = docType === "cpf" ? isValidCpf(rawDoc) : isValidCnpj(rawDoc);
+      if (!rawDoc || !isValid) {
+        toast.error(`Informe um ${docType.toUpperCase()} válido.`);
+        return;
+      }
       const rawWa = whatsapp.replace(/\D/g, "");
       if (!rawWa || rawWa.length < 10) {
         toast.error("Informe um WhatsApp válido com DDD.");
@@ -254,6 +266,7 @@ export default function CompleteProfilePage() {
     const rawWa = whatsapp.replace(/\D/g, "");
     const { error, profileId } = await createProviderProfile(supabase, userId, {
       description,
+      cpf: document.replace(/\D/g, ""),
       city: addressInfo!.city,
       neighborhood: addressInfo!.neighborhood,
       cep: cep.replace(/\D/g, ""),
@@ -362,8 +375,15 @@ export default function CompleteProfilePage() {
             <div className="space-y-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
               <p className="text-sm font-semibold text-primary">Dados do prestador</p>
 
+              <DocumentInput
+                providerType={providerType}
+                onProviderTypeChange={setProviderType}
+                value={document}
+                onChange={setDocument}
+              />
+
               <div className="space-y-1.5">
-                <Label htmlFor="whatsapp" className="text-sm font-medium">WhatsApp (DDD + numero)</Label>
+                <Label htmlFor="whatsapp" className="text-sm font-medium">WhatsApp (DDD + numero) *</Label>
                 <Input id="whatsapp" placeholder="(11) 99999-9999" value={whatsapp} onChange={handleWhatsAppChange} className="h-11 rounded-lg border-border bg-white" inputMode="tel" />
               </div>
 

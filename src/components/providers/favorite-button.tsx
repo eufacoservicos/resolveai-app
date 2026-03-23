@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Heart } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toggleFavorite } from "@/lib/supabase/mutations";
@@ -21,7 +20,6 @@ export function FavoriteButton({
   isFavorited: initialFavorited,
   className,
 }: FavoriteButtonProps) {
-  const router = useRouter();
   const supabase = createClient();
   const [isFavorited, setIsFavorited] = useState(initialFavorited);
   const [loading, setLoading] = useState(false);
@@ -57,7 +55,6 @@ export function FavoriteButton({
       toast.error("Erro ao atualizar favorito.");
     } else {
       setIsFavorited(newState);
-      router.refresh();
     }
 
     setLoading(false);

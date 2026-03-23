@@ -16,6 +16,9 @@ import { Loader2, Search as SearchIcon, Wrench, ArrowLeft, ArrowRight } from "lu
 import { cn } from "@/lib/utils";
 import { CategoryMultiSelect } from "@/components/ui/category-multi-select";
 import { fetchCepData, geocodeAddress, formatCep } from "@/lib/cep";
+import { isValidCpf } from "@/lib/cpf";
+import { isValidCnpj } from "@/lib/cnpj";
+import { DocumentInput, getDocumentType, type ProviderType } from "@/components/ui/document-input";
 
 function formatWhatsApp(value: string): string {
   const digits = value.replace(/\D/g, "");
@@ -53,6 +56,8 @@ function RegisterPageContent() {
     longitude: number | null;
   } | null>(null);
   const [whatsapp, setWhatsapp] = useState("");
+  const [providerType, setProviderType] = useState<ProviderType>("individual");
+  const [document, setDocument] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categories, setCategories] = useState<
     { id: string; name: string; slug: string }[]
@@ -166,6 +171,13 @@ function RegisterPageContent() {
     if (!validateStep1()) return;
 
     if (role === "PROVIDER") {
+      const rawDoc = document.replace(/\D/g, "");
+      const docType = getDocumentType(providerType);
+      const isValid = docType === "cpf" ? isValidCpf(rawDoc) : isValidCnpj(rawDoc);
+      if (!rawDoc || !isValid) {
+        toast.error(`Informe um ${docType.toUpperCase()} válido.`);
+        return;
+      }
       const rawWa = whatsapp.replace(/\D/g, "");
       if (!rawWa || rawWa.length < 10) {
         toast.error("Informe um WhatsApp válido com DDD.");
@@ -192,6 +204,7 @@ function RegisterPageContent() {
       role === "PROVIDER"
         ? {
             description,
+            cpf: document.replace(/\D/g, ""),
             whatsapp: whatsapp.replace(/\D/g, ""),
             cep: cep.replace(/\D/g, ""),
             city: addressInfo!.city,
@@ -418,6 +431,13 @@ function RegisterPageContent() {
             }}
             className="space-y-4"
           >
+            <DocumentInput
+              providerType={providerType}
+              onProviderTypeChange={setProviderType}
+              value={document}
+              onChange={setDocument}
+            />
+
             <div className="space-y-1.5">
               <Label htmlFor="whatsapp" className="text-sm font-medium">WhatsApp (DDD + número) *</Label>
               <Input id="whatsapp" placeholder="(11) 99999-9999" value={whatsapp} onChange={handleWhatsAppChange} className="h-11 rounded-lg border-border" inputMode="tel" />

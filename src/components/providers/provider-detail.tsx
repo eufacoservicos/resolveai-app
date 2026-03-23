@@ -15,13 +15,14 @@ import {
   ChevronRight,
   Camera,
   Lock,
+  User,
+  Briefcase,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ReviewCard } from "@/components/reviews/review-card";
-import { VerifiedBadge } from "@/components/ui/verified-badge";
 import { BusinessHoursDisplay } from "@/components/providers/business-hours-display";
 import { BusinessHours } from "@/types/database";
 import { getWhatsAppUrl } from "@/lib/constants";
@@ -46,6 +47,7 @@ interface ProviderDetailProps {
     state: string | null;
     whatsapp: string;
     instagram?: string | null;
+    provider_type?: "individual" | "company" | null;
     is_verified?: boolean;
     user: { full_name: string; avatar_url: string | null };
     categories: { id: string; name: string; slug: string }[];
@@ -145,8 +147,24 @@ export function ProviderDetail({
 
         <h1 className="mt-3 text-xl font-bold tracking-tight flex items-center gap-1.5">
           {provider.user.full_name}
-          {provider.is_verified && <VerifiedBadge size="md" className="shrink-0" />}
         </h1>
+
+        {provider.provider_type && (
+          <Badge
+            className={cn(
+              "mt-1.5 rounded-full text-xs font-medium border-0 px-3 py-0.5",
+              provider.provider_type === "company"
+                ? "bg-blue-50 text-blue-700"
+                : "bg-amber-50 text-amber-700"
+            )}
+          >
+            {provider.provider_type === "company" ? (
+              <><Briefcase className="h-3 w-3" /> Empresa</>
+            ) : (
+              <><User className="h-3 w-3" /> Autônomo</>
+            )}
+          </Badge>
+        )}
 
         {provider.categories.length > 0 && (
           <div className="mt-1.5 flex flex-wrap justify-center gap-1.5">
