@@ -1,12 +1,8 @@
-[
-  {
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "br.com.eufacooservico",
-      "sha256_cert_fingerprints": [
-        "0E:87:F5:2E:34:2A:25:9A:71:30:0B:C2:D8:BF:1D:E9:31:35:C7:3F:91:93:18:08:F1:A0:95:B0:87:8C:8C:B7"
-      ]
-    }
-  }
-]
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "br.com.eufaco.app",
+        "sha256_cert_fingerprints": ["27:F9:98:A6:75:F0:08:C4:4F:70:5F:54:D4:DD:7E:FE:42:4F:8B:1B:D2:D7:51:09:C6:FF:7F:F3:6F:1B:A1:E0"]
+      }
+    }]
