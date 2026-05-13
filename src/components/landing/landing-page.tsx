@@ -36,6 +36,8 @@ import {
 import type React from "react"
 import { Button } from "@/components/ui/button"
 
+const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=br.com.eufaco.app"
+
 // Only the icons needed for this page (avoids importing all 70+ from categoryIconMap)
 const landingIcons: Record<string, React.ElementType> = {
 	eletricista: Zap,
@@ -398,82 +400,79 @@ export function LandingPage() {
 						>
 							{/* Phone frame */}
 							<div className='relative w-[280px] h-[560px] rounded-[3rem] border-[8px] border-slate-800 bg-slate-900 shadow-2xl overflow-hidden'>
-								<div className='h-full bg-background rounded-[2.2rem] overflow-hidden p-4'>
-									{/* Simulated app header */}
-									<div className='flex items-center gap-2 mb-4'>
-										<div className='h-8 w-8 rounded-lg gradient-bg' />
-										<div className='h-3 w-20 bg-muted rounded' />
-									</div>
-									{/* Simulated search bar */}
-									<div className='glass rounded-xl p-3 mb-3 flex items-center gap-2 border border-border/50'>
-										<Search className='h-4 w-4 text-muted-foreground' />
-										<div className='h-2.5 w-24 bg-muted rounded' />
-									</div>
-									{/* Simulated service cards */}
-									{[
-										"photo-1621905251189-08b45d6a269e",
-										"photo-1585704032915-c3400ca199e7",
-										"photo-1562259949-e8e7689d7828"
-									].map((id, i) => (
-										<div
-											key={i}
-											className={`flex items-center gap-3 rounded-xl glass border border-border/50 p-2.5 mb-2.5 transition-all duration-500 ease-out ${
-												mounted ? "opacity-100 translate-x-0" : "opacity-0 translate-x-5"
-											}`}
-											style={{ transitionDelay: mounted ? `${800 + i * 200}ms` : "0ms" }}
-										>
-											{/* eslint-disable-next-line @next/next/no-img-element */}
-											<img src={`https://images.unsplash.com/${id}?w=96&h=96&fit=crop&crop=center&q=60`} alt='' width={44} height={44} className='rounded-lg object-cover w-11 h-11' loading='lazy' />
-											<div className='flex-1'>
-												<div className='h-2.5 w-20 bg-muted-foreground/20 rounded mb-1.5' />
-												<div className='h-2 w-14 bg-muted rounded' />
-											</div>
-											<div className='flex gap-0.5'>
-												{[...Array(5)].map((_, j) => (
-													<Star key={j} className='h-2.5 w-2.5 fill-amber-400 text-amber-400' />
-												))}
-											</div>
-										</div>
-									))}
-									{/* Simulated extra content */}
-									<div className='mt-3 space-y-2'>
-										<div className='h-2 w-full bg-muted rounded' />
-										<div className='h-2 w-3/4 bg-muted rounded' />
-									</div>
-								</div>
-							</div>
-
-							{/* Floating badges around phone */}
-							<div
-								className='absolute -top-4 -left-16 glass rounded-xl p-3 shadow-lg border border-border/50 animate-[badge-float_4s_ease-in-out_infinite]'
-							>
-								<div className='flex items-center gap-2'>
-									<CheckCircle2 className='h-5 w-5 text-emerald-500' />
-									<span className='text-xs font-semibold whitespace-nowrap'>Profissional verificado</span>
-								</div>
-							</div>
-
-							<div
-								className='absolute bottom-20 -right-16 glass rounded-xl p-3 shadow-lg border border-border/50 animate-[badge-float-alt_5s_ease-in-out_1s_infinite]'
-							>
-								<div className='flex items-center gap-2'>
-									<Star className='h-4 w-4 fill-amber-400 text-amber-400' />
-									<span className='text-xs font-semibold whitespace-nowrap'>4.9 avaliações</span>
-								</div>
-							</div>
-
-							<div
-								className='absolute top-1/2 -right-24 glass rounded-xl p-3 shadow-lg border border-border/50 animate-[badge-float_6s_ease-in-out_2s_infinite]'
-							>
-								<div className='flex items-center gap-2'>
-									<MessageCircle className='h-4 w-4 text-primary' />
-									<span className='text-xs font-semibold whitespace-nowrap'>Chat via WhatsApp</span>
+								<div className='relative h-full w-full rounded-[2.2rem] overflow-hidden bg-background'>
+									<Image
+										src='/mobile-1.png'
+										alt='App eufaço! - tela inicial'
+										fill
+										sizes='280px'
+										className='object-cover object-top'
+										priority
+									/>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
+
+			{/* ─── Baixe o App ──────────────────────────────────────── */}
+			<Section className='px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12' id='baixe-o-app'>
+				<div className='mx-auto max-w-6xl'>
+					<div className='relative overflow-hidden rounded-3xl border border-border/50 bg-gradient-to-br from-primary/[0.06] via-background to-cyan-400/[0.04] p-6 sm:p-10'>
+						<div className='absolute -top-20 -right-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl pointer-events-none' />
+						<div className='absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-cyan-400/10 blur-3xl pointer-events-none' />
+
+						<div className='relative flex flex-col items-center text-center gap-6 sm:gap-8'>
+							<div>
+								<h2 className='text-2xl sm:text-3xl font-bold'>
+									Leve o eufaço! para o seu <span className='gradient-text'>bolso</span>
+								</h2>
+								<p className='mt-3 text-muted-foreground sm:text-lg max-w-xl mx-auto'>
+									Encontre profissionais perto de você e contrate com um toque.
+								</p>
+							</div>
+
+							<div className='flex flex-col sm:flex-row items-center gap-3 sm:gap-4'>
+								<a
+									href={PLAY_STORE_URL}
+									target='_blank'
+									rel='noopener noreferrer'
+									aria-label='Baixar na Google Play'
+									className='inline-flex items-center gap-3 rounded-2xl bg-slate-900 px-6 py-3 text-white shadow-lg hover:shadow-xl hover:bg-slate-800 transition-all min-w-[200px]'
+								>
+									<svg viewBox='0 0 256 256' className='h-8 w-8 shrink-0' aria-hidden='true'>
+										<path fill='#00C3FF' d='M119.589 128 14.93 232.66c-4.65-2.42-7.55-7.04-7.55-12.16V35.5c0-5.12 2.9-9.74 7.55-12.16L119.589 128z' />
+										<path fill='#00DE7A' d='m119.589 128 35.21-35.21L29.78 23.34a13.71 13.71 0 0 0-14.85 0L119.589 128z' />
+										<path fill='#FF3A44' d='m119.589 128 35.21 35.21L29.78 232.66a13.71 13.71 0 0 1-14.85 0L119.589 128z' />
+										<path fill='#FFCE00' d='m154.799 92.79-35.21 35.21 35.21 35.21 41.49-22.9c10.59-5.85 10.59-21.18 0-27.03l-41.49-20.49z' />
+									</svg>
+									<div className='text-left leading-tight'>
+										<p className='text-[10px] uppercase tracking-wide text-white/70'>Disponível na</p>
+										<p className='text-base font-semibold'>Google Play</p>
+									</div>
+								</a>
+
+								<div
+									aria-disabled='true'
+									className='relative inline-flex items-center gap-3 rounded-2xl bg-slate-900/60 px-6 py-3 text-white/70 shadow-lg min-w-[200px] cursor-not-allowed'
+								>
+									<svg viewBox='0 0 24 24' className='h-8 w-8 shrink-0 fill-current' aria-hidden='true'>
+										<path d='M17.564 12.65c-.03-3.022 2.47-4.474 2.58-4.546-1.408-2.06-3.6-2.343-4.378-2.375-1.866-.188-3.642 1.094-4.59 1.094-.948 0-2.41-1.066-3.96-1.038-2.04.03-3.92 1.184-4.97 3.008-2.118 3.672-.542 9.108 1.524 12.1.998 1.466 2.19 3.116 3.762 3.058 1.51-.06 2.082-.978 3.91-.978 1.826 0 2.346.978 3.95.948 1.63-.03 2.66-1.498 3.654-2.97 1.15-1.7 1.624-3.348 1.652-3.432-.036-.018-3.166-1.214-3.196-4.832ZM14.616 3.752c.834-1.01 1.396-2.41 1.242-3.806-1.2.05-2.654.8-3.514 1.808-.772.892-1.448 2.322-1.266 3.69 1.34.106 2.706-.682 3.538-1.692Z' />
+									</svg>
+									<div className='text-left leading-tight'>
+										<p className='text-[10px] uppercase tracking-wide text-white/60'>Em breve na</p>
+										<p className='text-base font-semibold'>App Store</p>
+									</div>
+									<span className='absolute -top-2 -right-2 rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-slate-900 shadow'>
+										Em breve
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</Section>
 
 			{/* ─── Features ─────────────────────────────────────────── */}
 			<Section
