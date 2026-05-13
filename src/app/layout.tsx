@@ -54,7 +54,7 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode
 }>) {
-	// const crispWebsiteId = process.env.NEXT_PUBLIC_CRISP_WEBSITE_ID?.trim();
+	const crispWebsiteId = process.env.NEXT_PUBLIC_CRISP_WEBSITE_ID?.trim();
 
 	return (
 		<html lang='pt-BR' suppressHydrationWarning>
@@ -258,16 +258,16 @@ export default function RootLayout({
 					}}
 				/>
 				<GoogleAnalytics />
-				{/* {crispWebsiteId && (
-          <>
-            <Script id="crisp-chat" strategy="afterInteractive">
-              {`window.$crisp=[];window.CRISP_WEBSITE_ID=${JSON.stringify(crispWebsiteId)};(function(){var d=document;var s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();`}
-            </Script>
-            <Script id="crisp-mobile-offset" strategy="afterInteractive">
-              {`(function(){var query=window.matchMedia("(max-width: 767px)");var offset="calc(4.5rem + env(safe-area-inset-bottom, 0px))";function apply(){if(!query.matches)return;var elements=[];var chatbox=document.getElementById("crisp-chatbox");if(chatbox)elements.push(chatbox);document.querySelectorAll(".crisp-client, iframe[src*='crisp.chat'], iframe[title*='Crisp']").forEach(function(el){elements.push(el);});elements.forEach(function(el){if(el&&el.style){el.style.setProperty("bottom",offset,"important");}});}var observer=new MutationObserver(apply);observer.observe(document.documentElement,{childList:true,subtree:true});apply();window.addEventListener("resize",apply,{passive:true});})();`}
-            </Script>
-          </>
-        )} */}
+				{crispWebsiteId && (
+					<>
+						<Script id="crisp-chat" strategy="afterInteractive">
+							{`window.$crisp=[];window.CRISP_WEBSITE_ID=${JSON.stringify(crispWebsiteId)};(function(){var d=document;var s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();`}
+						</Script>
+						<Script id="crisp-mobile-offset" strategy="afterInteractive">
+							{`(function(){function inject(){if(document.getElementById("crisp-offset-style"))return true;var el=document.getElementById("crisp-chatbox");if(!el)return false;var s=document.createElement("style");s.id="crisp-offset-style";s.textContent="@media(max-width:767px){#crisp-chatbox>div,#crisp-chatbox>div>div{bottom:calc(5rem + env(safe-area-inset-bottom,0px))!important}}";document.head.appendChild(s);return true;}if(!inject()){var obs=new MutationObserver(function(){if(inject())obs.disconnect();});obs.observe(document.documentElement,{childList:true,subtree:true});}})();`}
+						</Script>
+					</>
+				)}
 				<script
 					type='application/ld+json'
 					dangerouslySetInnerHTML={{

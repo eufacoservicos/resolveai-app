@@ -14,6 +14,7 @@ import {
   Paintbrush,
   Scissors,
   Search,
+  Smartphone,
   Sparkles,
   Star,
   Wrench,
@@ -734,6 +735,39 @@ export function ProviderLandingPage({
             </div>
 
             <ProviderFaqAccordion items={faqs} />
+          </div>
+        </Section>
+
+        {/* ─── Play Store ──────────────────────────────────────── */}
+        <Section className="px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+          <div className="mx-auto max-w-3xl">
+            <div className="rounded-3xl bg-linear-to-br from-slate-900 to-slate-800 p-10 text-center text-white sm:p-14">
+              <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10">
+                <Smartphone className="h-7 w-7" />
+              </div>
+              <h2 className="text-2xl font-bold sm:text-3xl">
+                Baixe o app <span className="gradient-text">eufaço!</span>
+              </h2>
+              <p className="mx-auto mt-3 max-w-sm text-base text-white/70">
+                Gerencie seus clientes e pedidos de onde estiver. Disponível agora para Android.
+              </p>
+              <div className="mt-8 flex justify-center">
+                <a
+                  href="https://play.google.com/store/apps/details?id=br.com.eufaco.app&pcampaignid=web_share"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-transform hover:scale-105 active:scale-95"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="https://play.google.com/intl/en_us/badges/static/images/badges/pt-br_badge_web_generic.png"
+                    alt="Disponível no Google Play"
+                    width={200}
+                    height={60}
+                  />
+                </a>
+              </div>
+            </div>
           </div>
         </Section>
 

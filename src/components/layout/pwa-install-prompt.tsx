@@ -65,13 +65,11 @@ export function PwaInstallPrompt() {
   if (standalone || dismissed) return null;
   if (!deferredPrompt && !showIosBanner) return null;
 
-  async function handleInstall() {
-    if (!deferredPrompt) return;
-    await deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === "accepted") {
-      setDeferredPrompt(null);
-    }
+  const PLAY_STORE_URL =
+    "https://play.google.com/store/apps/details?id=br.com.eufaco.app&pcampaignid=web_share";
+
+  function handleInstall() {
+    window.open(PLAY_STORE_URL, "_blank", "noopener,noreferrer");
   }
 
   function handleDismiss() {
