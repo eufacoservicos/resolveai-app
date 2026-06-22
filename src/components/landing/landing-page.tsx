@@ -10,7 +10,6 @@ import {
 	Shield,
 	Users,
 	Briefcase,
-	Smartphone,
 	Camera,
 	TrendingUp,
 	ChevronRight,
@@ -766,39 +765,6 @@ export function LandingPage() {
 					</div>
 
 					<FaqAccordion />
-				</div>
-			</Section>
-
-			{/* ─── Play Store ──────────────────────────────────────── */}
-			<Section className='py-16 sm:py-20 px-4 sm:px-6 lg:px-8'>
-				<div className='mx-auto max-w-3xl'>
-					<div className='rounded-3xl bg-linear-to-br from-slate-900 to-slate-800 p-10 sm:p-14 text-center text-white'>
-						<div className='inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 mb-6'>
-							<Smartphone className='h-7 w-7' />
-						</div>
-						<h2 className='text-2xl font-bold sm:text-3xl'>
-							Baixe o app <span className='gradient-text'>eufaço!</span>
-						</h2>
-						<p className='mt-3 text-white/70 text-base max-w-sm mx-auto'>
-							Disponível agora para Android. Encontre profissionais de onde estiver.
-						</p>
-						<div className='mt-8 flex justify-center'>
-							<a
-								href='https://play.google.com/store/apps/details?id=br.com.eufaco.app&pcampaignid=web_share'
-								target='_blank'
-								rel='noopener noreferrer'
-								className='transition-transform hover:scale-105 active:scale-95'
-							>
-								{/* eslint-disable-next-line @next/next/no-img-element */}
-								<img
-									src='https://play.google.com/intl/en_us/badges/static/images/badges/pt-br_badge_web_generic.png'
-									alt='Disponível no Google Play'
-									width={200}
-									height={60}
-								/>
-							</a>
-						</div>
-					</div>
 				</div>
 			</Section>
 

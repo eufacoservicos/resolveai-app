@@ -14,7 +14,6 @@ import {
   Paintbrush,
   Scissors,
   Search,
-  Smartphone,
   Sparkles,
   Star,
   Wrench,
@@ -538,6 +537,64 @@ export function ProviderLandingPage({
           </div>
         </section>
 
+        {/* ─── Baixe o App ──────────────────────────────────────── */}
+        <Section className="px-4 pb-8 sm:px-6 sm:pb-12 lg:px-8" id="baixe-o-app">
+          <div className="mx-auto max-w-6xl">
+            <div className="relative overflow-hidden rounded-3xl border border-border/50 bg-gradient-to-br from-primary/[0.06] via-background to-cyan-400/[0.04] p-6 sm:p-10">
+              <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
+              <div className="pointer-events-none absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-cyan-400/10 blur-3xl" />
+
+              <div className="relative flex flex-col items-center gap-6 text-center sm:gap-8">
+                <div>
+                  <h2 className="text-2xl font-bold sm:text-3xl">
+                    Leve o eufaço! para o seu <span className="gradient-text">bolso</span>
+                  </h2>
+                  <p className="mx-auto mt-3 max-w-xl text-muted-foreground sm:text-lg">
+                    Gerencie seus clientes e pedidos de onde estiver.
+                  </p>
+                </div>
+
+                <div className="flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
+                  <a
+                    href="https://play.google.com/store/apps/details?id=br.com.eufaco.app&pcampaignid=web_share"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Baixar na Google Play"
+                    className="inline-flex min-w-[200px] items-center gap-3 rounded-2xl bg-slate-900 px-6 py-3 text-white shadow-lg transition-all hover:bg-slate-800 hover:shadow-xl"
+                  >
+                    <svg viewBox="0 0 256 256" className="h-8 w-8 shrink-0" aria-hidden="true">
+                      <path fill="#00C3FF" d="M119.589 128 14.93 232.66c-4.65-2.42-7.55-7.04-7.55-12.16V35.5c0-5.12 2.9-9.74 7.55-12.16L119.589 128z" />
+                      <path fill="#00DE7A" d="m119.589 128 35.21-35.21L29.78 23.34a13.71 13.71 0 0 0-14.85 0L119.589 128z" />
+                      <path fill="#FF3A44" d="m119.589 128 35.21 35.21L29.78 232.66a13.71 13.71 0 0 1-14.85 0L119.589 128z" />
+                      <path fill="#FFCE00" d="m154.799 92.79-35.21 35.21 35.21 35.21 41.49-22.9c10.59-5.85 10.59-21.18 0-27.03l-41.49-20.49z" />
+                    </svg>
+                    <div className="text-left leading-tight">
+                      <p className="text-[10px] uppercase tracking-wide text-white/70">Disponível na</p>
+                      <p className="text-base font-semibold">Google Play</p>
+                    </div>
+                  </a>
+
+                  <div
+                    aria-disabled="true"
+                    className="relative inline-flex min-w-[200px] cursor-not-allowed items-center gap-3 rounded-2xl bg-slate-900/60 px-6 py-3 text-white/70 shadow-lg"
+                  >
+                    <svg viewBox="0 0 24 24" className="h-8 w-8 shrink-0 fill-current" aria-hidden="true">
+                      <path d="M17.564 12.65c-.03-3.022 2.47-4.474 2.58-4.546-1.408-2.06-3.6-2.343-4.378-2.375-1.866-.188-3.642 1.094-4.59 1.094-.948 0-2.41-1.066-3.96-1.038-2.04.03-3.92 1.184-4.97 3.008-2.118 3.672-.542 9.108 1.524 12.1.998 1.466 2.19 3.116 3.762 3.058 1.51-.06 2.082-.978 3.91-.978 1.826 0 2.346.978 3.95.948 1.63-.03 2.66-1.498 3.654-2.97 1.15-1.7 1.624-3.348 1.652-3.432-.036-.018-3.166-1.214-3.196-4.832ZM14.616 3.752c.834-1.01 1.396-2.41 1.242-3.806-1.2.05-2.654.8-3.514 1.808-.772.892-1.448 2.322-1.266 3.69 1.34.106 2.706-.682 3.538-1.692Z" />
+                    </svg>
+                    <div className="text-left leading-tight">
+                      <p className="text-[10px] uppercase tracking-wide text-white/60">Em breve na</p>
+                      <p className="text-base font-semibold">App Store</p>
+                    </div>
+                    <span className="absolute -right-2 -top-2 rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-slate-900 shadow">
+                      Em breve
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Section>
+
         <SectionDivider />
 
         <RevealBlock>
@@ -735,39 +792,6 @@ export function ProviderLandingPage({
             </div>
 
             <ProviderFaqAccordion items={faqs} />
-          </div>
-        </Section>
-
-        {/* ─── Play Store ──────────────────────────────────────── */}
-        <Section className="px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-          <div className="mx-auto max-w-3xl">
-            <div className="rounded-3xl bg-linear-to-br from-slate-900 to-slate-800 p-10 text-center text-white sm:p-14">
-              <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10">
-                <Smartphone className="h-7 w-7" />
-              </div>
-              <h2 className="text-2xl font-bold sm:text-3xl">
-                Baixe o app <span className="gradient-text">eufaço!</span>
-              </h2>
-              <p className="mx-auto mt-3 max-w-sm text-base text-white/70">
-                Gerencie seus clientes e pedidos de onde estiver. Disponível agora para Android.
-              </p>
-              <div className="mt-8 flex justify-center">
-                <a
-                  href="https://play.google.com/store/apps/details?id=br.com.eufaco.app&pcampaignid=web_share"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="transition-transform hover:scale-105 active:scale-95"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="https://play.google.com/intl/en_us/badges/static/images/badges/pt-br_badge_web_generic.png"
-                    alt="Disponível no Google Play"
-                    width={200}
-                    height={60}
-                  />
-                </a>
-              </div>
-            </div>
           </div>
         </Section>
 
