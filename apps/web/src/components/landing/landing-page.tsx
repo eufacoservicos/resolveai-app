@@ -268,18 +268,13 @@ export function LandingPage() {
 						</Link>
 
 						<div className='flex items-center gap-3'>
-							<Link href='/login'>
-								<Button variant='ghost' size='sm' className='text-sm font-medium'>
-									Entrar
-								</Button>
-							</Link>
-							<Link href='/register'>
+							<a href='#baixe-o-app'>
 								<Button
 									size='sm'
 									className='gradient-bg text-white border-0 shadow-md hover:shadow-lg transition-shadow text-sm font-medium'>
-									Começar grátis
+									Baixar app
 								</Button>
-							</Link>
+							</a>
 						</div>
 					</div>
 				</div>
@@ -337,14 +332,14 @@ export function LandingPage() {
 
 							<HeroItem delay={500} mounted={mounted}>
 								<div className='mt-10 flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4'>
-									<Link href='/home'>
+									<a href='#baixe-o-app'>
 										<Button
 											size='lg'
 											className='gradient-bg text-white border-0 shadow-lg hover:shadow-xl transition-all text-base px-8 h-12 rounded-xl gap-2 group'>
-											Explorar profissionais
+											Baixar app
 											<ArrowRight className='h-4 w-4 transition-transform group-hover:translate-x-1' />
 										</Button>
-									</Link>
+									</a>
 									<Link href='#como-funciona'>
 										<Button
 											variant='outline'
@@ -358,14 +353,14 @@ export function LandingPage() {
 
 							{/* Search preview */}
 							<HeroItem delay={600} mounted={mounted} className='mt-12 max-w-lg mx-auto lg:mx-0'>
-								<Link href='/search' className='block'>
+								<a href='#baixe-o-app' className='block'>
 									<div className='glass flex items-center gap-3 rounded-2xl border border-border/50 px-5 py-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer overflow-hidden'>
 										<Search className='h-5 w-5 text-muted-foreground shrink-0' />
 										<span className='text-muted-foreground truncate'>
 											O que você precisa? Ex: eletricista, pintor...
 										</span>
 									</div>
-								</Link>
+								</a>
 							</HeroItem>
 
 							{/* Mobile: service image strip */}
@@ -625,12 +620,12 @@ export function LandingPage() {
 					</div>
 
 					<div className='mt-10 text-center'>
-						<Link href='/search'>
+						<a href='#baixe-o-app'>
 							<Button size='lg' className='gradient-bg text-white border-0 shadow-lg rounded-xl gap-2 group'>
 								Explorar todos os serviços
 								<ArrowRight className='h-4 w-4 transition-transform group-hover:translate-x-1' />
 							</Button>
-						</Link>
+						</a>
 					</div>
 				</div>
 			</Section>
@@ -741,12 +736,12 @@ export function LandingPage() {
 					</div>
 
 					<div className='mt-10 text-center'>
-						<Link href='/categories'>
+						<a href='#baixe-o-app'>
 							<Button variant='outline' size='lg' className='rounded-xl gap-2 group'>
 								Ver todas as categorias
 								<ChevronRight className='h-4 w-4 transition-transform group-hover:translate-x-1' />
 							</Button>
-						</Link>
+						</a>
 					</div>
 				</div>
 			</Section>
@@ -796,14 +791,14 @@ export function LandingPage() {
 									oferecer serviços.
 								</p>
 								<div className='mt-8 flex flex-col sm:flex-row items-center justify-center gap-4'>
-									<Link href='/home'>
+									<a href='#baixe-o-app'>
 										<Button
 											size='lg'
 											className='gradient-bg text-white border-0 shadow-lg hover:shadow-xl transition-all text-base px-8 h-12 rounded-xl gap-2 group'>
 											<Search className='h-4 w-4' />
 											Quero contratar
 										</Button>
-									</Link>
+									</a>
 									<Link href='/providers'>
 										<Button
 											size='lg'
@@ -858,11 +853,11 @@ export function LandingPage() {
 									</Link>
 								</li>
 								<li>
-									<Link
-										href='/register'
+									<a
+										href='#baixe-o-app'
 										className='hover:text-foreground transition-colors'>
-										Criar conta
-									</Link>
+										Baixar app
+									</a>
 								</li>
 							</ul>
 						</div>

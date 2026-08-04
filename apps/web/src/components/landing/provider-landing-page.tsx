@@ -31,7 +31,7 @@ type ProviderLandingPageProps = {
   ctaVariant?: CopyVariant;
 };
 
-const registerHref = "/register?role=provider&source=providers";
+const registerHref = "https://play.google.com/store/apps/details?id=br.com.eufaco.app";
 
 const ctaBackground =
   "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&h=400&fit=crop&crop=center&q=60";
@@ -327,11 +327,11 @@ export function ProviderLandingPage({
                 Sou cliente
               </Button>
             </Link>
-            <Link href="/login">
+            <a href={registerHref} target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" size="sm" className="text-slate-600">
                 Entrar
               </Button>
-            </Link>
+            </a>
             <Link href={registerHref}>
               <Button
                 size="sm"
@@ -831,14 +831,14 @@ export function ProviderLandingPage({
                         {ctaCopy.final}
                       </Button>
                     </Link>
-                    <Link href="/login">
+                    <a href={registerHref} target="_blank" rel="noopener noreferrer">
                       <Button
                         size="lg"
                         className="h-12 rounded-xl border border-white/20 bg-white/10 px-8 text-base text-white hover:bg-white/20"
                       >
                         Já tenho conta
                       </Button>
-                    </Link>
+                    </a>
                   </div>
                 </div>
               </div>
