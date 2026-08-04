@@ -1,25 +1,20 @@
-import { ScrollView, View } from "react-native";
+import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Heading, Muted } from "@/components/ui/text";
-import { Card, CardTitle, CardDescription } from "@/components/ui/card";
+import { ProviderGrid } from "@/components/providers/provider-grid";
 
 export default function HomeScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
-        <View className="mb-2">
-          <Heading>Início</Heading>
-          <Muted className="mt-1">
-            Encontre prestadores perto de você
-          </Muted>
-        </View>
-        <Card>
-          <CardTitle>Em construção</CardTitle>
-          <CardDescription>
-            Feed de prestadores em destaque será portado na task 9.
-          </CardDescription>
-        </Card>
-      </ScrollView>
+      <View className="px-4 py-4">
+        <Heading>Início</Heading>
+        <Muted className="mt-1">
+          Prestadores em destaque na sua região
+        </Muted>
+      </View>
+      <View className="flex-1 px-4">
+        <ProviderGrid limit={30} />
+      </View>
     </SafeAreaView>
   );
 }
