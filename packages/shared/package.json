@@ -1,0 +1,37 @@
+{
+  "name": "@resolveai/shared",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./cn": "./src/cn.ts",
+    "./constants": "./src/constants.ts",
+    "./business-hours": "./src/business-hours.ts",
+    "./profanity": "./src/profanity.ts",
+    "./validators/cpf": "./src/validators/cpf.ts",
+    "./validators/cnpj": "./src/validators/cnpj.ts",
+    "./validators/cep": "./src/validators/cep.ts",
+    "./supabase/types": "./src/supabase/types.ts",
+    "./supabase/queries": "./src/supabase/queries.ts",
+    "./supabase/mutations": "./src/supabase/mutations.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf .turbo node_modules"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.93.3",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "typescript": "^5",
+    "vitest": "^4.1.0"
+  }
+}
