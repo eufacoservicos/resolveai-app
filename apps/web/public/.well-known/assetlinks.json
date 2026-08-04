@@ -1,8 +1,0 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "br.com.eufaco.app",
-        "sha256_cert_fingerprints": ["DA:25:D1:4C:AA:2D:77:6E:1F:76:E6:AD:6B:76:C0:84:A0:3E:74:33:7E:C0:A4:7F:82:29:D9:CC:E7:72:25:39", "27:F9:98:A6:75:F0:08:C4:4F:70:5F:54:D4:DD:7E:FE:42:4F:8B:1B:D2:D7:51:09:C6:FF:7F:F3:6F:1B:A1:E0"]
-      }
-    }]
