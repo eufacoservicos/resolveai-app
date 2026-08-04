@@ -1,52 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# resolveai (eufaço!)
 
-## Getting Started
+Monorepo do projeto **eufaço!** — plataforma que conecta clientes a prestadores de serviços locais.
 
-First, run the development server:
+## Estrutura
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+apps/
+  web/       Next.js 16 — landing page pública (marketing + SEO)
+  mobile/    Expo (React Native) — aplicativo mobile iOS/Android
+packages/
+  shared/    lógica compartilhada: queries Supabase, tipos, validators (cpf/cnpj/cep), constants
+  ui/        componentes de UI cross-platform (React Native Reusables + NativeWind)
+supabase/    migrations SQL e templates de e-mail (fonte da verdade do schema)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Requisitos
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Node.js ≥ 20
+- pnpm 10 (`npm i -g pnpm`)
+- Para mobile: Expo CLI e (opcional) EAS CLI
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Setup
 
-## Learn More
+```bash
+pnpm install
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm dev            # roda web + mobile em paralelo (turbo)
+pnpm dev:web        # só o Next.js
+pnpm dev:mobile     # só o Expo
+pnpm build          # build de todos os workspaces
+pnpm lint           # lint em todos
+pnpm typecheck      # tsc --noEmit em todos
+pnpm test           # testes em todos
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-## Android TWA (Play Store) Checklist
-
-If the app opens with a URL bar on Android, TWA verification failed and Chrome fell back to Custom Tabs.
-
-Before publishing a new `.aab`:
-
-1. Confirm the `applicationId` in the Android project matches one of the `package_name` entries in `public/.well-known/assetlinks.json`.
-2. In Google Play Console, copy the **App signing certificate** SHA-256 (not only the upload key) and keep it in `sha256_cert_fingerprints`.
-   - If you test a locally generated APK (outside Play), include the APK signing SHA-256 as well.
-3. Keep `assetlinks.json` available on both:
-   - `https://eufacooservico.com.br/.well-known/assetlinks.json`
-   - `https://www.eufacooservico.com.br/.well-known/assetlinks.json`
-   - Important: the TWA launch origin must be the same host that serves `200` directly (without `307/308` redirect).
-4. After deployment, validate both URLs return HTTP `200` and valid JSON.
-5. Publish the web change before (or together with) the Play rollout to avoid temporary verification mismatch.
+- **Web (landing):** Cloudflare Pages via `@opennextjs/cloudflare` (script em `apps/web`)
+- **Mobile:** EAS Build + Submit para App Store / Play Store
