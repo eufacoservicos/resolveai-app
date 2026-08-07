@@ -1,24 +1,17 @@
 import { useEffect } from "react";
-import { ActivityIndicator, ScrollView } from "react-native";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
-import {
-  getCurrentUser,
-  getProviderByUserId,
-} from "@resolveai/shared/supabase/queries";
+import { getCurrentUser } from "@resolveai/shared/supabase/queries";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-provider";
-import {
-  ProfileView,
-  type ProfileProviderData,
-  type ProfileUser,
-} from "@/components/auth/profile-view";
+import { UserProfileForm } from "@/components/auth/user-profile-form";
 import { AmbientBg } from "@/components/ui/ambient-bg";
+import { Display, Muted, Text } from "@/components/ui/text";
 import { useTabBarPadding } from "@/lib/layout";
-import { View } from "react-native";
 
-export default function ProfileScreen() {
+export default function EditProfileScreen() {
   const { user: authUser, loading: authLoading } = useAuth();
   const tabBarPad = useTabBarPadding();
 
@@ -27,23 +20,16 @@ export default function ProfileScreen() {
     queryFn: () => getCurrentUser(supabase),
     enabled: !!authUser,
   });
-  const user = (userQuery.data ?? null) as ProfileUser | null;
 
-  const providerQuery = useQuery({
-    queryKey: ["provider-by-user", user?.id],
-    queryFn: () => getProviderByUserId(supabase, user!.id),
-    enabled: !!user && user.role === "PROVIDER",
-  });
-
-  // Mesmo redirect do PWA
   useEffect(() => {
     if (!authLoading && !authUser) router.replace("/login");
   }, [authLoading, authUser]);
 
-  const isLoading =
-    authLoading || (!!authUser && userQuery.isLoading) || !user;
+  const user = userQuery.data as
+    | { id: string; full_name: string; email: string; avatar_url: string | null }
+    | undefined;
 
-  if (isLoading) {
+  if (authLoading || userQuery.isLoading || !user) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-background">
         <ActivityIndicator size="large" color="#22d3ee" />
@@ -53,19 +39,25 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
-      <View className="absolute inset-x-0 top-0 h-[320px]">
+      <View className="absolute inset-x-0 top-0 h-[280px]">
         <AmbientBg />
       </View>
       <ScrollView
-        contentContainerStyle={{ padding: 20, paddingBottom: tabBarPad }}
+        contentContainerStyle={{ padding: 20, gap: 24, paddingBottom: tabBarPad }}
         showsVerticalScrollIndicator={false}
       >
-        <ProfileView
-          user={user}
-          providerProfile={
-            (providerQuery.data ?? null) as ProfileProviderData | null
-          }
-        />
+        <View>
+          <Display className="text-[30px] leading-[32px]">
+            Editar{"\n"}
+            <Text className="text-[30px] font-black text-primary">
+              dados pessoais.
+            </Text>
+          </Display>
+          <Muted className="mt-3">
+            Atualize seu nome, email e foto de perfil.
+          </Muted>
+        </View>
+        <UserProfileForm user={user} />
       </ScrollView>
     </SafeAreaView>
   );
