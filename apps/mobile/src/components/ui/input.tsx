@@ -13,10 +13,11 @@ export const Input = forwardRef<TextInput, InputProps>(
     return (
       <TextInput
         ref={ref}
-        placeholderTextColor="#94a3b8"
+        placeholderTextColor="#5c6478"
+        selectionColor="#22d3ee"
         className={cn(
-          "h-11 rounded-md border border-border bg-background px-3 text-base text-foreground",
-          "focus:border-primary",
+          "h-12 rounded-2xl border border-border bg-card/60 px-4 text-base text-foreground",
+          "focus:border-primary/60 focus:bg-card",
           invalid && "border-destructive",
           className
         )}
