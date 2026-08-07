@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner-native";
 import { AuthProvider } from "@/lib/auth-provider";
 import { AnalyticsProvider } from "@/lib/analytics";
+import { LocationProvider } from "@/lib/location-provider";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,14 +25,27 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <AnalyticsProvider>
             <AuthProvider>
-              <StatusBar style="dark" />
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: "#ffffff" },
-                }}
-              />
-              <Toaster position="top-center" richColors />
+              <LocationProvider>
+                <StatusBar style="light" />
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: "#08090c" },
+                    animation: "fade",
+                  }}
+                />
+                <Toaster
+                  position="top-center"
+                  richColors
+                  theme="dark"
+                  toastOptions={{
+                    style: {
+                      backgroundColor: "#0f1116",
+                      borderColor: "#1c2030",
+                    },
+                  }}
+                />
+              </LocationProvider>
             </AuthProvider>
           </AnalyticsProvider>
         </QueryClientProvider>
