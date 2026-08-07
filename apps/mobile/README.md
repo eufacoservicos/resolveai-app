@@ -82,7 +82,7 @@ app/                       Rotas Expo Router
 src/
   components/
     ui/                    Design system (Button, Input, Card, Text, Badge, ...)
-    providers/             Business components (ProviderCard, ProviderGrid)
+    providers/             Business components (ProviderCard, ProviderDetail, filtros)
   lib/
     supabase.ts            Client com AsyncStorage
     auth-provider.tsx      Context + useAuth
