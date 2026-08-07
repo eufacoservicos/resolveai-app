@@ -18,11 +18,16 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+// Web usa static rendering: o bundle roda no Node durante o prerender, onde nao
+// existe `window` e o AsyncStorage quebra. Sem storage o supabase-js cai no
+// adapter em memoria, e a sessao real e hidratada no cliente.
+const isBrowserOrNative = typeof window !== "undefined";
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: AsyncStorage,
-    autoRefreshToken: true,
-    persistSession: true,
+    storage: isBrowserOrNative ? AsyncStorage : undefined,
+    autoRefreshToken: isBrowserOrNative,
+    persistSession: isBrowserOrNative,
     detectSessionInUrl: false,
   },
 });
