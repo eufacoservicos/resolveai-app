@@ -1,3 +1,9 @@
+// src/lib/supabase.ts lanca se as envs faltarem, e o babel-preset-expo inlineia
+// process.env.EXPO_PUBLIC_* na transformacao — por isso os defaults ficam aqui,
+// avaliados antes dos workers do Jest, e nao em jest.setup.js.
+process.env.EXPO_PUBLIC_SUPABASE_URL ||= "https://test.supabase.co";
+process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ||= "test-anon-key";
+
 module.exports = {
   preset: "jest-expo",
   setupFiles: ["<rootDir>/jest.setup.js"],
@@ -6,7 +12,8 @@ module.exports = {
   ],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
-    "^react-native-worklets/plugin$": "<rootDir>/jest.mocks/worklets-plugin.js",
+    // O transformer de SVG e do Metro; no Jest o import vira um stub.
+    "\\.svg$": "<rootDir>/jest.mocks/svg.js",
   },
   testMatch: ["**/__tests__/**/*.test.(ts|tsx|js|jsx)"],
 };
