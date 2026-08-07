@@ -11,6 +11,18 @@ export interface Coordinates {
   longitude: number;
 }
 
+const REQUEST_TIMEOUT_MS = 5000;
+
+/**
+ * Timeout portatil. AbortSignal.timeout() nao existe no Hermes (React Native),
+ * entao o controller e criado na mao para o codigo servir aos dois apps.
+ */
+function withTimeout(ms: number): { signal: AbortSignal; clear: () => void } {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), ms);
+  return { signal: controller.signal, clear: () => clearTimeout(id) };
+}
+
 /**
  * Fetches address information from a Brazilian CEP (postal code).
  * Uses the ViaCEP public API.
@@ -19,11 +31,12 @@ export async function fetchCepData(cep: string): Promise<CepData | null> {
   const cleanCep = cep.replace(/\D/g, "");
   if (cleanCep.length !== 8) return null;
 
+  const { signal, clear } = withTimeout(REQUEST_TIMEOUT_MS);
+
   try {
-    const response = await fetch(
-      `https://viacep.com.br/ws/${cleanCep}/json/`,
-      { signal: AbortSignal.timeout(5000) }
-    );
+    const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`, {
+      signal,
+    });
     if (!response.ok) return null;
 
     const data = await response.json();
@@ -38,6 +51,8 @@ export async function fetchCepData(cep: string): Promise<CepData | null> {
     };
   } catch {
     return null;
+  } finally {
+    clear();
   }
 }
 
@@ -53,6 +68,8 @@ export async function geocodeAddress(
   const parts = [neighborhood, city, state, "Brazil"].filter(Boolean);
   const query = parts.join(", ");
 
+  const { signal, clear } = withTimeout(REQUEST_TIMEOUT_MS);
+
   try {
     const response = await fetch(
       `https://nominatim.openstreetmap.org/search?` +
@@ -64,7 +81,7 @@ export async function geocodeAddress(
         }),
       {
         headers: { "User-Agent": "eufaco/1.0" },
-        signal: AbortSignal.timeout(5000),
+        signal,
       }
     );
 
@@ -79,6 +96,8 @@ export async function geocodeAddress(
     };
   } catch {
     return null;
+  } finally {
+    clear();
   }
 }
 
