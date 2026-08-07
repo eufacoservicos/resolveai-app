@@ -1,65 +1,53 @@
-import { View, ScrollView, Pressable } from "react-native";
-import { router } from "expo-router";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
-import { Heading, Text, Muted } from "@/components/ui/text";
+import { getCategories } from "@resolveai/shared/supabase/queries";
 import { supabase } from "@/lib/supabase";
-import { getCategoryIcon } from "@/lib/category-icons";
-
-type Category = { id: string; name: string; slug: string };
-
-async function fetchCategories(): Promise<Category[]> {
-  const { data, error } = await supabase
-    .from("categories")
-    .select("id, name, slug, parent_id")
-    .order("name");
-  if (error) throw error;
-  const rows = (data ?? []) as (Category & { parent_id: string | null })[];
-  const hasParents = rows.some((c) => c.parent_id);
-  return hasParents ? rows.filter((c) => c.parent_id !== null) : rows;
-}
+import { CategoryList } from "@/components/providers/category-list";
+import { AmbientBg } from "@/components/ui/ambient-bg";
+import { Display, Muted, Text } from "@/components/ui/text";
+import { useTabBarPadding } from "@/lib/layout";
 
 export default function CategoriesScreen() {
   const query = useQuery({
     queryKey: ["categories"],
-    queryFn: fetchCategories,
+    queryFn: () => getCategories(supabase),
   });
+  const tabBarPad = useTabBarPadding();
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
+      <View className="absolute inset-x-0 top-0 h-[300px]">
+        <AmbientBg variant="violet" />
+      </View>
+      <ScrollView
+        contentContainerStyle={{ padding: 20, paddingBottom: tabBarPad, gap: 20 }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <View>
-          <Heading>Categorias</Heading>
-          <Muted className="mt-1">Escolha o tipo de serviço</Muted>
+          <Display className="text-[32px] leading-[34px]">
+            Todas as{"\n"}
+            <Text className="text-[32px] font-black text-primary">
+              categorias.
+            </Text>
+          </Display>
+          <Muted className="mt-3 text-base">
+            Escolha o tipo de serviço que você precisa.
+          </Muted>
         </View>
 
-        {query.isLoading && <Muted>Carregando...</Muted>}
-        {query.error && <Muted>Erro ao carregar categorias.</Muted>}
-
-        <View className="flex-row flex-wrap gap-3">
-          {(query.data ?? []).map((category) => {
-            const Icon = getCategoryIcon(category.slug);
-            return (
-              <Pressable
-                key={category.id}
-                onPress={() =>
-                  router.push(`/(main)/search?category=${category.slug}`)
-                }
-                className="w-[30%] items-center gap-2 rounded-2xl border border-border bg-background p-3 active:opacity-70"
-              >
-                <View className="h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                  <Icon size={24} color="#0ea5e9" />
-                </View>
-                <Text
-                  className="text-center text-xs font-medium"
-                  numberOfLines={2}
-                >
-                  {category.name}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        {query.isLoading ? (
+          <View className="items-center py-16">
+            <ActivityIndicator size="large" color="#22d3ee" />
+          </View>
+        ) : query.error ? (
+          <Muted className="py-12 text-center">
+            Erro ao carregar categorias.
+          </Muted>
+        ) : (
+          <CategoryList categories={query.data ?? []} />
+        )}
       </ScrollView>
     </SafeAreaView>
   );
