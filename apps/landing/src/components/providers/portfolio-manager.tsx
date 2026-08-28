@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { toUploadFile } from "@/lib/upload";
 import { createClient } from "@/lib/supabase/client";
 import {
   uploadPortfolioImage,
@@ -116,7 +117,7 @@ export function PortfolioManager({
         supabase,
         providerId,
         userId,
-        item.file
+        await toUploadFile(item.file)
       );
 
       if (error) {

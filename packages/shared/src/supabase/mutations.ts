@@ -104,17 +104,31 @@ export async function acceptTerms(
 // AVATAR MUTATIONS
 // ============================================
 
+/**
+ * Arquivo pronto para upload, no formato que funciona nas duas plataformas.
+ *
+ * `File` e `Blob` são APIs de navegador e não existem no React Native, então
+ * o contrato é o binário cru: a web converte com `file.arrayBuffer()`, o app
+ * lê o arquivo escolhido e decodifica para ArrayBuffer.
+ */
+export interface UploadFile {
+  body: ArrayBuffer | Uint8Array;
+  /** Extensão sem ponto, ex.: "jpg". */
+  extension: string;
+  /** Ex.: "image/jpeg". O storage precisa disso para servir o arquivo certo. */
+  contentType: string;
+}
+
 export async function uploadAvatar(
   supabase: SupabaseClient,
   userId: string,
-  file: File
+  file: UploadFile
 ) {
-  const fileExt = file.name.split(".").pop();
-  const fileName = `${userId}/avatar.${fileExt}`;
+  const fileName = `${userId}/avatar.${file.extension}`;
 
   const { error: uploadError } = await supabase.storage
     .from("avatars")
-    .upload(fileName, file, { upsert: true });
+    .upload(fileName, file.body, { upsert: true, contentType: file.contentType });
 
   if (uploadError) return { error: uploadError, url: null };
 
@@ -329,7 +343,7 @@ export async function uploadPortfolioImage(
   supabase: SupabaseClient,
   providerId: string,
   userId: string,
-  file: File
+  file: UploadFile
 ) {
   // Check limit
   const { count } = await supabase
@@ -341,12 +355,11 @@ export async function uploadPortfolioImage(
     return { error: { message: `Limite de ${MAX_PORTFOLIO_IMAGES} imagens atingido.` } };
   }
 
-  const fileExt = file.name.split(".").pop();
-  const fileName = `${userId}/${Date.now()}.${fileExt}`;
+  const fileName = `${userId}/${Date.now()}.${file.extension}`;
 
   const { error: uploadError } = await supabase.storage
     .from("portfolio")
-    .upload(fileName, file);
+    .upload(fileName, file.body, { contentType: file.contentType });
 
   if (uploadError) return { error: uploadError };
 
@@ -454,4 +467,20 @@ export async function createReviewReply(
     { onConflict: "review_id" }
   );
   return { error };
+}
+
+/**
+ * Apaga a conta do próprio usuário, incluindo os arquivos no storage.
+ *
+ * Chama a função `delete_own_account` (migration v15), que roda com
+ * privilégio elevado no servidor mas só age sobre `auth.uid()`. É assim que
+ * o app consegue excluir contas sem carregar a service role key, que daria
+ * poder total sobre o banco a quem descompilasse o APK.
+ */
+export async function deleteOwnAccount(supabase: SupabaseClient) {
+  const { error } = await supabase.rpc("delete_own_account");
+  if (error) return { error };
+
+  await supabase.auth.signOut();
+  return { error: null };
 }

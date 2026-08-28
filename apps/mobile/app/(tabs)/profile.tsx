@@ -9,6 +9,7 @@ import {
   LogOut,
   MessageCircle,
   Star,
+  Trash2,
   UserRound,
 } from "lucide-react-native";
 import type { ComponentType } from "react";
@@ -96,6 +97,12 @@ export default function ProfileScreen() {
     { label: "Notificações", icon: Bell },
     { label: "Termos e privacidade", icon: FileText },
     { label: "Sair da conta", icon: LogOut, danger: true, onPress: confirmSignOut },
+    {
+      label: "Excluir minha conta",
+      icon: Trash2,
+      danger: true,
+      onPress: () => router.push("/profile/delete"),
+    },
   ];
 
   const renderGroup = (title: string, rows: Row[]) => (

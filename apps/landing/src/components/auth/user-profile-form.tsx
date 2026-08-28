@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { toUploadFile } from "@/lib/upload";
 import { createClient } from "@/lib/supabase/client";
 import { updateUser, uploadAvatar } from "@eufaco/shared";
 import { Button } from "@/components/ui/button";
@@ -91,7 +92,7 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
       const { error: avatarError, url } = await uploadAvatar(
         supabase,
         user.id,
-        avatarFile
+        await toUploadFile(avatarFile)
       );
       setAvatarUploading(false);
       if (avatarError) {

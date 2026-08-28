@@ -82,6 +82,24 @@ cadastro de prestador.
 pode acontecer depois que a build Expo substituir o TWA na loja — e ela precisa
 do mesmo package name e da mesma assinatura para atualizar a listagem existente.
 
+## Migrações pendentes
+
+Rode na ordem, pelo SQL Editor do Supabase. Cada arquivo é independente e
+pode ser aplicado sozinho:
+
+| Arquivo | O que destrava |
+| --- | --- |
+| `migration-v15-account-deletion.sql` | Exclusão de conta pelo app (exigência da Play Store) |
+| `migration-v16-subscriptions.sql` | Planos, assinatura e a cota de 10 orçamentos |
+| `migration-v17-offers.sql` | Ofertas e descontos do plano pago |
+| `migration-v18-moderation.sql` | Denúncia e bloqueio (exigência da Play Store) |
+| `migration-v19-notifications.sql` | Push, central de avisos e preferências |
+
+A v17 depende da v16 (usa `provider_plan`) e a v19 depende da v16
+(usa `touch_updated_at`). As demais são independentes.
+
+Nenhuma delas apaga dado existente.
+
 ## Notas do monorepo
 
 - `apps/mobile/metro.config.js` aponta o Metro para a raiz do workspace. Sem
