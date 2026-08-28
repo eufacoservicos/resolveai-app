@@ -1,6 +1,7 @@
 import {
   blockUser,
   getProviderById,
+  trackWhatsAppClick,
   getProviderReviews,
   getWhatsAppUrl,
   isProviderOpenNow,
@@ -106,6 +107,9 @@ export default function ProviderDetailScreen() {
   const { isOpen, label: hoursLabel } = isProviderOpenNow(provider.business_hours);
 
   const openWhatsApp = () => {
+    // Registrado antes de sair do app: alimenta o histórico do cliente e a
+    // cota do prestador. Falha aqui não pode impedir o contato.
+    void trackWhatsAppClick(supabase, provider.id, session?.user.id ?? null);
     void Linking.openURL(getWhatsAppUrl(provider.whatsapp, name));
   };
 

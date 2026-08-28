@@ -25,3 +25,4 @@ export * from "./supabase/subscriptions";
 export * from "./supabase/offers";
 export * from "./supabase/moderation";
 export * from "./supabase/notifications";
+export * from "./supabase/contacts";

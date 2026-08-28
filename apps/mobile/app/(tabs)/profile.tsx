@@ -92,8 +92,8 @@ export default function ProfileScreen() {
 
   const businessRows: Row[] = [
     { label: "Perfil profissional", icon: Briefcase },
-    { label: "Avaliações recebidas", icon: Star },
-    { label: "Meus contatos", icon: MessageCircle },
+    { label: "Avaliações recebidas", icon: Star, onPress: () => router.push("/reviews") },
+    { label: "Meus contatos", icon: MessageCircle, onPress: () => router.push("/contacts") },
     { label: "Ofertas e descontos", icon: Tag, onPress: () => router.push("/offers") },
     { label: "Meu plano", icon: Sparkles, onPress: () => router.push("/plans") },
   ];
