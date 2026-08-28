@@ -1,52 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# eufaço!
 
-## Getting Started
+Monorepo da plataforma que conecta clientes a prestadores de serviço locais.
 
-First, run the development server:
+## Estrutura
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+apps/
+  landing/          Next.js 16 — site público (App Router, Cloudflare Workers)
+  mobile/           Expo SDK 57 — app React Native (expo-router)
+packages/
+  design-system/    Tokens e componentes base, fonte única do visual
+supabase/           Schema e migrações do banco
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Começando
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install          # instala todos os workspaces de uma vez, na raiz
+npm run dev          # sobe landing e app em paralelo
+npm run dev:landing  # só a landing  (localhost:3000)
+npm run dev:mobile   # só o app      (Expo Dev Server)
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Outros comandos, todos orquestrados pelo Turborepo a partir da raiz:
 
-## Learn More
+```bash
+npm run build        # build de produção de todos os apps
+npm run typecheck    # tsc --noEmit em todos os pacotes
+npm run lint
+npm run test
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Design system
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`packages/design-system` é a fonte única de cores, tipografia, raios e
+espaçamentos. Os valores vêm do documento Pen `eufaco-app`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `src/tokens.ts` — valores em TypeScript, sem dependência de framework
+- `tokens.css` — os mesmos valores como variáveis CSS, consumidos pela landing
+- `src/native/` — `ThemeProvider` e componentes React Native (`Text`, `Button`,
+  `Card`, `Badge`)
 
-## Deploy on Vercel
+**Nunca escreva um hexadecimal direto num componente.** Mudou uma cor? Mude nos
+dois arquivos de token e ela se propaga para o app e para a landing.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```tsx
+// app
+import { Text, Button, useTheme } from "@eufaco/design-system/native";
+const { colors, spacing } = useTheme();
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+// landing — via as variáveis CSS já mapeadas em globals.css
+<div className="bg-card text-foreground" />
+```
 
-## Android TWA (Play Store) Checklist
+### Fontes
 
-If the app opens with a URL bar on Android, TWA verification failed and Chrome fell back to Custom Tabs.
+Plus Jakarta Sans (títulos) e Inter (texto). No React Native cada peso é uma
+família própria, porque fonte customizada não sintetiza peso no Android — use
+sempre `nativeFonts` do design system, nunca `fontWeight` solto.
 
-Before publishing a new `.aab`:
+## Tema claro e escuro
 
-1. Confirm the `applicationId` in the Android project matches one of the `package_name` entries in `public/.well-known/assetlinks.json`.
-2. In Google Play Console, copy the **App signing certificate** SHA-256 (not only the upload key) and keep it in `sha256_cert_fingerprints`.
-   - If you test a locally generated APK (outside Play), include the APK signing SHA-256 as well.
-3. Keep `assetlinks.json` available on both:
-   - `https://eufacooservico.com.br/.well-known/assetlinks.json`
-   - `https://www.eufacooservico.com.br/.well-known/assetlinks.json`
-   - Important: the TWA launch origin must be the same host that serves `200` directly (without `307/308` redirect).
-4. After deployment, validate both URLs return HTTP `200` and valid JSON.
-5. Publish the web change before (or together with) the Play rollout to avoid temporary verification mismatch.
+Os dois temas são obrigatórios. No app, `ThemeProvider` segue o tema do sistema.
+Na landing, a classe `dark` no `<html>` troca os `--ef-*` e todo o resto
+acompanha por referência.
+
+## Notas do monorepo
+
+- `apps/mobile/metro.config.js` aponta o Metro para a raiz do workspace. Sem
+  isso o bundler não enxerga `packages/`.
+- `apps/landing/next.config.ts` declara `transpilePackages` porque o design
+  system é distribuído como TypeScript, sem build.
+- As variáveis de ambiente da landing ficam em `apps/landing/.env.local`.

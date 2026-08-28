@@ -1,12 +1,14 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "@eufaco/design-system/tokens.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--ef-font-body);
+  --font-display: var(--ef-font-display);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -46,73 +48,49 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
-:root {
-  --radius: 0.75rem;
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #0ea5e9;
-  --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #1e293b;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #e0f2fe;
-  --accent-foreground: #0369a1;
-  --destructive: #ef4444;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #0ea5e9;
-  --chart-1: #0ea5e9;
-  --chart-2: #06b6d4;
-  --chart-3: #f59e0b;
-  --chart-4: #10b981;
-  --chart-5: #f43f5e;
-  --sidebar: #fafafa;
-  --sidebar-foreground: #0f172a;
-  --sidebar-primary: #0ea5e9;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f1f5f9;
-  --sidebar-accent-foreground: #1e293b;
-  --sidebar-border: #e2e8f0;
-  --sidebar-ring: #0ea5e9;
-}
 
-.dark {
-  --background: #020617;
-  --foreground: #f8fafc;
-  --card: #0f172a;
-  --card-foreground: #f8fafc;
-  --popover: #0f172a;
-  --popover-foreground: #f8fafc;
-  --primary: #38bdf8;
-  --primary-foreground: #0f172a;
-  --secondary: #1e293b;
-  --secondary-foreground: #f8fafc;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --accent: #1e293b;
-  --accent-foreground: #7dd3fc;
-  --destructive: #dc2626;
-  --border: #1e293b;
-  --input: #1e293b;
-  --ring: #38bdf8;
-  --chart-1: #38bdf8;
-  --chart-2: #22d3ee;
-  --chart-3: #fbbf24;
-  --chart-4: #34d399;
-  --chart-5: #fb7185;
-  --sidebar: #0f172a;
-  --sidebar-foreground: #f8fafc;
-  --sidebar-primary: #38bdf8;
-  --sidebar-primary-foreground: #0f172a;
-  --sidebar-accent: #1e293b;
-  --sidebar-accent-foreground: #f8fafc;
-  --sidebar-border: #1e293b;
-  --sidebar-ring: #38bdf8;
+/* ---------------------------------------------------------------
+   Mapeia os tokens do design system para os nomes que os
+   componentes usam. Um bloco só: o tema escuro troca os --ef-*
+   em tokens.css e tudo abaixo acompanha por referência.
+   Não escreva hex aqui. Mude em packages/design-system.
+---------------------------------------------------------------- */
+:root {
+  --radius: 0.875rem;
+
+  --background: var(--ef-bg);
+  --foreground: var(--ef-text-primary);
+  --card: var(--ef-surface);
+  --card-foreground: var(--ef-text-primary);
+  --popover: var(--ef-surface);
+  --popover-foreground: var(--ef-text-primary);
+  --primary: var(--ef-primary);
+  --primary-foreground: var(--ef-on-primary);
+  --secondary: var(--ef-surface-2);
+  --secondary-foreground: var(--ef-text-primary);
+  --muted: var(--ef-surface-2);
+  --muted-foreground: var(--ef-text-secondary);
+  --accent: var(--ef-primary-soft);
+  --accent-foreground: var(--ef-primary-strong);
+  --destructive: var(--ef-danger);
+  --border: var(--ef-border);
+  --input: var(--ef-border);
+  --ring: var(--ef-primary);
+
+  --chart-1: var(--ef-primary);
+  --chart-2: var(--ef-primary-strong);
+  --chart-3: var(--ef-accent);
+  --chart-4: var(--ef-success);
+  --chart-5: var(--ef-danger);
+
+  --sidebar: var(--ef-surface);
+  --sidebar-foreground: var(--ef-text-primary);
+  --sidebar-primary: var(--ef-primary);
+  --sidebar-primary-foreground: var(--ef-on-primary);
+  --sidebar-accent: var(--ef-surface-2);
+  --sidebar-accent-foreground: var(--ef-text-primary);
+  --sidebar-border: var(--ef-border);
+  --sidebar-ring: var(--ef-primary);
 }
 
 @layer base {
@@ -136,11 +114,11 @@ html {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--ef-border-strong);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--ef-text-muted);
 }
 
 /* Glass effect utility */
@@ -152,7 +130,7 @@ html {
 
 /* Gradient text utility */
 .gradient-text {
-  background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+  background: linear-gradient(135deg, var(--ef-primary) 0%, var(--ef-primary-strong) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -160,7 +138,7 @@ html {
 
 /* Gradient background */
 .gradient-bg {
-  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  background: linear-gradient(135deg, var(--ef-primary) 0%, var(--ef-primary-strong) 100%);
 }
 
 /* Hide scrollbar */
