@@ -1,6 +1,6 @@
 import { getCurrentUser, type User } from "@eufaco/shared";
 import { Card, Text, useTheme } from "@eufaco/design-system/native";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import {
   Bell,
   Briefcase,
@@ -30,6 +30,7 @@ interface Row {
 export default function ProfileScreen() {
   const { colors, radii, spacing, layout } = useTheme();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { session, loading: sessionLoading, signOut } = useSession();
 
   const [user, setUser] = useState<User | null>(null);
@@ -91,7 +92,7 @@ export default function ProfileScreen() {
   ];
 
   const accountRows: Row[] = [
-    { label: "Dados pessoais", icon: UserRound },
+    { label: "Dados pessoais", icon: UserRound, onPress: () => router.push("/profile/edit") },
     { label: "Notificações", icon: Bell },
     { label: "Termos e privacidade", icon: FileText },
     { label: "Sair da conta", icon: LogOut, danger: true, onPress: confirmSignOut },

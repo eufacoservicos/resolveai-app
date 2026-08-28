@@ -6,7 +6,7 @@ import {
   type ProviderWithDetails,
 } from "@eufaco/shared";
 import { Badge, Button, Card, Text, useTheme } from "@eufaco/design-system/native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Clock3, MapPin, MessageCircle, Share2, Star } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Linking, Pressable, ScrollView, Share, View } from "react-native";
@@ -21,6 +21,7 @@ export default function ProviderDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors, radii, spacing, layout } = useTheme();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   const [provider, setProvider] = useState<ProviderWithDetails | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -194,9 +195,21 @@ export default function ProviderDetailScreen() {
         </Card>
 
         <View style={{ gap: spacing[3] }}>
-          <Text variant="h3">
-            {provider.review_count > 0 ? `Avaliações (${provider.review_count})` : "Avaliações"}
-          </Text>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+            <Text variant="h3">
+              {provider.review_count > 0 ? `Avaliações (${provider.review_count})` : "Avaliações"}
+            </Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Avaliar este profissional"
+              onPress={() => router.push(`/provider/${provider.id}/review`)}
+              hitSlop={8}
+            >
+              <Text variant="label" color="primaryStrong">
+                Avaliar
+              </Text>
+            </Pressable>
+          </View>
 
           {reviews.length === 0 ? (
             <Card style={{ alignItems: "center", paddingVertical: spacing[6], gap: spacing[1] }}>
