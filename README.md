@@ -65,6 +65,23 @@ Os dois temas são obrigatórios. No app, `ThemeProvider` segue o tema do sistem
 Na landing, a classe `dark` no `<html>` troca os `--ef-*` e todo o resto
 acompanha por referência.
 
+## Estado do app
+
+Telas com dados reais: Home, Buscar, Categorias, Favoritos, Perfil, detalhe do
+prestador, login e cadastro. Sessão persiste entre aberturas via AsyncStorage.
+
+Ainda no Pen, sem implementação: planos e assinatura, ofertas, avaliar,
+responder avaliação, denúncia, notificações, portfólio, horários e o fluxo de
+cadastro de prestador.
+
+### A landing ainda serve o app da Play Store
+
+`public/.well-known/assetlinks.json` declara `handle_all_urls` para
+`br.com.eufaco.app`: o app publicado hoje é um TWA que carrega o site em
+`/home`. Remover as rotas do Next.js derruba o app de quem já usa. O corte só
+pode acontecer depois que a build Expo substituir o TWA na loja — e ela precisa
+do mesmo package name e da mesma assinatura para atualizar a listagem existente.
+
 ## Notas do monorepo
 
 - `apps/mobile/metro.config.js` aponta o Metro para a raiz do workspace. Sem

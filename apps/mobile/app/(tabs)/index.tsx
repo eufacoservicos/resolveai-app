@@ -1,10 +1,12 @@
 import { SERVICE_CATEGORIES } from "@eufaco/shared";
 import { Button, Card, Text, useTheme } from "@eufaco/design-system/native";
 import { ArrowRight, Bell, ChevronDown, ChevronRight, MapPin, Search, Wrench } from "lucide-react-native";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProviderCard } from "@/components/ProviderCard";
+import { useFavorites } from "@/hooks/useFavorites";
 import { useProviders } from "@/hooks/useProviders";
 
 const CHIPS = SERVICE_CATEGORIES.slice(0, 6);
@@ -12,6 +14,8 @@ const CHIPS = SERVICE_CATEGORIES.slice(0, 6);
 export default function HomeScreen() {
   const { colors, radii, spacing, layout } = useTheme();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const { favoriteIds, toggle } = useFavorites();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const { providers, total, loading, error, refresh } = useProviders({
@@ -172,7 +176,13 @@ export default function HomeScreen() {
           ) : (
             <View style={{ gap: spacing[3] - 2 }}>
               {providers.map((p) => (
-                <ProviderCard key={p.id} provider={p} />
+                <ProviderCard
+                  key={p.id}
+                  provider={p}
+                  onPress={() => router.push(`/provider/${p.id}`)}
+                favorited={favoriteIds.has(p.id)}
+                  onToggleFavorite={() => void toggle(p.id)}
+                />
               ))}
             </View>
           )}
