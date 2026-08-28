@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient } from "@supabase/supabase-js";
+import { Platform } from "react-native";
 import "react-native-url-polyfill/auto";
 
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
@@ -13,11 +14,14 @@ if (!url || !anonKey) {
 
 export const supabase = createClient(url, anonKey, {
   auth: {
-    // AsyncStorage mantém a sessão entre aberturas do app
-    storage: AsyncStorage,
+    // No nativo, AsyncStorage guarda a sessão entre aberturas. Na web,
+    // deixamos o padrão do supabase-js, que usa localStorage e sabe se
+    // proteger quando não há window — o AsyncStorage web não sabe, e
+    // quebra em qualquer render fora do navegador.
+    ...(Platform.OS === "web" ? {} : { storage: AsyncStorage }),
     autoRefreshToken: true,
     persistSession: true,
-    // No app não existe callback de URL como no navegador
-    detectSessionInUrl: false,
+    // Só o fluxo OAuth do navegador devolve a sessão pela URL
+    detectSessionInUrl: Platform.OS === "web",
   },
 });

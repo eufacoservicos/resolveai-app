@@ -88,7 +88,7 @@ export default function NotificationsScreen() {
       );
     }
     const route = typeof item.data?.route === "string" ? item.data.route : null;
-    if (route) router.push(route as never);
+    if (route) router.push(route);
   };
 
   const markAll = () => {

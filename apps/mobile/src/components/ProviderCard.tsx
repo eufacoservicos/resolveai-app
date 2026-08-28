@@ -9,9 +9,17 @@ interface Props {
   onPress?: () => void;
   onToggleFavorite?: () => void;
   favorited?: boolean;
+  /** Selo de desconto, quando o profissional tem oferta vigente. */
+  discountLabel?: string | null;
 }
 
-export function ProviderCard({ provider, onPress, onToggleFavorite, favorited = false }: Props) {
+export function ProviderCard({
+  provider,
+  onPress,
+  onToggleFavorite,
+  favorited = false,
+  discountLabel = null,
+}: Props) {
   const { colors, radii, spacing } = useTheme();
 
   const name = provider.user.full_name;
@@ -22,15 +30,26 @@ export function ProviderCard({ provider, onPress, onToggleFavorite, favorited = 
   const { isOpen } = isProviderOpenNow(provider.business_hours);
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={
-        rating ? `${name}, ${category ?? "profissional"}, nota ${rating}` : `${name}, ${category ?? "profissional"}`
-      }
-      onPress={onPress}
-      style={({ pressed }) => ({ opacity: pressed ? 0.9 : 1 })}
-    >
-      <Card style={{ flexDirection: "row", gap: spacing[3], alignItems: "flex-start" }}>
+    // O card não é um Pressable envolvendo tudo: o coração ficaria como
+    // botão dentro de botão, que gera HTML inválido na web e toque
+    // ambíguo no nativo. O alvo de toque é só a área de conteúdo.
+    <Card style={{ flexDirection: "row", gap: spacing[3], alignItems: "flex-start" }}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={
+          rating
+            ? `${name}, ${category ?? "profissional"}, nota ${rating}`
+            : `${name}, ${category ?? "profissional"}`
+        }
+        onPress={onPress}
+        style={({ pressed }) => ({
+          flex: 1,
+          flexDirection: "row",
+          gap: spacing[3],
+          alignItems: "flex-start",
+          opacity: pressed ? 0.9 : 1,
+        })}
+      >
         <View
           style={{
             width: 70,
@@ -73,6 +92,7 @@ export function ProviderCard({ provider, onPress, onToggleFavorite, favorited = 
                 Sem avaliações ainda
               </Text>
             )}
+            {discountLabel ? <Badge label={discountLabel} tone="accent" /> : null}
           </View>
 
           <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] }}>
@@ -107,28 +127,28 @@ export function ProviderCard({ provider, onPress, onToggleFavorite, favorited = 
             </View>
           </View>
         </View>
+      </Pressable>
 
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={favorited ? `Remover ${name} dos favoritos` : `Salvar ${name} nos favoritos`}
-          onPress={onToggleFavorite}
-          hitSlop={8}
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: radii.full,
-            backgroundColor: favorited ? colors.dangerSoft : colors.surface2,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Heart
-            size={16}
-            color={favorited ? colors.danger : colors.textMuted}
-            fill={favorited ? colors.danger : "transparent"}
-          />
-        </Pressable>
-      </Card>
-    </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={favorited ? `Remover ${name} dos favoritos` : `Salvar ${name} nos favoritos`}
+        onPress={onToggleFavorite}
+        hitSlop={8}
+        style={{
+          width: 32,
+          height: 32,
+          borderRadius: radii.full,
+          backgroundColor: favorited ? colors.dangerSoft : colors.surface2,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Heart
+          size={16}
+          color={favorited ? colors.danger : colors.textMuted}
+          fill={favorited ? colors.danger : "transparent"}
+        />
+      </Pressable>
+    </Card>
   );
 }

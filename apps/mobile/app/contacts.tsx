@@ -72,21 +72,27 @@ export default function ContactsScreen() {
   const reviewed = contacts.filter((c) => c.myRating !== null);
 
   const renderContact = (contact: ContactedProvider) => (
-    <Pressable
+    // O botão "Avaliar" não pode ficar dentro de outro botão: só a linha
+    // superior é tocável para abrir o perfil.
+    <Card
       key={contact.providerId}
-      accessibilityRole="button"
-      accessibilityLabel={contact.fullName}
-      onPress={() => router.push(`/provider/${contact.providerId}`)}
-      style={({ pressed }) => ({ opacity: pressed ? 0.9 : 1 })}
+      style={{
+        gap: spacing[3],
+        borderColor: contact.myRating === null ? colors.primary : colors.border,
+        borderWidth: contact.myRating === null ? 1.5 : 1,
+      }}
     >
-      <Card
-        style={{
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={contact.fullName}
+        onPress={() => router.push(`/provider/${contact.providerId}`)}
+        style={({ pressed }) => ({
+          flexDirection: "row",
+          alignItems: "center",
           gap: spacing[3],
-          borderColor: contact.myRating === null ? colors.primary : colors.border,
-          borderWidth: contact.myRating === null ? 1.5 : 1,
-        }}
+          opacity: pressed ? 0.9 : 1,
+        })}
       >
-        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[3] }}>
           <View
             style={{
               width: 46,
@@ -121,11 +127,11 @@ export default function ContactsScreen() {
               justifyContent: "center",
             }}
           >
-            <MessageCircle size={16} color={colors.whatsapp} />
-          </View>
+          <MessageCircle size={16} color={colors.whatsapp} />
         </View>
+      </Pressable>
 
-        <View style={{ height: 1, backgroundColor: colors.border }} />
+      <View style={{ height: 1, backgroundColor: colors.border }} />
 
         {contact.myRating === null ? (
           <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] + 1 }}>
@@ -167,11 +173,10 @@ export default function ContactsScreen() {
             <Text variant="caption" color="textMuted" style={{ flex: 1 }}>
               Você avaliou
             </Text>
-            <SquarePen size={15} color={colors.textMuted} />
-          </View>
-        )}
-      </Card>
-    </Pressable>
+          <SquarePen size={15} color={colors.textMuted} />
+        </View>
+      )}
+    </Card>
   );
 
   return (
