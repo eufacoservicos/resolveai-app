@@ -94,7 +94,7 @@ export default function ProfileScreen() {
 
   const accountRows: Row[] = [
     { label: "Dados pessoais", icon: UserRound, onPress: () => router.push("/profile/edit") },
-    { label: "Notificações", icon: Bell },
+    { label: "Notificações", icon: Bell, onPress: () => router.push("/notifications/settings") },
     { label: "Termos e privacidade", icon: FileText },
     { label: "Sair da conta", icon: LogOut, danger: true, onPress: confirmSignOut },
     {

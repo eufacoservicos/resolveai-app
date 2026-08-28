@@ -73,6 +73,7 @@ export default function HomeScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Avisos"
+            onPress={() => router.push("/notifications")}
             style={{
               width: 38,
               height: 38,

@@ -1,4 +1,5 @@
 import {
+  blockUser,
   getProviderById,
   getProviderReviews,
   getWhatsAppUrl,
@@ -7,9 +8,22 @@ import {
 } from "@eufaco/shared";
 import { Badge, Button, Card, Text, useTheme } from "@eufaco/design-system/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Clock3, MapPin, MessageCircle, Share2, Star } from "lucide-react-native";
+import {
+  Ban,
+  Clock3,
+  EllipsisVertical,
+  Flag,
+  Link2,
+  MapPin,
+  MessageCircle,
+  Share2,
+  Star,
+} from "lucide-react-native";
+import * as Clipboard from "expo-clipboard";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Linking, Pressable, ScrollView, Share, View } from "react-native";
+import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, Share, View } from "react-native";
+import { ActionSheet } from "@/components/ActionSheet";
+import { useSession } from "@/lib/session";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppBar } from "@/components/AppBar";
 import { formatDistance, formatRating, initialsOf } from "@/lib/format";
@@ -22,11 +36,13 @@ export default function ProviderDetailScreen() {
   const { colors, radii, spacing, layout } = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { session } = useSession();
 
   const [provider, setProvider] = useState<ProviderWithDetails | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -93,15 +109,67 @@ export default function ProviderDetailScreen() {
     void Linking.openURL(getWhatsAppUrl(provider.whatsapp, name));
   };
 
+  const profileUrl = `https://eufaco.com.br/provider/${provider.id}`;
+
   const shareProfile = () => {
     void Share.share({
-      message: `Encontrei ${name}, ${provider.categories[0]?.name ?? "profissional"} no eufaço!`,
+      message: `Encontrei ${name}, ${provider.categories[0]?.name ?? "profissional"} no eufaço! ${profileUrl}`,
     });
+  };
+
+  const copyLink = () => {
+    void Clipboard.setStringAsync(profileUrl);
+    Alert.alert("Link copiado", "Agora é só colar onde quiser.");
+  };
+
+  const confirmBlock = () => {
+    if (!session) {
+      router.push("/login");
+      return;
+    }
+    Alert.alert(
+      `Bloquear ${name}?`,
+      "O perfil some da sua busca e vocês não aparecem mais um para o outro.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Bloquear",
+          style: "destructive",
+          onPress: () => {
+            void blockUser(supabase, session.user.id, provider.user_id).then(({ error: blockError }) => {
+              if (blockError) {
+                Alert.alert("Não foi possível bloquear", "Verifique sua conexão e tente de novo.");
+                return;
+              }
+              router.back();
+            });
+          },
+        },
+      ],
+    );
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <AppBar />
+      <AppBar
+        action={
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Mais ações"
+            onPress={() => setSheetOpen(true)}
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: radii.full,
+              backgroundColor: colors.surface2,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <EllipsisVertical size={19} color={colors.textPrimary} />
+          </Pressable>
+        }
+      />
 
       <ScrollView
         contentContainerStyle={{
@@ -311,6 +379,22 @@ export default function ProviderDetailScreen() {
           <Share2 size={20} color={colors.textPrimary} />
         </Pressable>
       </View>
+
+      <ActionSheet
+        visible={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        actions={[
+          { label: "Compartilhar perfil", icon: Share2, onPress: shareProfile },
+          { label: "Copiar link", icon: Link2, onPress: copyLink },
+          {
+            label: "Denunciar perfil",
+            icon: Flag,
+            destructive: true,
+            onPress: () => router.push(`/provider/${provider.id}/report`),
+          },
+          { label: "Bloquear profissional", icon: Ban, destructive: true, onPress: confirmBlock },
+        ]}
+      />
     </View>
   );
 }

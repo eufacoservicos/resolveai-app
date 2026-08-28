@@ -21,3 +21,7 @@ export * from "./domain/location";
 // Acesso a dados — recebem o SupabaseClient como primeiro argumento
 export * from "./supabase/queries";
 export * from "./supabase/mutations";
+export * from "./supabase/subscriptions";
+export * from "./supabase/offers";
+export * from "./supabase/moderation";
+export * from "./supabase/notifications";
