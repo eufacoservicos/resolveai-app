@@ -1,11 +1,13 @@
 import { getCurrentUser, type User } from "@eufaco/shared";
-import { Card, Text, useTheme } from "@eufaco/design-system/native";
+import { Badge, Card, Text, useTheme } from "@eufaco/design-system/native";
 import { useFocusEffect, useRouter } from "expo-router";
 import {
   Bell,
   Briefcase,
   ChevronRight,
   FileText,
+  Sparkles,
+  Tag,
   LogOut,
   MessageCircle,
   Star,
@@ -16,6 +18,7 @@ import type { ComponentType } from "react";
 import { useCallback, useState } from "react";
 import { ActivityIndicator, Alert, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useProviderAccount } from "@/hooks/useProviderAccount";
 import { SignInPrompt } from "@/components/SignInPrompt";
 import { initialsOf } from "@/lib/format";
 import { useSession } from "@/lib/session";
@@ -33,6 +36,7 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { session, loading: sessionLoading, signOut } = useSession();
+  const { provider, usage } = useProviderAccount();
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -90,7 +94,56 @@ export default function ProfileScreen() {
     { label: "Perfil profissional", icon: Briefcase },
     { label: "Avaliações recebidas", icon: Star },
     { label: "Meus contatos", icon: MessageCircle },
+    { label: "Ofertas e descontos", icon: Tag, onPress: () => router.push("/offers") },
+    { label: "Meu plano", icon: Sparkles, onPress: () => router.push("/plans") },
   ];
+
+  // Cota só faz sentido no plano grátis, onde existe teto
+  const quotaCard =
+    usage && usage.quota !== null ? (
+      <Card style={{ gap: spacing[3], borderColor: colors.accent, borderWidth: 1.5 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[3] }}>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text variant="title">Orçamentos recebidos</Text>
+            <Text variant="caption" color="textMuted">
+              Plano Grátis · renova todo mês
+            </Text>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
+            <Text variant="h2" color="accent">
+              {usage.used}
+            </Text>
+            <Text variant="label" color="textMuted" style={{ paddingBottom: 2 }}>
+              /{usage.quota}
+            </Text>
+          </View>
+        </View>
+
+        <View style={{ height: 6, borderRadius: 3, backgroundColor: colors.surface3, overflow: "hidden" }}>
+          <View
+            style={{
+              height: 6,
+              borderRadius: 3,
+              backgroundColor: usage.exhausted ? colors.danger : colors.accent,
+              width: `${Math.min(100, (usage.used / usage.quota) * 100)}%`,
+            }}
+          />
+        </View>
+
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.push("/plans")}
+          style={{ flexDirection: "row", alignItems: "center", gap: spacing[1] + 2 }}
+        >
+          <Sparkles size={13} color={colors.primaryStrong} />
+          <Text variant="caption" color="primaryStrong" style={{ flex: 1 }}>
+            {usage.exhausted
+              ? "Você atingiu o limite. Assine para voltar a receber orçamentos."
+              : "Assine o Profissional e receba orçamentos ilimitados"}
+          </Text>
+        </Pressable>
+      </Card>
+    ) : null;
 
   const accountRows: Row[] = [
     { label: "Dados pessoais", icon: UserRound, onPress: () => router.push("/profile/edit") },
@@ -185,7 +238,45 @@ export default function ProfileScreen() {
           </View>
         </Card>
 
-        {user?.role === "PROVIDER" ? renderGroup("Meu negócio", businessRows) : null}
+        {provider ? (
+          <View style={{ gap: spacing[3] }}>
+            <Text variant="h3">Meu negócio</Text>
+            {quotaCard}
+            {usage?.plan === "pro" ? <Badge label="Plano Profissional" tone="primary" /> : null}
+            <View style={{ gap: spacing[2] }}>
+              {businessRows.map((row) => (
+                <Pressable
+                  key={row.label}
+                  accessibilityRole="button"
+                  accessibilityLabel={row.label}
+                  onPress={row.onPress}
+                  style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
+                >
+                  <Card
+                    style={{ flexDirection: "row", alignItems: "center", gap: spacing[3], paddingVertical: spacing[3] }}
+                  >
+                    <View
+                      style={{
+                        width: 34,
+                        height: 34,
+                        borderRadius: 10,
+                        backgroundColor: colors.surface2,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <row.icon size={17} color={colors.textSecondary} />
+                    </View>
+                    <Text variant="bodyStrong" style={{ flex: 1 }}>
+                      {row.label}
+                    </Text>
+                    <ChevronRight size={17} color={colors.textMuted} />
+                  </Card>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        ) : null}
         {renderGroup("Conta", accountRows)}
       </ScrollView>
     </View>
