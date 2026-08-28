@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getCurrentUser } from "@/lib/supabase/queries";
+import { getCurrentUser } from "@eufaco/shared";
 import { getPostHogClient } from "@/lib/posthog-server";
 
 export async function deleteAccountAction() {

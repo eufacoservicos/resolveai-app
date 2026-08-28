@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUser, getProviderByUserId } from "@/lib/supabase/queries";
+import { getCurrentUser, getProviderByUserId } from "@eufaco/shared";
 import { PortfolioManager } from "@/components/providers/portfolio-manager";
 
 export default async function PortfolioPage() {

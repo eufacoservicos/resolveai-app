@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { signOut } from "@/lib/supabase/mutations";
+import { signOut } from "@eufaco/shared";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {

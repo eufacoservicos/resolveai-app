@@ -5,8 +5,8 @@ import Image from "next/image";
 import { useState } from "react";
 import { Star, MapPin, User, Briefcase } from "lucide-react";
 import { FavoriteButton } from "@/components/providers/favorite-button";
-import { BusinessHours } from "@/types/database";
-import { isProviderOpenNow } from "@/lib/business-hours";
+import { BusinessHours } from "@eufaco/shared";
+import { isProviderOpenNow } from "@eufaco/shared";
 
 interface ProviderCardProps {
   provider: {

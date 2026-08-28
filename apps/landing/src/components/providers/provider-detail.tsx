@@ -24,9 +24,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ReviewCard } from "@/components/reviews/review-card";
 import { BusinessHoursDisplay } from "@/components/providers/business-hours-display";
-import { BusinessHours } from "@/types/database";
-import { getWhatsAppUrl } from "@/lib/constants";
-import { isProviderOpenNow } from "@/lib/business-hours";
+import { BusinessHours } from "@eufaco/shared";
+import { getWhatsAppUrl } from "@eufaco/shared";
+import { isProviderOpenNow } from "@eufaco/shared";
 import { trackWhatsAppClick } from "@/app/(main)/provider/[id]/actions";
 import {
   Dialog,

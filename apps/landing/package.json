@@ -40,7 +40,8 @@
     "react-image-crop": "^11.0.10",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
-    "@eufaco/design-system": "*"
+    "@eufaco/design-system": "*",
+    "@eufaco/shared": "*"
   },
   "devDependencies": {
     "@opennextjs/cloudflare": "^1.16.1",

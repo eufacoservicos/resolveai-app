@@ -16,14 +16,14 @@ describe("getWhatsAppUrl", () => {
 
   it("includes provider name in default message", () => {
     const url = getWhatsAppUrl("11999999999", "João");
-    const decoded = decodeURIComponent(url.split("text=")[1]);
+    const decoded = decodeURIComponent(url.split("text=")[1] ?? "");
     expect(decoded).toContain("João");
     expect(decoded).toContain("eufaço!");
   });
 
   it("uses custom message when provided", () => {
     const url = getWhatsAppUrl("11999999999", "João", "Olá, tudo bem?");
-    const decoded = decodeURIComponent(url.split("text=")[1]);
+    const decoded = decodeURIComponent(url.split("text=")[1] ?? "");
     expect(decoded).toBe("Olá, tudo bem?");
   });
 

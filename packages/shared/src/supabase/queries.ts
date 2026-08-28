@@ -1,5 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { CATEGORY_GROUPS } from "@/lib/constants";
+import { CATEGORY_GROUPS } from "../domain/constants";
 
 // ============================================
 // USER QUERIES

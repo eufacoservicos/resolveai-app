@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { Clock, ChevronDown } from "lucide-react";
-import { BusinessHours } from "@/types/database";
+import { BusinessHours } from "@eufaco/shared";
 import {
   DAYS_OF_WEEK,
   isProviderOpenNow,
   formatTimeRange,
-} from "@/lib/business-hours";
+} from "@eufaco/shared";
 import { cn } from "@/lib/utils";
 
 interface BusinessHoursDisplayProps {

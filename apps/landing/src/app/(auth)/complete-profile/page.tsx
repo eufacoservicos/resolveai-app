@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { createProviderProfile, setProviderCategories, createCustomCategory, acceptTerms } from "@/lib/supabase/mutations";
-import { UserRole } from "@/types/database";
+import { createProviderProfile, setProviderCategories, createCustomCategory, acceptTerms } from "@eufaco/shared";
+import { UserRole } from "@eufaco/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,9 +13,9 @@ import { toast } from "sonner";
 import { Loader2, Search as SearchIcon, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CategoryMultiSelect } from "@/components/ui/category-multi-select";
-import { fetchCepData, geocodeAddress, formatCep } from "@/lib/cep";
-import { isValidCpf } from "@/lib/cpf";
-import { isValidCnpj } from "@/lib/cnpj";
+import { fetchCepData, geocodeAddress, formatCep } from "@eufaco/shared";
+import { isValidCpf } from "@eufaco/shared";
+import { isValidCnpj } from "@eufaco/shared";
 import { DocumentInput, getDocumentType, type ProviderType } from "@/components/ui/document-input";
 import Link from "next/link";
 

@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { getCategoryIcon } from "@/lib/category-icons";
-import { CATEGORY_GROUPS } from "@/lib/constants";
+import { CATEGORY_GROUPS } from "@eufaco/shared";
 
 interface CategoryListProps {
   categories: { id: string; name: string; slug: string }[];

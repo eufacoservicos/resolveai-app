@@ -5,7 +5,7 @@ import {
   getDefaultBusinessHours,
   DAYS_OF_WEEK,
 } from "../business-hours";
-import { BusinessHours } from "@/types/database";
+import { BusinessHours } from "@eufaco/shared";
 
 function makeHours(overrides: Partial<BusinessHours> & { day_of_week: number }): BusinessHours {
   return {

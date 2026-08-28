@@ -15,7 +15,7 @@ import {
   LOCATION_COOKIE_MAX_AGE,
   serializeLocationCookie,
   type LocationData,
-} from "@/lib/location-cookie";
+} from "@eufaco/shared";
 
 interface LocationChipProps {
   cities: string[];

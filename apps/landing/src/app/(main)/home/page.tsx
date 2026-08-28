@@ -6,9 +6,9 @@ import {
 	getCities,
 	getCurrentUser,
 	getUserFavorites
-} from "@/lib/supabase/queries"
+} from "@eufaco/shared"
 import { getLocationFromCookie } from "@/lib/location"
-import { DEFAULT_RADIUS_KM } from "@/lib/location-cookie"
+import { DEFAULT_RADIUS_KM } from "@eufaco/shared"
 
 export const metadata: Metadata = {
 	title: "eufaço! - Encontre Serviços Locais",

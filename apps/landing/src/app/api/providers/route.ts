@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getActiveProviders } from "@/lib/supabase/queries";
+import { getActiveProviders } from "@eufaco/shared";
 
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;

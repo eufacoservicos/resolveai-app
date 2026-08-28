@@ -1,21 +1,40 @@
-import { Text, useTheme } from "@eufaco/design-system/native";
+import { SERVICE_CATEGORIES } from "@eufaco/shared";
+import { Button, Card, Text, useTheme } from "@eufaco/design-system/native";
 import { ArrowRight, Bell, ChevronDown, ChevronRight, MapPin, Search, Wrench } from "lucide-react-native";
-import { Pressable, ScrollView, View } from "react-native";
+import { useState } from "react";
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProviderCard } from "@/components/ProviderCard";
-import { categories, nearbyProviders } from "@/data/mock";
+import { useProviders } from "@/hooks/useProviders";
+
+const CHIPS = SERVICE_CATEGORIES.slice(0, 6);
 
 export default function HomeScreen() {
   const { colors, radii, spacing, layout } = useTheme();
   const insets = useSafeAreaInsets();
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+  const { providers, total, loading, error, refresh } = useProviders({
+    categorySlug: activeCategory ?? undefined,
+    orderBy: "recent",
+    page: 1,
+    pageSize: 10,
+  });
 
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: colors.bg }}
       contentContainerStyle={{ paddingBottom: 110 }}
       showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl
+          refreshing={loading && providers.length > 0}
+          onRefresh={refresh}
+          tintColor={colors.primary}
+        />
+      }
     >
-      {/* Painel de cabeçalho: destaca a busca do resto do conteúdo */}
+      {/* Painel de cabeçalho: separa a busca do resto do conteúdo */}
       <View
         style={{
           backgroundColor: colors.surface,
@@ -43,7 +62,7 @@ export default function HomeScreen() {
             }}
           >
             <MapPin size={14} color={colors.primaryStrong} />
-            <Text variant="label">Savassi, Belo Horizonte</Text>
+            <Text variant="label">Escolher localização</Text>
             <ChevronDown size={13} color={colors.textMuted} />
           </Pressable>
 
@@ -63,12 +82,7 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
-        <View style={{ gap: 2 }}>
-          <Text variant="label" color="textSecondary">
-            Olá, Luiz
-          </Text>
-          <Text variant="h1">Encontre o profissional ideal</Text>
-        </View>
+        <Text variant="h1">Encontre o profissional ideal</Text>
 
         <Pressable
           accessibilityRole="search"
@@ -96,13 +110,14 @@ export default function HomeScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: layout.screenPadding, gap: spacing[2] }}
         >
-          {categories.map((cat, i) => {
-            const active = i === 0;
+          {[{ slug: null as string | null, name: "Todos" }, ...CHIPS].map((cat) => {
+            const active = activeCategory === cat.slug;
             return (
               <Pressable
-                key={cat.slug}
+                key={cat.slug ?? "todos"}
                 accessibilityRole="button"
                 accessibilityState={{ selected: active }}
+                onPress={() => setActiveCategory(cat.slug)}
                 style={{
                   paddingVertical: 9,
                   paddingHorizontal: 14,
@@ -113,7 +128,7 @@ export default function HomeScreen() {
                 }}
               >
                 <Text variant="label" color={active ? "onPrimary" : "textSecondary"}>
-                  {cat.label}
+                  {cat.name}
                 </Text>
               </Pressable>
             );
@@ -122,23 +137,45 @@ export default function HomeScreen() {
 
         <View style={{ paddingHorizontal: layout.screenPadding, gap: spacing[3] }}>
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-            <Text variant="h3">Perto de você</Text>
-            <Pressable
-              accessibilityRole="button"
-              style={{ flexDirection: "row", alignItems: "center", gap: 2 }}
-            >
-              <Text variant="label" color="primaryStrong">
-                Ver todos
-              </Text>
-              <ChevronRight size={14} color={colors.primaryStrong} />
-            </Pressable>
+            <Text variant="h3">{total > 0 ? `Profissionais (${total})` : "Profissionais"}</Text>
+            {total > 0 ? (
+              <Pressable
+                accessibilityRole="button"
+                style={{ flexDirection: "row", alignItems: "center", gap: 2 }}
+              >
+                <Text variant="label" color="primaryStrong">
+                  Ver todos
+                </Text>
+                <ChevronRight size={14} color={colors.primaryStrong} />
+              </Pressable>
+            ) : null}
           </View>
 
-          <View style={{ gap: spacing[3] - 2 }}>
-            {nearbyProviders.map((p) => (
-              <ProviderCard key={p.id} provider={p} />
-            ))}
-          </View>
+          {loading && providers.length === 0 ? (
+            <View style={{ paddingVertical: spacing[10], alignItems: "center" }}>
+              <ActivityIndicator color={colors.primary} />
+            </View>
+          ) : error ? (
+            <Card style={{ gap: spacing[3], alignItems: "center", paddingVertical: spacing[6] }}>
+              <Text variant="bodyStrong" style={{ textAlign: "center" }}>
+                {error}
+              </Text>
+              <Button label="Tentar de novo" size="md" fullWidth={false} onPress={refresh} />
+            </Card>
+          ) : providers.length === 0 ? (
+            <Card style={{ gap: spacing[2], alignItems: "center", paddingVertical: spacing[8] }}>
+              <Text variant="title">Nenhum profissional por aqui</Text>
+              <Text color="textSecondary" style={{ textAlign: "center" }}>
+                Tente outra categoria ou volte mais tarde — novos perfis entram toda semana.
+              </Text>
+            </Card>
+          ) : (
+            <View style={{ gap: spacing[3] - 2 }}>
+              {providers.map((p) => (
+                <ProviderCard key={p.id} provider={p} />
+              ))}
+            </View>
+          )}
         </View>
 
         <View style={{ paddingHorizontal: layout.screenPadding }}>

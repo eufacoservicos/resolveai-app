@@ -12,23 +12,17 @@ export function isValidCnpj(cnpj: string): boolean {
 
   // Validate first check digit
   const weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
-  let sum = 0;
-  for (let i = 0; i < 12; i++) {
-    sum += parseInt(digits[i]) * weights1[i];
-  }
-  let remainder = sum % 11;
+  const sum1 = weights1.reduce((acc, weight, i) => acc + parseInt(digits.charAt(i)) * weight, 0);
+  let remainder = sum1 % 11;
   const check1 = remainder < 2 ? 0 : 11 - remainder;
-  if (check1 !== parseInt(digits[12])) return false;
+  if (check1 !== parseInt(digits.charAt(12))) return false;
 
   // Validate second check digit
   const weights2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
-  sum = 0;
-  for (let i = 0; i < 13; i++) {
-    sum += parseInt(digits[i]) * weights2[i];
-  }
-  remainder = sum % 11;
+  const sum2 = weights2.reduce((acc, weight, i) => acc + parseInt(digits.charAt(i)) * weight, 0);
+  remainder = sum2 % 11;
   const check2 = remainder < 2 ? 0 : 11 - remainder;
-  if (check2 !== parseInt(digits[13])) return false;
+  if (check2 !== parseInt(digits.charAt(13))) return false;
 
   return true;
 }

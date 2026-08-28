@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUser, getProviderByUserId } from "@/lib/supabase/queries";
+import { getCurrentUser, getProviderByUserId } from "@eufaco/shared";
 import { ProfileView } from "@/components/auth/profile-view";
 
 export default async function ProfilePage() {

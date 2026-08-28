@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { getCategories } from "@/lib/supabase/queries";
+import { getCategories } from "@eufaco/shared";
 import { CategoryList } from "@/components/providers/category-list";
 export const metadata: Metadata = {
   title: "Categorias - eufaço!",

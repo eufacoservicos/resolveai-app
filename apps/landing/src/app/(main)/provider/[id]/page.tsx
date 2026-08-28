@@ -6,7 +6,7 @@ import {
   getProviderReviews,
   getCurrentUser,
   hasUserReviewedProvider,
-} from "@/lib/supabase/queries";
+} from "@eufaco/shared";
 import { ProviderDetail } from "@/components/providers/provider-detail";
 import { TrackView } from "@/components/analytics/track-view";
 

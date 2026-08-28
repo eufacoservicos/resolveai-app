@@ -4,7 +4,7 @@ import {
   getCurrentUser,
   getProviderById,
   hasUserReviewedProvider,
-} from "@/lib/supabase/queries";
+} from "@eufaco/shared";
 import { ReviewForm } from "@/components/reviews/review-form";
 
 export default async function ReviewPage({

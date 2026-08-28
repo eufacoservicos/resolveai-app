@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { acceptTerms } from "@/lib/supabase/mutations";
+import { acceptTerms } from "@eufaco/shared";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

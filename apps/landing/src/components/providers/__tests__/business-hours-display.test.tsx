@@ -5,7 +5,7 @@ import {
   BusinessHoursDisplay,
   BusinessHoursBadge,
 } from "../business-hours-display";
-import { BusinessHours } from "@/types/database";
+import { BusinessHours } from "@eufaco/shared";
 
 const weekdayHours: BusinessHours[] = Array.from({ length: 7 }, (_, i) => ({
   id: `h-${i}`,

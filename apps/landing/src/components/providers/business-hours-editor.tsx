@@ -5,8 +5,8 @@ import { Clock, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { DAYS_OF_WEEK, getDefaultBusinessHours } from "@/lib/business-hours";
-import { BusinessHours } from "@/types/database";
+import { DAYS_OF_WEEK, getDefaultBusinessHours } from "@eufaco/shared";
+import { BusinessHours } from "@eufaco/shared";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUser } from "@/lib/supabase/queries";
+import { getCurrentUser } from "@eufaco/shared";
 import { DeleteAccountForm } from "./delete-account-form";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";

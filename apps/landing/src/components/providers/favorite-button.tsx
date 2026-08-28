@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Heart } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { toggleFavorite } from "@/lib/supabase/mutations";
+import { toggleFavorite } from "@eufaco/shared";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import posthog from "posthog-js";

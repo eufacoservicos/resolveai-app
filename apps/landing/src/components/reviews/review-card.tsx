@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { createClient } from "@/lib/supabase/client";
-import { createReviewReply } from "@/lib/supabase/mutations";
+import { createReviewReply } from "@eufaco/shared";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 

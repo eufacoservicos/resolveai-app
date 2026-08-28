@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { isValidCpf } from "@/lib/cpf";
-import { isValidCnpj } from "@/lib/cnpj";
+import { isValidCpf } from "@eufaco/shared";
+import { isValidCnpj } from "@eufaco/shared";
 import { DocumentInput, getDocumentType, type ProviderType } from "@/components/ui/document-input";
 import { Button } from "@/components/ui/button";
 import {

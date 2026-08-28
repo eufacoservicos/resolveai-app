@@ -10,6 +10,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { SessionProvider } from "@/lib/session";
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -34,7 +35,9 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <RootNavigator />
+        <SessionProvider>
+          <RootNavigator />
+        </SessionProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );

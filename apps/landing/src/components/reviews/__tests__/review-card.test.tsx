@@ -11,7 +11,7 @@ vi.mock("@/lib/supabase/client", () => ({
   createClient: () => ({}),
 }));
 
-vi.mock("@/lib/supabase/mutations", () => ({
+vi.mock("@eufaco/shared", () => ({
   createReviewReply: vi.fn().mockResolvedValue({ error: null }),
 }));
 
@@ -142,7 +142,7 @@ describe("ReviewCard", () => {
     await user.click(screen.getByText("Enviar"));
 
     // Form should close after submission
-    const { createReviewReply } = await import("@/lib/supabase/mutations");
+    const { createReviewReply } = await import("@eufaco/shared");
     expect(createReviewReply).toHaveBeenCalled();
   });
 

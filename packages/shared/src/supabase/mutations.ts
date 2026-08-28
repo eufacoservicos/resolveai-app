@@ -1,7 +1,7 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { UserRole } from "@/types/database";
-import { getDefaultBusinessHours } from "@/lib/business-hours";
-import { containsProfanity, PROFANITY_ERROR_MESSAGE } from "@/lib/profanity";
+import { UserRole } from "../types";
+import { getDefaultBusinessHours } from "../domain/business-hours";
+import { containsProfanity, PROFANITY_ERROR_MESSAGE } from "../domain/profanity";
 
 // ============================================
 // AUTH MUTATIONS

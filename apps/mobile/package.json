@@ -4,11 +4,14 @@
   "main": "expo-router/entry",
   "dependencies": {
     "@eufaco/design-system": "*",
+    "@eufaco/shared": "*",
     "@expo-google-fonts/inter": "^0.4.2",
     "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
     "@expo/metro-runtime": "~57.0.14",
     "@expo/ui": "~57.0.14",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/bottom-tabs": "^7.18.18",
+    "@supabase/supabase-js": "^2.112.4",
     "expo": "~57.0.18",
     "expo-constants": "~57.0.16",
     "expo-font": "~57.0.2",
@@ -24,6 +27,7 @@
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.0",
     "react-native-svg": "15.15.4",
+    "react-native-url-polyfill": "^4.0.0",
     "undefined": "@expo/ui/jetpack-compose"
   },
   "devDependencies": {

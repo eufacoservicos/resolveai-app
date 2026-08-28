@@ -6,10 +6,10 @@ import { createClient } from "@/lib/supabase/client";
 import {
   createProviderProfile,
   setProviderCategories,
-} from "@/lib/supabase/mutations";
-import { fetchCepData, geocodeAddress, formatCep } from "@/lib/cep";
-import { isValidCpf } from "@/lib/cpf";
-import { isValidCnpj } from "@/lib/cnpj";
+} from "@eufaco/shared";
+import { fetchCepData, geocodeAddress, formatCep } from "@eufaco/shared";
+import { isValidCpf } from "@eufaco/shared";
+import { isValidCnpj } from "@eufaco/shared";
 import { DocumentInput, getDocumentType, type ProviderType } from "@/components/ui/document-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

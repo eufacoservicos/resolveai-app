@@ -14,7 +14,7 @@ import {
   LOCATION_COOKIE_NAME,
   LOCATION_COOKIE_MAX_AGE,
   serializeLocationCookie,
-} from "@/lib/location-cookie";
+} from "@eufaco/shared";
 
 interface LocationGateProps {
   cities: string[];

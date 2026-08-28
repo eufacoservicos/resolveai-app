@@ -1,4 +1,4 @@
-import { BusinessHours } from "@/types/database";
+import { BusinessHours } from "../types";
 
 export const DAYS_OF_WEEK = [
   { value: 0, label: "Domingo", short: "Dom" },

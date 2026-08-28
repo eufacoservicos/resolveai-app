@@ -3,7 +3,7 @@ import {
   LOCATION_COOKIE_NAME,
   parseLocationCookie,
   type LocationData,
-} from "./location-cookie";
+} from "@eufaco/shared";
 
 /** Read the user's saved location from the cookie (server-side only) */
 export async function getLocationFromCookie(): Promise<LocationData | null> {

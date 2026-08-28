@@ -9,7 +9,7 @@ const withSerwist = withSerwistInit({
 
 const nextConfig: NextConfig = {
   turbopack: {},
-  transpilePackages: ["@eufaco/design-system"],
+  transpilePackages: ["@eufaco/design-system", "@eufaco/shared"],
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080],

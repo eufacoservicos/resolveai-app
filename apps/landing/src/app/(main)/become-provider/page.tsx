@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUser, getCategories } from "@/lib/supabase/queries";
+import { getCurrentUser, getCategories } from "@eufaco/shared";
 import { BecomeProviderForm } from "@/components/providers/become-provider-form";
 
 export default async function BecomeProviderPage() {

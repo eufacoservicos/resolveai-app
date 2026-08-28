@@ -4,8 +4,8 @@ import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { signUpWithEmail, signInWithGoogle, createCustomCategory } from "@/lib/supabase/mutations";
-import { UserRole } from "@/types/database";
+import { signUpWithEmail, signInWithGoogle, createCustomCategory } from "@eufaco/shared";
+import { UserRole } from "@eufaco/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -16,9 +16,9 @@ import { Loader2, Search as SearchIcon, Wrench, ArrowLeft, ArrowRight } from "lu
 import posthog from "posthog-js";
 import { cn } from "@/lib/utils";
 import { CategoryMultiSelect } from "@/components/ui/category-multi-select";
-import { fetchCepData, geocodeAddress, formatCep } from "@/lib/cep";
-import { isValidCpf } from "@/lib/cpf";
-import { isValidCnpj } from "@/lib/cnpj";
+import { fetchCepData, geocodeAddress, formatCep } from "@eufaco/shared";
+import { isValidCpf } from "@eufaco/shared";
+import { isValidCnpj } from "@eufaco/shared";
 import { DocumentInput, getDocumentType, type ProviderType } from "@/components/ui/document-input";
 
 function formatWhatsApp(value: string): string {

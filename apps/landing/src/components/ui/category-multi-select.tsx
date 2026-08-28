@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, Check, X, ChevronDown, Plus, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { containsProfanity, PROFANITY_ERROR_MESSAGE } from "@/lib/profanity";
+import { containsProfanity, PROFANITY_ERROR_MESSAGE } from "@eufaco/shared";
 
 interface Category {
   id: string;

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUser, getUserFavoriteProviders } from "@/lib/supabase/queries";
+import { getCurrentUser, getUserFavoriteProviders } from "@eufaco/shared";
 import { ProviderCard } from "@/components/providers/provider-card";
 import { ProviderGrid } from "@/components/providers/provider-grid";
 import { Heart } from "lucide-react";

@@ -27,14 +27,14 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { CATEGORY_GROUPS } from "@/lib/constants";
+import { CATEGORY_GROUPS } from "@eufaco/shared";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
   LOCATION_COOKIE_NAME,
   LOCATION_COOKIE_MAX_AGE,
   serializeLocationCookie,
-} from "@/lib/location-cookie";
+} from "@eufaco/shared";
 
 interface SearchFiltersProps {
   categories: { id: string; name: string; slug: string }[];

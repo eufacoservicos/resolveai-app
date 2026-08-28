@@ -188,7 +188,7 @@ describe("geocodeAddress", () => {
     } as Response);
 
     await geocodeAddress("São Paulo", "SP", "Centro");
-    const url = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+    const url = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0]?.[0] as string;
     expect(url).toContain("Centro");
   });
 
@@ -199,7 +199,7 @@ describe("geocodeAddress", () => {
     } as Response);
 
     await geocodeAddress("São Paulo", "SP");
-    const url = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+    const url = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0]?.[0] as string;
     expect(url).toContain("S%C3%A3o+Paulo");
   });
 });

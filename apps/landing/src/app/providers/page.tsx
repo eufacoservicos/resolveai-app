@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { ProviderLandingPage } from "@/components/landing/provider-landing-page";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUser } from "@/lib/supabase/queries";
+import { getCurrentUser } from "@eufaco/shared";
 
 type CopyVariant = "a" | "b";
 

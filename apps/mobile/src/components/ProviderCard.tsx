@@ -1,16 +1,32 @@
+import { isProviderOpenNow, type ProviderWithDetails } from "@eufaco/shared";
 import { Badge, Card, Text, useTheme } from "@eufaco/design-system/native";
-import { Heart, MapPin, Star, Tag } from "lucide-react-native";
+import { Heart, MapPin, Star } from "lucide-react-native";
 import { Pressable, View } from "react-native";
-import type { Provider } from "@/data/mock";
+import { formatDistance, formatRating, initialsOf } from "@/lib/format";
 
-export function ProviderCard({ provider, onPress }: { provider: Provider; onPress?: () => void }) {
+interface Props {
+  provider: ProviderWithDetails;
+  onPress?: () => void;
+  onToggleFavorite?: () => void;
+  favorited?: boolean;
+}
+
+export function ProviderCard({ provider, onPress, onToggleFavorite, favorited = false }: Props) {
   const { colors, radii, spacing } = useTheme();
-  const isCompany = provider.type === "company";
+
+  const name = provider.user.full_name;
+  const isCompany = provider.provider_type === "company";
+  const category = provider.categories[0]?.name;
+  const rating = formatRating(provider.average_rating);
+  const distance = formatDistance(provider.distance_km);
+  const { isOpen } = isProviderOpenNow(provider.business_hours);
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${provider.name}, ${provider.category}, nota ${provider.rating}`}
+      accessibilityLabel={
+        rating ? `${name}, ${category ?? "profissional"}, nota ${rating}` : `${name}, ${category ?? "profissional"}`
+      }
       onPress={onPress}
       style={({ pressed }) => ({ opacity: pressed ? 0.9 : 1 })}
     >
@@ -26,40 +42,44 @@ export function ProviderCard({ provider, onPress }: { provider: Provider; onPres
           }}
         >
           <Text variant="h2" color="primaryStrong">
-            {provider.initials}
+            {initialsOf(name)}
           </Text>
         </View>
 
         <View style={{ flex: 1, gap: spacing[1] + 1, paddingTop: 3 }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] - 2 }}>
             <Text variant="title" numberOfLines={1} style={{ flexShrink: 1 }}>
-              {provider.name}
+              {name}
             </Text>
-            <Badge
-              label={isCompany ? "Empresa" : "Autônomo"}
-              tone={isCompany ? "primary" : "accent"}
-            />
+            <Badge label={isCompany ? "Empresa" : "Autônomo"} tone={isCompany ? "primary" : "accent"} />
           </View>
 
           <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] - 1 }}>
-            <Text variant="label" color="primaryStrong">
-              {provider.category}
-            </Text>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
-              <Star size={12} color={colors.accent} fill={colors.accent} />
-              <Text variant="label">{provider.rating}</Text>
-              <Text variant="caption" color="textMuted">
-                ({provider.reviews})
+            {category ? (
+              <Text variant="label" color="primaryStrong" numberOfLines={1} style={{ flexShrink: 1 }}>
+                {category}
               </Text>
-            </View>
-            {provider.discount ? <Badge label={provider.discount} tone="accent" /> : null}
+            ) : null}
+            {rating ? (
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
+                <Star size={12} color={colors.accent} fill={colors.accent} />
+                <Text variant="label">{rating}</Text>
+                <Text variant="caption" color="textMuted">
+                  ({provider.review_count})
+                </Text>
+              </View>
+            ) : (
+              <Text variant="caption" color="textMuted">
+                Sem avaliações ainda
+              </Text>
+            )}
           </View>
 
           <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] }}>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
               <MapPin size={11} color={colors.textMuted} />
-              <Text variant="caption" color="textSecondary">
-                {provider.distance}
+              <Text variant="caption" color="textSecondary" numberOfLines={1}>
+                {distance ?? provider.neighborhood}
               </Text>
             </View>
             <View
@@ -67,7 +87,7 @@ export function ProviderCard({ provider, onPress }: { provider: Provider; onPres
                 flexDirection: "row",
                 alignItems: "center",
                 gap: 4,
-                backgroundColor: provider.open ? colors.successSoft : colors.surface2,
+                backgroundColor: isOpen ? colors.successSoft : colors.surface2,
                 borderRadius: radii.full,
                 paddingVertical: 3,
                 paddingHorizontal: 7,
@@ -78,11 +98,11 @@ export function ProviderCard({ provider, onPress }: { provider: Provider; onPres
                   width: 5,
                   height: 5,
                   borderRadius: radii.full,
-                  backgroundColor: provider.open ? colors.success : colors.textMuted,
+                  backgroundColor: isOpen ? colors.success : colors.textMuted,
                 }}
               />
-              <Text variant="caption" color={provider.open ? "success" : "textMuted"}>
-                {provider.open ? "Aberto agora" : "Fecha às 18h"}
+              <Text variant="caption" color={isOpen ? "success" : "textMuted"}>
+                {isOpen ? "Aberto agora" : "Fechado"}
               </Text>
             </View>
           </View>
@@ -90,18 +110,23 @@ export function ProviderCard({ provider, onPress }: { provider: Provider; onPres
 
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`Salvar ${provider.name} nos favoritos`}
+          accessibilityLabel={favorited ? `Remover ${name} dos favoritos` : `Salvar ${name} nos favoritos`}
+          onPress={onToggleFavorite}
           hitSlop={8}
           style={{
             width: 32,
             height: 32,
             borderRadius: radii.full,
-            backgroundColor: colors.surface2,
+            backgroundColor: favorited ? colors.dangerSoft : colors.surface2,
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          <Heart size={16} color={colors.textMuted} />
+          <Heart
+            size={16}
+            color={favorited ? colors.danger : colors.textMuted}
+            fill={favorited ? colors.danger : "transparent"}
+          />
         </Pressable>
       </Card>
     </Pressable>

@@ -3,8 +3,8 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { formatCpf } from "@/lib/cpf";
-import { formatCnpj } from "@/lib/cnpj";
+import { formatCpf } from "@eufaco/shared";
+import { formatCnpj } from "@eufaco/shared";
 import { Briefcase, User } from "lucide-react";
 
 export type ProviderType = "individual" | "company";

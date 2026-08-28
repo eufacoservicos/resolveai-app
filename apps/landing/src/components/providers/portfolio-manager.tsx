@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import {
   uploadPortfolioImage,
   deletePortfolioImage,
-} from "@/lib/supabase/mutations";
+} from "@eufaco/shared";
 import { Button } from "@/components/ui/button";
 import { Trash2, Upload, ImagePlus, Loader2, X } from "lucide-react";
 import {
@@ -21,7 +21,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { MAX_PORTFOLIO_IMAGES } from "@/lib/constants";
+import { MAX_PORTFOLIO_IMAGES } from "@eufaco/shared";
 
 interface PortfolioManagerProps {
   providerId: string;

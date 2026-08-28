@@ -4,7 +4,7 @@ import { FloatingIcons } from "@/components/layout/floating-icons";
 import { TermsAcceptanceModal } from "@/components/auth/terms-acceptance-modal";
 import { CpfRequiredModal } from "@/components/auth/cpf-required-modal";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUser } from "@/lib/supabase/queries";
+import { getCurrentUser } from "@eufaco/shared";
 
 export default async function MainLayout({
   children,

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { ArrowRight, LayoutGrid } from "lucide-react"
 import { getCategoryIcon } from "@/lib/category-icons"
-import { CATEGORY_GROUPS } from "@/lib/constants"
+import { CATEGORY_GROUPS } from "@eufaco/shared"
 import { useCategoryPending } from "@/components/providers/category-pending"
 
 interface CategoryFilterProps {

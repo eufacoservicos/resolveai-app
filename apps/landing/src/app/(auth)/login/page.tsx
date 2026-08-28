@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
-import { signInWithGoogle } from "@/lib/supabase/mutations"
+import { signInWithGoogle } from "@eufaco/shared"
 import { signInAction } from "@/lib/supabase/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
