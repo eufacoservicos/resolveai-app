@@ -97,6 +97,17 @@ export default function LoginScreen() {
           />
         </View>
 
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.push("/forgot-password")}
+          hitSlop={6}
+          style={{ alignSelf: "flex-end" }}
+        >
+          <Text variant="label" color="primaryStrong">
+            Esqueci minha senha
+          </Text>
+        </Pressable>
+
         <Button label="Entrar" loading={loading} onPress={() => void submit()} />
 
         <View style={{ flexDirection: "row", justifyContent: "center", gap: spacing[1] + 1 }}>

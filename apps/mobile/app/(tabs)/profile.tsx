@@ -136,7 +136,7 @@ export default function ProfileScreen() {
 
         <Pressable
           accessibilityRole="button"
-          onPress={() => router.push("/plans")}
+          onPress={() => router.push(usage.exhausted ? "/quota-reached" : "/plans")}
           style={{ flexDirection: "row", alignItems: "center", gap: spacing[1] + 2 }}
         >
           <Sparkles size={13} color={colors.primaryStrong} />

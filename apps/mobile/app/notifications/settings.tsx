@@ -5,11 +5,12 @@ import {
   type NotificationToggle,
 } from "@eufaco/shared";
 import { Card, Text, Toggle, useTheme } from "@eufaco/design-system/native";
-import { Moon, Settings } from "lucide-react-native";
+import { Bell, Moon, Settings } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Linking, Pressable, ScrollView, View } from "react-native";
 import { AppBar } from "@/components/AppBar";
 import { SignInPrompt } from "@/components/SignInPrompt";
+import { useRouter } from "expo-router";
 import { useSession } from "@/lib/session";
 import { supabase } from "@/lib/supabase";
 
@@ -46,6 +47,7 @@ const GROUPS: Group[] = [
 
 export default function NotificationSettingsScreen() {
   const { colors, radii, spacing, layout } = useTheme();
+  const router = useRouter();
   const { session, loading: sessionLoading } = useSession();
 
   const [prefs, setPrefs] = useState<NotificationPreferences | null>(null);
@@ -211,6 +213,25 @@ export default function NotificationSettingsScreen() {
             </Card>
           </View>
         </View>
+
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Registrar este aparelho para receber avisos"
+          onPress={() => router.push("/notifications/permission")}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing[2] + 2,
+            backgroundColor: colors.primarySoft,
+            borderRadius: radii.md,
+            padding: spacing[3] + 1,
+          }}
+        >
+          <Bell size={16} color={colors.primaryStrong} />
+          <Text variant="caption" color="primaryStrong" style={{ flex: 1 }}>
+            Registrar este aparelho para receber avisos
+          </Text>
+        </Pressable>
 
         <Pressable
           accessibilityRole="button"
