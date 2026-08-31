@@ -1,5 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { CATEGORY_GROUPS } from "../domain/constants";
+import { isProviderOpenNow } from "../domain/business-hours";
 
 // ============================================
 // USER QUERIES
@@ -53,7 +54,14 @@ export async function getActiveProviders(
     latitude?: number;
     longitude?: number;
     radiusKm?: number;
-    orderBy?: "rating" | "recent" | "distance";
+    orderBy?: "rating" | "recent" | "distance" | "reviews";
+    /** Nota mínima. 0 ou ausente não filtra. */
+    minRating?: number;
+    providerType?: "individual" | "company";
+    /** Só quem está dentro do horário de atendimento agora. */
+    openNow?: boolean;
+    /** Ids com oferta vigente, quando o filtro de desconto está ligado. */
+    onlyProviderIds?: string[];
     page?: number;
     pageSize?: number;
   }
@@ -156,8 +164,32 @@ export async function getActiveProviders(
     );
   }
 
+  // Nota mínima
+  if (filters?.minRating) {
+    const min = filters.minRating;
+    providers = providers.filter((p) => (p.average_rating ?? 0) >= min);
+  }
+
+  // Autônomo ou empresa
+  if (filters?.providerType) {
+    providers = providers.filter((p) => p.provider_type === filters.providerType);
+  }
+
+  // Aberto agora, segundo os horários cadastrados
+  if (filters?.openNow) {
+    providers = providers.filter((p) => isProviderOpenNow(p.business_hours ?? []).isOpen);
+  }
+
+  // Restringe a um conjunto de ids: usado pelo filtro "só com desconto"
+  if (filters?.onlyProviderIds) {
+    const allowed = new Set(filters.onlyProviderIds);
+    providers = providers.filter((p) => allowed.has(p.id));
+  }
+
   // Sort
-  if (filters?.orderBy === "distance" && nearbyMap) {
+  if (filters?.orderBy === "reviews") {
+    providers.sort((a, b) => (b.review_count ?? 0) - (a.review_count ?? 0));
+  } else if (filters?.orderBy === "distance" && nearbyMap) {
     providers.sort(
       (a, b) => (a.distance_km ?? Infinity) - (b.distance_km ?? Infinity)
     );

@@ -484,3 +484,34 @@ export async function deleteOwnAccount(supabase: SupabaseClient) {
   await supabase.auth.signOut();
   return { error: null };
 }
+
+/**
+ * Grava a semana inteira de horários de uma vez.
+ *
+ * Upsert por (provider_id, day_of_week): a linha de cada dia já existe
+ * desde a criação do perfil, então isto substitui em vez de duplicar.
+ */
+export async function setBusinessHours(
+  supabase: SupabaseClient,
+  providerId: string,
+  hours: {
+    day_of_week: number;
+    open_time: string | null;
+    close_time: string | null;
+    is_closed: boolean;
+  }[],
+) {
+  const rows = hours.map((h) => ({
+    provider_id: providerId,
+    day_of_week: h.day_of_week,
+    open_time: h.is_closed ? null : h.open_time,
+    close_time: h.is_closed ? null : h.close_time,
+    is_closed: h.is_closed,
+  }));
+
+  const { error } = await supabase
+    .from("business_hours")
+    .upsert(rows, { onConflict: "provider_id,day_of_week" });
+
+  return { error };
+}

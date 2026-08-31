@@ -10,6 +10,7 @@ import { ProviderCard } from "@/components/ProviderCard";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useProviders } from "@/hooks/useProviders";
 import { iconForCategory } from "@/lib/category-icons";
+import { locationFilters, useLocation } from "@/lib/location";
 import { initialsOf } from "@/lib/format";
 import { useSession } from "@/lib/session";
 import { supabase } from "@/lib/supabase";
@@ -27,6 +28,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { session } = useSession();
+  const { location, radiusKm, label: locationLabel } = useLocation();
   const { favoriteIds, toggle } = useFavorites();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [recommended, setRecommended] = useState<RecommendedProvider[]>([]);
@@ -36,6 +38,7 @@ export default function HomeScreen() {
     orderBy: "recent",
     page: 1,
     pageSize: 10,
+    ...locationFilters(location, radiusKm),
   });
 
   useEffect(() => {
@@ -84,6 +87,7 @@ export default function HomeScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Mudar localização"
+            onPress={() => router.push("/location")}
             style={{
               flexDirection: "row",
               alignItems: "center",
@@ -96,7 +100,9 @@ export default function HomeScreen() {
             }}
           >
             <MapPin size={14} color={colors.primaryStrong} />
-            <Text variant="label">Escolher localização</Text>
+            <Text variant="label" numberOfLines={1} style={{ maxWidth: 170 }}>
+              {locationLabel}
+            </Text>
             <ChevronDown size={13} color={colors.textMuted} />
           </Pressable>
 

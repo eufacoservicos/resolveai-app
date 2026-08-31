@@ -5,7 +5,9 @@ import {
   Bell,
   Briefcase,
   ChevronRight,
+  Clock3,
   FileText,
+  Image as ImageIcon,
   Sparkles,
   Tag,
   LogOut,
@@ -91,8 +93,10 @@ export default function ProfileScreen() {
   }
 
   const businessRows: Row[] = [
-    { label: "Perfil profissional", icon: Briefcase },
+    { label: "Perfil profissional", icon: Briefcase, onPress: () => router.push("/provider-profile") },
     { label: "Avaliações recebidas", icon: Star, onPress: () => router.push("/reviews") },
+    { label: "Portfólio", icon: ImageIcon, onPress: () => router.push("/portfolio") },
+    { label: "Horários de atendimento", icon: Clock3, onPress: () => router.push("/business-hours") },
     { label: "Meus contatos", icon: MessageCircle, onPress: () => router.push("/contacts") },
     { label: "Ofertas e descontos", icon: Tag, onPress: () => router.push("/offers") },
     { label: "Meu plano", icon: Sparkles, onPress: () => router.push("/plans") },
@@ -237,6 +241,46 @@ export default function ProfileScreen() {
             </Text>
           </View>
         </Card>
+
+        {!provider ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Criar perfil profissional"
+            onPress={() => router.push("/become-provider")}
+            style={({ pressed }) => ({ opacity: pressed ? 0.9 : 1 })}
+          >
+            <Card
+              variant="plain"
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: spacing[3],
+                backgroundColor: colors.primarySoft,
+                padding: spacing[4],
+              }}
+            >
+              <View
+                style={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: 12,
+                  backgroundColor: colors.surface,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Briefcase size={20} color={colors.primaryStrong} />
+              </View>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text variant="bodyStrong">Quer oferecer seus serviços?</Text>
+                <Text variant="caption" color="textSecondary">
+                  Crie seu perfil profissional e receba clientes
+                </Text>
+              </View>
+              <ChevronRight size={18} color={colors.primaryStrong} />
+            </Card>
+          </Pressable>
+        ) : null}
 
         {provider ? (
           <View style={{ gap: spacing[3] }}>
