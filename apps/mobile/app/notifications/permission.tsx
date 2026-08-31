@@ -1,12 +1,11 @@
 import { registerPushToken, updateNotificationPreferences } from "@eufaco/shared";
 import { Button, Card, Text, useTheme } from "@eufaco/design-system/native";
-import Constants from "expo-constants";
-import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
 import { Bell, MessageCircle, Settings, Star, TriangleAlert } from "lucide-react-native";
 import { useState } from "react";
-import { Platform, Pressable, ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { requestPushToken } from "@/lib/push";
 import { useSession } from "@/lib/session";
 import { supabase } from "@/lib/supabase";
 import type { ColorToken } from "@eufaco/design-system";
@@ -47,34 +46,19 @@ export default function NotificationPermissionScreen() {
     setAsking(true);
     setError(null);
 
-    const { status } = await Notifications.requestPermissionsAsync();
+    const { token, platform, error: pushError } = await requestPushToken();
+    setAsking(false);
 
-    if (status !== "granted") {
-      setAsking(false);
-      setError("Você recusou as notificações. Para ativar depois, use os ajustes do aparelho.");
+    if (!token) {
+      setError(pushError);
       return;
     }
 
-    try {
-      const projectId = Constants.expoConfig?.extra?.eas?.projectId as string | undefined;
-      const token = await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : undefined);
-
-      if (session) {
-        await registerPushToken(
-          supabase,
-          session.user.id,
-          token.data,
-          Platform.OS === "ios" ? "ios" : "android",
-        );
-        await updateNotificationPreferences(supabase, session.user.id, { push_enabled: true });
-      }
-      router.back();
-    } catch {
-      // Permissão concedida mas token falhou: não vale bloquear a pessoa aqui
-      setError("Notificações ativadas, mas não conseguimos registrar este aparelho. Tente de novo mais tarde.");
-    } finally {
-      setAsking(false);
+    if (session) {
+      await registerPushToken(supabase, session.user.id, token, platform);
+      await updateNotificationPreferences(supabase, session.user.id, { push_enabled: true });
     }
+    router.back();
   };
 
   return (
