@@ -54,11 +54,24 @@ export async function signInWithEmail(
   return { data, error };
 }
 
-export async function signInWithGoogle(supabase: SupabaseClient) {
+/**
+ * Inicia o OAuth do Google.
+ *
+ * O destino do retorno vem por argumento porque cada plataforma tem o seu:
+ * a web usa a origem do navegador, o app usa um deep link do próprio
+ * esquema. Ler `window` aqui quebraria no React Native.
+ */
+export async function signInWithGoogle(
+  supabase: SupabaseClient,
+  redirectTo: string,
+  /** O app precisa da URL de volta para abrir o navegador ele mesmo. */
+  options?: { skipBrowserRedirect?: boolean },
+) {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${window.location.origin}/callback`,
+      redirectTo,
+      skipBrowserRedirect: options?.skipBrowserRedirect ?? false,
       queryParams: {
         access_type: "offline",
         prompt: "consent",

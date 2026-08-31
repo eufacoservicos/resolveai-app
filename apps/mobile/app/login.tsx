@@ -5,6 +5,7 @@ import { useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from "react-native";
 import { AppBar } from "@/components/AppBar";
 import { Field } from "@/components/Field";
+import { signInWithGoogleNative } from "@/lib/oauth";
 import { supabase } from "@/lib/supabase";
 
 /** Traduz os erros do Supabase para algo que diga o que fazer. */
@@ -24,6 +25,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const submit = async () => {
     if (!email.trim()) return setError("Informe seu e-mail.");
@@ -41,6 +43,19 @@ export default function LoginScreen() {
 
     if (authError) {
       setError(messageFor(authError.message));
+      return;
+    }
+    router.replace("/");
+  };
+
+  const withGoogle = async () => {
+    setGoogleLoading(true);
+    setError(null);
+    const message = await signInWithGoogleNative();
+    setGoogleLoading(false);
+
+    if (message) {
+      setError(message);
       return;
     }
     router.replace("/");
@@ -109,6 +124,26 @@ export default function LoginScreen() {
         </Pressable>
 
         <Button label="Entrar" loading={loading} onPress={() => void submit()} />
+
+        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[3] }}>
+          <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
+          <Text variant="caption" color="textMuted">
+            ou continue com
+          </Text>
+          <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
+        </View>
+
+        <Button
+          label="Google"
+          variant="secondary"
+          loading={googleLoading}
+          icon={
+            <Text variant="title" color="textPrimary">
+              G
+            </Text>
+          }
+          onPress={() => void withGoogle()}
+        />
 
         <View style={{ flexDirection: "row", justifyContent: "center", gap: spacing[1] + 1 }}>
           <Text color="textSecondary">Não tem uma conta?</Text>

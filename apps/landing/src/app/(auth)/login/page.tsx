@@ -48,7 +48,7 @@ export default function LoginPage() {
 	}
 
 	async function handleGoogleLogin() {
-		const { error } = await signInWithGoogle(supabase)
+		const { error } = await signInWithGoogle(supabase, `${window.location.origin}/callback`)
 		if (error) {
 			toast.error("Erro ao entrar com Google.")
 		}

@@ -4,6 +4,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import {
   Bell,
   Briefcase,
+  Camera,
   ChevronRight,
   Clock3,
   FileText,
@@ -151,6 +152,7 @@ export default function ProfileScreen() {
 
   const accountRows: Row[] = [
     { label: "Dados pessoais", icon: UserRound, onPress: () => router.push("/profile/edit") },
+    { label: "Foto e tipo de conta", icon: Camera, onPress: () => router.push("/complete-profile") },
     { label: "Notificações", icon: Bell, onPress: () => router.push("/notifications/settings") },
     { label: "Termos e privacidade", icon: FileText },
     { label: "Sair da conta", icon: LogOut, danger: true, onPress: confirmSignOut },
