@@ -6,6 +6,7 @@ import {
   getProviderReviews,
   getCurrentUser,
   hasUserReviewedProvider,
+  providerAcceptsQuotes,
 } from "@eufaco/shared";
 import { ProviderDetail } from "@/components/providers/provider-detail";
 import { TrackView } from "@/components/analytics/track-view";
@@ -70,6 +71,10 @@ export default async function ProviderPage({
     ? await hasUserReviewedProvider(supabase, id, currentUser.id)
     : true;
 
+  // Prestador do plano grátis que já usou os 10 orçamentos do mês tem o botão
+  // pausado. Sem isto o limite valeria só no app e o site seria o desvio.
+  const acceptsQuotes = await providerAcceptsQuotes(supabase, id);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
@@ -114,6 +119,7 @@ export default async function ProviderPage({
         reviews={currentUser ? reviews : []}
         currentUser={currentUser}
         alreadyReviewed={alreadyReviewed}
+        acceptsQuotes={acceptsQuotes}
       />
     </>
   );

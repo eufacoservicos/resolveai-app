@@ -118,6 +118,41 @@ describe("ProviderDetail", () => {
       openSpy.mockRestore();
     });
 
+    it("pausa o contato quando o prestador esgotou a cota do mês", () => {
+      render(
+        <ProviderDetail
+          provider={baseProvider}
+          reviews={[]}
+          currentUser={authUser}
+          alreadyReviewed={false}
+          acceptsQuotes={false}
+        />
+      );
+
+      expect(
+        screen.queryByRole("button", { name: /chamar no whatsapp/i })
+      ).not.toBeInTheDocument();
+      expect(screen.getByText(/agenda de orçamentos cheia/i)).toBeInTheDocument();
+    });
+
+    it("mantém o contato quando a cota não foi informada", () => {
+      // A prop é opcional: quem ainda não passa `acceptsQuotes` não pode
+      // acabar com o botão pausado sem querer.
+      render(
+        <ProviderDetail
+          provider={baseProvider}
+          reviews={[]}
+          currentUser={authUser}
+          alreadyReviewed={false}
+        />
+      );
+
+      expect(
+        screen.getAllByRole("button", { name: /chamar no whatsapp/i }).length
+      ).toBeGreaterThan(0);
+      expect(screen.queryByText(/agenda de orçamentos cheia/i)).not.toBeInTheDocument();
+    });
+
     it("shows rating stats", () => {
       render(
         <ProviderDetail

@@ -17,6 +17,7 @@ import {
   Lock,
   User,
   Briefcase,
+  Timer,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -67,6 +68,8 @@ interface ProviderDetailProps {
   }[];
   currentUser: { id: string; role: string } | null;
   alreadyReviewed: boolean;
+  /** Falso quando o prestador do plano grátis esgotou a cota do mês. */
+  acceptsQuotes?: boolean;
 }
 
 // Extrai apenas o @handle do Instagram. O valor salvo pode vir como URL completa
@@ -81,11 +84,21 @@ function getInstagramHandle(value: string): string {
   return handle.split(/[/?#]/)[0].replace(/^@/, "");
 }
 
+/** Quando a cota do prestador vira, no mês seguinte. */
+function nextMonthLabel(): string {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth() + 1, 1).toLocaleDateString("pt-BR", {
+    day: "numeric",
+    month: "long",
+  });
+}
+
 export function ProviderDetail({
   provider,
   reviews,
   currentUser,
   alreadyReviewed,
+  acceptsQuotes = true,
 }: ProviderDetailProps) {
   const REVIEWS_PER_PAGE = 5;
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -495,28 +508,44 @@ export function ProviderDetail({
       {/* ======== FIXED CTA ======== */}
       <div className="fixed bottom-20 left-0 right-0 z-40 px-4 md:bottom-6">
         <div className="mx-auto flex max-w-5xl gap-2">
-          <Button
-            onClick={() => {
-              if (!currentUser) {
-                setShowLoginDialog(true);
-                return;
-              }
-              trackWhatsAppClick(provider.id);
-              posthog.capture("whatsapp_contact_clicked", {
-                provider_id: provider.id,
-                provider_name: provider.user.full_name,
-              });
-              window.open(
-                getWhatsAppUrl(provider.whatsapp, provider.user.full_name),
-                "_blank",
-                "noopener,noreferrer"
-              );
-            }}
-            className="flex-1 h-12 rounded-xl gap-2.5 bg-emerald-500 text-white font-semibold text-base shadow-lg hover:bg-emerald-600 transition-colors"
-          >
-            <MessageCircle className="h-5 w-5" />
-            Chamar no WhatsApp
-          </Button>
+          {acceptsQuotes ? (
+            <Button
+              onClick={() => {
+                if (!currentUser) {
+                  setShowLoginDialog(true);
+                  return;
+                }
+                trackWhatsAppClick(provider.id);
+                posthog.capture("whatsapp_contact_clicked", {
+                  provider_id: provider.id,
+                  provider_name: provider.user.full_name,
+                });
+                window.open(
+                  getWhatsAppUrl(provider.whatsapp, provider.user.full_name),
+                  "_blank",
+                  "noopener,noreferrer"
+                );
+              }}
+              className="flex-1 h-12 rounded-xl gap-2.5 bg-emerald-500 text-white font-semibold text-base shadow-lg hover:bg-emerald-600 transition-colors"
+            >
+              <MessageCircle className="h-5 w-5" />
+              Chamar no WhatsApp
+            </Button>
+          ) : (
+            // O perfil continua visível, só o contato é que pausa — mesma
+            // regra e mesmo texto do app.
+            <div className="flex flex-1 items-center gap-3 rounded-xl border border-border bg-card px-4 py-2.5 shadow-lg">
+              <Timer className="h-5 w-5 shrink-0 text-muted-foreground" />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold leading-tight">
+                  Agenda de orçamentos cheia
+                </p>
+                <p className="text-xs text-muted-foreground leading-tight">
+                  Volta a receber em {nextMonthLabel()}
+                </p>
+              </div>
+            </div>
+          )}
           <Button
             onClick={handleShare}
             variant="outline"

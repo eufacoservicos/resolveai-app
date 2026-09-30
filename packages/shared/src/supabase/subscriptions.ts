@@ -60,6 +60,28 @@ export async function getQuoteUsage(
   };
 }
 
+/**
+ * O prestador ainda pode receber orçamento este mês?
+ *
+ * Devolve só o booleano — a contagem de quem já recebeu quanto não é
+ * pública. Serve para a tela do prestador decidir se mostra o botão de
+ * WhatsApp; o gatilho `enforce_quote_quota` é quem de fato barra a escrita.
+ *
+ * Em caso de falha assume que aceita: é melhor um contato a mais do que
+ * pausar o botão de quem está em dia por causa de uma consulta que caiu.
+ */
+export async function providerAcceptsQuotes(
+  supabase: SupabaseClient,
+  providerId: string,
+): Promise<boolean> {
+  const { data, error } = await supabase.rpc("provider_accepts_quotes", {
+    p_provider_id: providerId,
+  });
+
+  if (error) return true;
+  return (data as boolean | null) ?? true;
+}
+
 export async function getSubscription(
   supabase: SupabaseClient,
   providerId: string,
