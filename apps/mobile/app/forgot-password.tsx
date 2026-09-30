@@ -1,6 +1,14 @@
-import { Button, Card, Text, useTheme } from "@eufaco/design-system/native";
+import {
+  Button,
+  Card,
+  Text,
+  fontSize,
+  letterSpacing,
+  lineHeight,
+  useTheme,
+} from "@eufaco/design-system/native";
 import { useRouter } from "expo-router";
-import { CircleCheck, Lock, Mail } from "lucide-react-native";
+import { ArrowRight, CircleCheck, Lock, Mail } from "lucide-react-native";
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from "react-native";
 import { AppBar } from "@/components/AppBar";
@@ -75,9 +83,9 @@ export default function ForgotPasswordScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: spacing[6],
-          paddingTop: spacing[4],
-          paddingBottom: spacing[8],
-          gap: spacing[6],
+          paddingTop: 16,
+          paddingBottom: 28,
+          gap: 24,
         }}
         keyboardShouldPersistTaps="handled"
       >
@@ -94,9 +102,14 @@ export default function ForgotPasswordScreen() {
           <Lock size={30} color={colors.primaryStrong} />
         </View>
 
-        <View style={{ gap: spacing[2] }}>
-          <Text variant="h1">Esqueceu a senha?</Text>
-          <Text color="textSecondary">
+        <View style={{ gap: 5 }}>
+          <Text variant="h1" style={{ lineHeight: fontSize["3xl"] * lineHeight.tight }}>
+            Esqueceu a senha?
+          </Text>
+          <Text
+            color="textSecondary"
+            style={{ fontSize: fontSize.name, lineHeight: fontSize.name * lineHeight.normal }}
+          >
             Informe seu e-mail e enviaremos um link para você criar uma nova senha.
           </Text>
         </View>
@@ -113,12 +126,26 @@ export default function ForgotPasswordScreen() {
           error={error}
         />
 
-        <Button label="Enviar link" loading={loading} onPress={() => void submit()} />
+        <Button
+          label="Enviar link"
+          loading={loading}
+          icon={<ArrowRight size={18} color={colors.onPrimary} />}
+          iconPosition="right"
+          onPress={() => void submit()}
+        />
 
-        <View style={{ flexDirection: "row", justifyContent: "center", gap: spacing[1] + 1 }}>
-          <Text color="textSecondary">Lembrou a senha?</Text>
+        <View
+          style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 5 }}
+        >
+          <Text color="textSecondary" style={{ fontSize: fontSize.chip }}>
+            Lembrou a senha?
+          </Text>
           <Pressable accessibilityRole="button" onPress={() => router.replace("/login")} hitSlop={6}>
-            <Text variant="bodyStrong" color="primaryStrong">
+            <Text
+              variant="titleSm"
+              color="primaryStrong"
+              style={{ fontSize: fontSize.chip, letterSpacing: letterSpacing.normal }}
+            >
               Entrar
             </Text>
           </Pressable>

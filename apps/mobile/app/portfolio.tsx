@@ -4,11 +4,19 @@ import {
   uploadPortfolioImage,
   type PortfolioImage,
 } from "@eufaco/shared";
-import { Button, Card, Text, useTheme } from "@eufaco/design-system/native";
+import {
+  Button,
+  Card,
+  Text,
+  fontSize,
+  nativeFonts,
+  useTheme,
+} from "@eufaco/design-system/native";
 import { ImageIcon, Plus, Trash2, Upload } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Image, Pressable, ScrollView, View } from "react-native";
 import { AppBar } from "@/components/AppBar";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { SignInPrompt } from "@/components/SignInPrompt";
 import { useProviderAccount } from "@/hooks/useProviderAccount";
 import { isPickError, pickImage } from "@/lib/upload";
@@ -64,25 +72,23 @@ export default function PortfolioScreen() {
     setImages((prev) => [...prev, data as PortfolioImage]);
   };
 
-  const remove = (image: PortfolioImage) => {
-    Alert.alert("Remover esta foto?", "Ela sai do seu portfólio na hora e não dá para recuperar depois.", [
-      { text: "Manter", style: "cancel" },
-      {
-        text: "Remover",
-        style: "destructive",
-        onPress: () => {
-          const previous = images;
-          setImages((prev) => prev.filter((i) => i.id !== image.id));
+  /** Foto que o diálogo de confirmação está mirando. */
+  const [pendingRemoval, setPendingRemoval] = useState<PortfolioImage | null>(null);
 
-          void deletePortfolioImage(supabase, image.id, image.image_url).then(({ error: deleteError }) => {
-            if (deleteError) {
-              setImages(previous);
-              setError("Não foi possível remover a foto. Tente de novo.");
-            }
-          });
-        },
-      },
-    ]);
+  const confirmRemoval = () => {
+    const image = pendingRemoval;
+    setPendingRemoval(null);
+    if (!image) return;
+
+    const previous = images;
+    setImages((prev) => prev.filter((i) => i.id !== image.id));
+
+    void deletePortfolioImage(supabase, image.id, image.image_url).then(({ error: deleteError }) => {
+      if (deleteError) {
+        setImages(previous);
+        setError("Não foi possível remover a foto. Tente de novo.");
+      }
+    });
   };
 
   if (sessionLoading || accountLoading) {
@@ -138,9 +144,9 @@ export default function PortfolioScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: layout.screenPadding,
-          paddingTop: spacing[3],
-          paddingBottom: spacing[8],
-          gap: spacing[4],
+          paddingTop: 10,
+          paddingBottom: 24,
+          gap: 16,
         }}
         showsVerticalScrollIndicator={false}
       >
@@ -163,9 +169,9 @@ export default function PortfolioScreen() {
           </Card>
         ) : null}
 
-        <View style={{ gap: spacing[3] - 1 }}>
+        <View style={{ gap: 10 }}>
           {rows.map((row, rowIndex) => (
-            <View key={rowIndex} style={{ flexDirection: "row", gap: spacing[3] - 1 }}>
+            <View key={rowIndex} style={{ flexDirection: "row", gap: 10 }}>
               {row.map((cell, cellIndex) =>
                 cell === "add" ? (
                   <Pressable
@@ -179,10 +185,10 @@ export default function PortfolioScreen() {
                       height: 126,
                       alignItems: "center",
                       justifyContent: "center",
-                      gap: spacing[1] + 3,
+                      gap: 7,
                       borderRadius: radii.md,
                       backgroundColor: colors.surface,
-                      borderWidth: 2,
+                      borderWidth: 1,
                       borderColor: colors.borderStrong,
                     }}
                   >
@@ -191,7 +197,7 @@ export default function PortfolioScreen() {
                     ) : (
                       <>
                         <Plus size={22} color={colors.textMuted} />
-                        <Text variant="label" color="textMuted">
+                        <Text variant="label" color="textMuted" style={{ fontSize: fontSize.note }}>
                           Adicionar
                         </Text>
                       </>
@@ -227,7 +233,10 @@ export default function PortfolioScreen() {
                           backgroundColor: colors.overlay,
                         }}
                       >
-                        <Text variant="caption" style={{ color: "#FFFFFF" }}>
+                        <Text
+                          variant="microStrong"
+                          style={{ color: "#FFFFFF", fontFamily: nativeFonts.bodyBold }}
+                        >
                           Capa
                         </Text>
                       </View>
@@ -236,7 +245,7 @@ export default function PortfolioScreen() {
                     <Pressable
                       accessibilityRole="button"
                       accessibilityLabel="Remover foto"
-                      onPress={() => remove(cell)}
+                      onPress={() => setPendingRemoval(cell)}
                       hitSlop={6}
                       style={{
                         position: "absolute",
@@ -264,14 +273,18 @@ export default function PortfolioScreen() {
           style={{
             flexDirection: "row",
             alignItems: "center",
-            gap: spacing[2] + 1,
+            gap: 9,
             backgroundColor: colors.surface2,
             borderRadius: radii.md,
-            padding: spacing[3],
+            padding: 12,
           }}
         >
           <ImageIcon size={16} color={colors.textSecondary} />
-          <Text variant="caption" color="textSecondary" style={{ flex: 1 }}>
+          <Text
+            variant="caption"
+            color="textSecondary"
+            style={{ flex: 1, lineHeight: fontSize.caption * 1.4 }}
+          >
             Fotos reais dos seus serviços aumentam bastante os contatos.
           </Text>
         </View>
@@ -281,10 +294,23 @@ export default function PortfolioScreen() {
             label="Enviar novas fotos"
             loading={uploading}
             icon={<Upload size={18} color={colors.onPrimary} />}
+            iconPosition="right"
             onPress={() => void add()}
           />
         ) : null}
       </ScrollView>
+
+      <ConfirmDialog
+        visible={pendingRemoval !== null}
+        icon={Trash2}
+        title="Remover esta foto?"
+        body="Ela sai do seu portfólio na hora e não dá para recuperar depois."
+        confirmLabel="Remover foto"
+        cancelLabel="Manter"
+        destructive
+        onConfirm={confirmRemoval}
+        onCancel={() => setPendingRemoval(null)}
+      />
     </View>
   );
 }

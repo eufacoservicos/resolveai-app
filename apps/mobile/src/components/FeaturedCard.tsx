@@ -1,5 +1,5 @@
 import { formatDiscount, type RecommendedProvider } from "@eufaco/shared";
-import { Text, useTheme } from "@eufaco/design-system/native";
+import { fontSize, letterSpacing, nativeFonts, Text, useShadow, useTheme } from "@eufaco/design-system/native";
 import { Sparkles, Star, Tag } from "lucide-react-native";
 import { Image, Pressable, View } from "react-native";
 import { formatRating, initialsOf } from "@/lib/format";
@@ -20,7 +20,8 @@ export function FeaturedCard({
   item: RecommendedProvider;
   onPress?: () => void;
 }) {
-  const { colors, radii, spacing } = useTheme();
+  const { colors, radii } = useTheme();
+  const lift = useShadow("raised");
   const { provider, offer, coverUrl } = item;
 
   const name = provider.user.full_name;
@@ -35,14 +36,17 @@ export function FeaturedCard({
       style={({ pressed }) => ({ opacity: pressed ? 0.92 : 1 })}
     >
       <View
-        style={{
-          width: CARD_WIDTH,
-          borderRadius: radii.lg,
-          backgroundColor: colors.surface,
-          borderWidth: 1,
-          borderColor: colors.border,
-          overflow: "hidden",
-        }}
+        style={[
+          {
+            width: CARD_WIDTH,
+            borderRadius: radii.lg,
+            backgroundColor: colors.surface,
+            borderWidth: 1,
+            borderColor: colors.border,
+            overflow: "hidden",
+          },
+          lift,
+        ]}
       >
         <View style={{ height: COVER_HEIGHT, backgroundColor: colors.surface3 }}>
           {coverUrl ? (
@@ -64,9 +68,9 @@ export function FeaturedCard({
           <View
             style={{
               position: "absolute",
-              top: spacing[2] + 2,
-              left: spacing[2] + 2,
-              right: spacing[2] + 2,
+              top: 10,
+              left: 10,
+              right: 10,
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "flex-start",
@@ -84,7 +88,7 @@ export function FeaturedCard({
               }}
             >
               <Sparkles size={10} color={colors.onPrimary} />
-              <Text variant="caption" color="onPrimary">
+              <Text variant="microStrong" color="onPrimary">
                 Destaque
               </Text>
             </View>
@@ -98,7 +102,15 @@ export function FeaturedCard({
                   backgroundColor: colors.accent,
                 }}
               >
-                <Text variant="caption" style={{ color: "#FFFFFF" }}>
+                {/* O Pen fixa branco puro nos dois temas: sobre âmbar
+                    cheio, o `onPrimary` escuro do tema noturno sumiria. */}
+                <Text
+                  style={{
+                    color: "#FFFFFF",
+                    fontFamily: nativeFonts.displayExtraBold,
+                    fontSize: fontSize.mini,
+                  }}
+                >
                   {formatDiscount(offer)}
                 </Text>
               </View>
@@ -106,21 +118,37 @@ export function FeaturedCard({
           </View>
         </View>
 
-        <View style={{ padding: spacing[3], gap: spacing[1] + 1 }}>
-          <Text variant="title" numberOfLines={1}>
+        <View style={{ padding: 12, gap: 5 }}>
+          <Text
+            variant="title"
+            numberOfLines={1}
+            style={{ fontSize: fontSize.field, letterSpacing: letterSpacing.subtle }}
+          >
             {name}
           </Text>
 
-          <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] - 1 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
             {category ? (
-              <Text variant="label" color="primaryStrong" numberOfLines={1} style={{ flexShrink: 1 }}>
+              <Text
+                variant="label"
+                color="primaryStrong"
+                numberOfLines={1}
+                style={{ flexShrink: 1, fontSize: fontSize.note }}
+              >
                 {category}
               </Text>
+            ) : null}
+            {category && rating ? (
+              <View
+                style={{ width: 3, height: 3, borderRadius: 999, backgroundColor: colors.textMuted }}
+              />
             ) : null}
             {rating ? (
               <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
                 <Star size={11} color={colors.accent} fill={colors.accent} />
-                <Text variant="label">{rating}</Text>
+                <Text variant="labelStrong" style={{ fontSize: fontSize.note }}>
+                  {rating}
+                </Text>
               </View>
             ) : null}
           </View>
@@ -130,12 +158,12 @@ export function FeaturedCard({
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                gap: spacing[1] + 1,
-                paddingTop: spacing[1],
+                gap: 5,
+                paddingTop: 6,
               }}
             >
               <Tag size={12} color={colors.accent} />
-              <Text variant="caption" color="accent" numberOfLines={1} style={{ flex: 1 }}>
+              <Text variant="captionStrong" color="accent" numberOfLines={1} style={{ flex: 1 }}>
                 {offer.title}
               </Text>
             </View>

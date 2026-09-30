@@ -100,21 +100,21 @@ export default function SubscriptionScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: layout.screenPadding,
-          paddingTop: spacing[3],
+          paddingTop: 10,
           paddingBottom: spacing[8],
-          gap: spacing[5],
+          gap: 20,
         }}
         showsVerticalScrollIndicator={false}
       >
         <Card
           style={{
-            gap: spacing[4],
-            padding: spacing[4] + 2,
+            gap: 14,
+            padding: 18,
             borderColor: canceled ? colors.accent : colors.success,
             borderWidth: 1.5,
           }}
         >
-          <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[3] }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
             <View style={{ flex: 1, gap: 3 }}>
               <Text variant="h2">Plano Profissional</Text>
               <Text variant="caption" color="textSecondary">
@@ -126,7 +126,7 @@ export default function SubscriptionScreen() {
 
           <View style={{ height: 1, backgroundColor: colors.border }} />
 
-          <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] + 1 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 9 }}>
             <Calendar size={16} color={colors.textMuted} />
             <Text variant="caption" color="textSecondary" style={{ flex: 1 }}>
               {canceled
@@ -138,13 +138,13 @@ export default function SubscriptionScreen() {
 
         <Card
           variant="plain"
-          style={{ backgroundColor: colors.primarySoft, gap: spacing[2] + 1, padding: spacing[4] }}
+          style={{ backgroundColor: colors.primarySoft, gap: 10, padding: 16 }}
         >
           <Text variant="bodyStrong" color="primaryStrong">
             Ativo no seu perfil
           </Text>
           {BENEFITS.map((benefit) => (
-            <View key={benefit} style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] + 1 }}>
+            <View key={benefit} style={{ flexDirection: "row", alignItems: "center", gap: 9 }}>
               <CircleCheck size={15} color={colors.primaryStrong} />
               <Text variant="caption" color="textSecondary" style={{ flex: 1 }}>
                 {benefit}
@@ -154,7 +154,7 @@ export default function SubscriptionScreen() {
         </Card>
 
         {!canceled ? (
-          <View style={{ gap: spacing[2] + 1 }}>
+          <View style={{ gap: 9 }}>
             <Button
               label="Cancelar assinatura"
               variant="secondary"

@@ -1,7 +1,15 @@
 import { DAYS_OF_WEEK, getDefaultBusinessHours, setBusinessHours, type BusinessHours } from "@eufaco/shared";
-import { Button, Card, Text, Toggle, useTheme } from "@eufaco/design-system/native";
+import {
+  Button,
+  Card,
+  Text,
+  Toggle,
+  fontSize,
+  nativeFonts,
+  useTheme,
+} from "@eufaco/design-system/native";
 import { useRouter } from "expo-router";
-import { Calendar, Clock3 } from "lucide-react-native";
+import { ArrowRight, Calendar, Clock3 } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, TextInput, View } from "react-native";
 import { AppBar } from "@/components/AppBar";
@@ -11,6 +19,17 @@ import { useSession } from "@/lib/session";
 import { supabase } from "@/lib/supabase";
 
 type DayHours = Pick<BusinessHours, "day_of_week" | "open_time" | "close_time" | "is_closed">;
+
+/**
+ * Segunda a domingo, como o protótipo lista.
+ * O banco guarda a semana começando no domingo (0), que é a convenção do
+ * JavaScript, mas ninguém planeja a semana de trabalho assim.
+ */
+function weekOrder(days: DayHours[]): DayHours[] {
+  return [...days].sort(
+    (a, b) => ((a.day_of_week + 6) % 7) - ((b.day_of_week + 6) % 7),
+  );
+}
 
 /** Aceita 8, 08, 0800 e 08:00; devolve HH:MM ou null. */
 function normalizeTime(input: string): string | null {
@@ -134,14 +153,15 @@ export default function BusinessHoursScreen() {
   const timeInput = (day: DayHours, field: "open_time" | "close_time") => (
     <View
       style={{
-        paddingVertical: 4,
-        paddingHorizontal: 9,
-        borderRadius: 8,
+        alignSelf: "flex-start",
+        paddingVertical: 3,
+        paddingHorizontal: 8,
+        borderRadius: 7,
         backgroundColor: colors.surface2,
       }}
     >
       <TextInput
-        value={day[field] ?? ""}
+        value={(day[field] ?? "").slice(0, 5)}
         onChangeText={(text) => patchDay(day.day_of_week, { [field]: text })}
         onBlur={() => patchDay(day.day_of_week, { [field]: normalizeTime(day[field] ?? "") })}
         placeholder="08:00"
@@ -149,7 +169,13 @@ export default function BusinessHoursScreen() {
         keyboardType="number-pad"
         maxLength={5}
         accessibilityLabel={`${field === "open_time" ? "Abre" : "Fecha"} às`}
-        style={{ color: colors.textSecondary, fontSize: 12, minWidth: 44, textAlign: "center" }}
+        style={{
+          color: colors.textSecondary,
+          fontFamily: nativeFonts.bodySemiBold,
+          fontSize: fontSize.caption,
+          width: 40,
+          textAlign: "center",
+        }}
       />
     </View>
   );
@@ -161,9 +187,9 @@ export default function BusinessHoursScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: layout.screenPadding,
-          paddingTop: spacing[3],
-          paddingBottom: spacing[8],
-          gap: spacing[4],
+          paddingTop: 10,
+          paddingBottom: 24,
+          gap: 16,
         }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -172,28 +198,42 @@ export default function BusinessHoursScreen() {
           style={{
             flexDirection: "row",
             alignItems: "center",
-            gap: spacing[2] + 2,
+            gap: 10,
             backgroundColor: colors.primarySoft,
             borderRadius: radii.md,
-            padding: spacing[3] + 1,
+            padding: 13,
           }}
         >
           <Clock3 size={17} color={colors.primaryStrong} />
-          <Text variant="caption" color="textSecondary" style={{ flex: 1 }}>
+          <Text
+            color="textSecondary"
+            style={{ flex: 1, fontSize: fontSize.note, lineHeight: fontSize.note * 1.4 }}
+          >
             Clientes veem se você está aberto agora direto no seu card.
           </Text>
         </View>
 
-        <View style={{ gap: spacing[2] }}>
-          {hours.map((day) => {
+        <View style={{ gap: 8 }}>
+          {weekOrder(hours).map((day) => {
             const label = DAYS_OF_WEEK.find((d) => d.value === day.day_of_week)?.label ?? "";
             return (
               <Card
                 key={day.day_of_week}
-                style={{ flexDirection: "row", alignItems: "center", gap: spacing[3], paddingVertical: 11 }}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 10,
+                  paddingVertical: 11,
+                  paddingHorizontal: 13,
+                  borderRadius: radii.md,
+                }}
               >
                 <View style={{ flex: 1, gap: 3 }}>
-                  <Text variant="bodyStrong" color={day.is_closed ? "textMuted" : "textPrimary"}>
+                  <Text
+                    variant="bodyStrong"
+                    color={day.is_closed ? "textMuted" : "textPrimary"}
+                    style={{ fontSize: fontSize.name }}
+                  >
                     {label}
                   </Text>
                   {day.is_closed ? (
@@ -201,7 +241,7 @@ export default function BusinessHoursScreen() {
                       Fechado
                     </Text>
                   ) : (
-                    <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[1] + 2 }}>
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
                       {timeInput(day, "open_time")}
                       {timeInput(day, "close_time")}
                     </View>
@@ -240,8 +280,9 @@ export default function BusinessHoursScreen() {
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
-            gap: spacing[1] + 3,
-            paddingVertical: 13,
+            gap: 7,
+            paddingVertical: 12,
+            paddingHorizontal: 14,
             borderRadius: radii.md,
             backgroundColor: colors.surface,
             borderWidth: 1.5,
@@ -249,10 +290,16 @@ export default function BusinessHoursScreen() {
           }}
         >
           <Calendar size={15} color={colors.textPrimary} />
-          <Text variant="label">Aplicar segunda a sexta</Text>
+          <Text variant="chip">Aplicar segunda a sexta</Text>
         </Pressable>
 
-        <Button label="Salvar horários" loading={saving} onPress={() => void submit()} />
+        <Button
+          label="Salvar horários"
+          loading={saving}
+          icon={<ArrowRight size={18} color={colors.onPrimary} />}
+          iconPosition="right"
+          onPress={() => void submit()}
+        />
       </ScrollView>
     </View>
   );

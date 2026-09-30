@@ -1,6 +1,15 @@
-import { Button, Card, Text, useTheme } from "@eufaco/design-system/native";
+import {
+  Button,
+  Card,
+  Text,
+  fontSize,
+  letterSpacing,
+  lineHeight,
+  nativeFonts,
+  useTheme,
+} from "@eufaco/design-system/native";
 import { useRouter } from "expo-router";
-import { Check, CircleCheck, Lock, Mail, UserRound } from "lucide-react-native";
+import { ArrowRight, Check, CircleCheck, Lock, Mail, UserRound } from "lucide-react-native";
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from "react-native";
 import { AppBar } from "@/components/AppBar";
@@ -21,7 +30,7 @@ function passwordStrength(password: string): { score: number; label: string } {
 }
 
 export default function RegisterScreen() {
-  const { colors, spacing } = useTheme();
+  const { colors, radii, spacing } = useTheme();
   const router = useRouter();
 
   const [fullName, setFullName] = useState("");
@@ -109,18 +118,25 @@ export default function RegisterScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: spacing[6],
-          paddingTop: spacing[4],
-          paddingBottom: spacing[8],
-          gap: spacing[6],
+          paddingTop: 10,
+          paddingBottom: 28,
+          gap: 24,
         }}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={{ gap: spacing[2] }}>
-          <Text variant="h1">Criar sua conta</Text>
-          <Text color="textSecondary">Leva menos de um minuto e é grátis.</Text>
+        <View style={{ gap: 5 }}>
+          <Text variant="h1" style={{ lineHeight: fontSize["3xl"] * lineHeight.tight }}>
+            Criar sua conta
+          </Text>
+          <Text
+            color="textSecondary"
+            style={{ fontSize: fontSize.name, lineHeight: fontSize.name * lineHeight.normal }}
+          >
+            Leva menos de um minuto e é grátis.
+          </Text>
         </View>
 
-        <View style={{ gap: spacing[4] }}>
+        <View style={{ gap: 14 }}>
           <Field
             label="Nome completo"
             icon={UserRound}
@@ -151,7 +167,7 @@ export default function RegisterScreen() {
           />
 
           {password.length > 0 ? (
-            <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[1] + 2 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
               {[0, 1, 2, 3].map((index) => {
                 const { score } = passwordStrength(password);
                 const filled = index < score;
@@ -169,7 +185,8 @@ export default function RegisterScreen() {
                 );
               })}
               <Text
-                variant="caption"
+                variant="microStrong"
+                style={{ fontSize: fontSize.xs }}
                 color={
                   passwordStrength(password).score >= 4
                     ? "success"
@@ -192,7 +209,7 @@ export default function RegisterScreen() {
             setTermsAccepted((v) => !v);
             setError(null);
           }}
-          style={{ flexDirection: "row", alignItems: "flex-start", gap: spacing[2] + 2 }}
+          style={{ flexDirection: "row", alignItems: "flex-start", gap: 10 }}
         >
           <View
             style={{
@@ -209,17 +226,34 @@ export default function RegisterScreen() {
           >
             {termsAccepted ? <Check size={13} color={colors.onPrimary} /> : null}
           </View>
-          <Text variant="caption" color="textSecondary" style={{ flex: 1 }}>
+          <Text
+            color="textSecondary"
+            style={{ flex: 1, fontSize: fontSize.note, lineHeight: fontSize.note * 1.45 }}
+          >
             Li e aceito os Termos de Uso e a Política de Privacidade da plataforma.
           </Text>
         </Pressable>
 
-        <Button label="Criar conta" loading={loading} onPress={() => void submit()} />
+        <Button
+          label="Criar conta"
+          loading={loading}
+          icon={<ArrowRight size={18} color={colors.onPrimary} />}
+          iconPosition="right"
+          onPress={() => void submit()}
+        />
 
-        <View style={{ flexDirection: "row", justifyContent: "center", gap: spacing[1] + 1 }}>
-          <Text color="textSecondary">Já tem uma conta?</Text>
+        <View
+          style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 5 }}
+        >
+          <Text color="textSecondary" style={{ fontSize: fontSize.chip }}>
+            Já tem uma conta?
+          </Text>
           <Pressable accessibilityRole="button" onPress={() => router.replace("/login")} hitSlop={6}>
-            <Text variant="bodyStrong" color="primaryStrong">
+            <Text
+              variant="titleSm"
+              color="primaryStrong"
+              style={{ fontSize: fontSize.chip, letterSpacing: letterSpacing.normal }}
+            >
               Entrar
             </Text>
           </Pressable>

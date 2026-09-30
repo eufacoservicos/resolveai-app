@@ -1,6 +1,13 @@
 import { createReviewReply, getProviderReviews } from "@eufaco/shared";
-import { Button, Card, Text, nativeFonts, useTheme } from "@eufaco/design-system/native";
-import { Lightbulb, Reply, Star } from "lucide-react-native";
+import {
+  Button,
+  Card,
+  Text,
+  fontSize,
+  nativeFonts,
+  useTheme,
+} from "@eufaco/design-system/native";
+import { CircleCheck, Eye, Lightbulb, Reply, Star } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -159,9 +166,9 @@ export default function ReceivedReviewsScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: layout.screenPadding,
-          paddingTop: spacing[3],
+          paddingTop: 10,
           paddingBottom: spacing[8],
-          gap: spacing[4],
+          gap: 18,
         }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -175,8 +182,8 @@ export default function ReceivedReviewsScreen() {
           </Card>
         ) : (
           <>
-            <Card style={{ flexDirection: "row", gap: spacing[5], alignItems: "center" }}>
-              <View style={{ alignItems: "center", gap: spacing[1] }}>
+            <Card style={{ flexDirection: "row", gap: 20, alignItems: "center", padding: 16 }}>
+              <View style={{ alignItems: "center", gap: 5 }}>
                 <Text variant="h1">{average?.toFixed(1).replace(".", ",")}</Text>
                 <View style={{ flexDirection: "row", gap: 2 }}>
                   {Array.from({ length: 5 }, (_, i) => (
@@ -193,9 +200,9 @@ export default function ReceivedReviewsScreen() {
                 </Text>
               </View>
 
-              <View style={{ flex: 1, gap: spacing[1] + 2 }}>
+              <View style={{ flex: 1, gap: 6 }}>
                 {distribution.map((row) => (
-                  <View key={row.star} style={{ flexDirection: "row", alignItems: "center", gap: spacing[1] + 2 }}>
+                  <View key={row.star} style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
                     <Text variant="caption" color="textSecondary">
                       {row.star}
                     </Text>
@@ -239,12 +246,12 @@ export default function ReceivedReviewsScreen() {
                 <Card
                   key={review.id}
                   style={{
-                    gap: spacing[3],
+                    gap: 12,
                     borderColor: review.reply ? colors.border : colors.primary,
                     borderWidth: review.reply ? 1 : 1.5,
                   }}
                 >
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] + 2 }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
                     <View
                       style={{
                         width: 38,
@@ -284,8 +291,8 @@ export default function ReceivedReviewsScreen() {
                       style={{
                         backgroundColor: colors.surface2,
                         borderRadius: radii.md,
-                        padding: spacing[3],
-                        gap: spacing[1] + 2,
+                        padding: 12,
+                        gap: 7,
                       }}
                     >
                       <Text variant="label" color="primaryStrong">
@@ -296,15 +303,15 @@ export default function ReceivedReviewsScreen() {
                       </Text>
                     </View>
                   ) : isReplying ? (
-                    <View style={{ gap: spacing[3] }}>
+                    <View style={{ gap: 12 }}>
                       <View
                         style={{
-                          minHeight: 110,
+                          minHeight: 150,
                           borderRadius: radii.md,
                           backgroundColor: colors.surface,
                           borderWidth: 1.5,
                           borderColor: colors.primary,
-                          padding: spacing[3],
+                          padding: 14,
                         }}
                       >
                         <TextInput
@@ -320,31 +327,69 @@ export default function ReceivedReviewsScreen() {
                             flex: 1,
                             color: colors.textPrimary,
                             fontFamily: nativeFonts.bodyRegular,
-                            fontSize: 13.5,
-                            lineHeight: 20,
+                            fontSize: fontSize.name,
+                            lineHeight: fontSize.name * 1.5,
                           }}
                         />
                       </View>
+
+                      <Text
+                        color="textMuted"
+                        style={{ textAlign: "right", fontSize: fontSize.xs }}
+                      >
+                        {replyText.length} / {MAX_REPLY}
+                      </Text>
 
                       <View
                         style={{
                           backgroundColor: colors.primarySoft,
                           borderRadius: radii.md,
-                          padding: spacing[3],
-                          gap: spacing[2],
+                          padding: 14,
+                          gap: 9,
                         }}
                       >
-                        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] }}>
+                        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
                           <Lightbulb size={15} color={colors.primaryStrong} />
-                          <Text variant="label" color="primaryStrong">
+                          <Text
+                            variant="titleSm"
+                            color="primaryStrong"
+                            style={{ fontSize: fontSize.chip }}
+                          >
                             Uma boa resposta
                           </Text>
                         </View>
                         {TIPS.map((tip) => (
-                          <Text key={tip} variant="caption" color="textSecondary">
-                            · {tip}
-                          </Text>
+                          <View
+                            key={tip}
+                            style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+                          >
+                            <CircleCheck size={14} color={colors.primaryStrong} />
+                            <Text
+                              color="textSecondary"
+                              style={{ flex: 1, fontSize: fontSize.note }}
+                            >
+                              {tip}
+                            </Text>
+                          </View>
                         ))}
+                      </View>
+
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          gap: 9,
+                          padding: 12,
+                          borderRadius: radii.md,
+                          backgroundColor: colors.surface2,
+                        }}
+                      >
+                        <Eye size={16} color={colors.textSecondary} />
+                        <Text
+                          color="textSecondary"
+                          style={{ flex: 1, fontSize: fontSize.caption }}
+                        >
+                          Sua resposta aparece no seu perfil, logo abaixo da avaliação.
+                        </Text>
                       </View>
 
                       {error ? (

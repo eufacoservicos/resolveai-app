@@ -1,4 +1,11 @@
-import { Text, useTheme } from "@eufaco/design-system/native";
+import {
+  Text,
+  fontSize,
+  letterSpacing,
+  nativeFonts,
+  useShadow,
+  useTheme,
+} from "@eufaco/design-system/native";
 import type { ComponentType, ReactNode } from "react";
 import { Modal, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -25,8 +32,9 @@ interface Props {
  * tela: voltar precisa fechá-la, não navegar para trás no histórico.
  */
 export function ActionSheet({ visible, onClose, header, actions }: Props) {
-  const { colors, radii, spacing, layout } = useTheme();
+  const { colors, radii, layout } = useTheme();
   const insets = useSafeAreaInsets();
+  const sheetShadow = useShadow("sheet");
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -39,15 +47,18 @@ export function ActionSheet({ visible, onClose, header, actions }: Props) {
       />
 
       <View
-        style={{
-          backgroundColor: colors.surface,
-          borderTopLeftRadius: radii.xl,
-          borderTopRightRadius: radii.xl,
-          paddingTop: spacing[2] + 2,
-          paddingHorizontal: layout.screenPadding,
-          paddingBottom: Math.max(insets.bottom, spacing[5]),
-          gap: spacing[4],
-        }}
+        style={[
+          {
+            backgroundColor: colors.surface,
+            borderTopLeftRadius: 26,
+            borderTopRightRadius: 26,
+            paddingTop: 10,
+            paddingHorizontal: layout.screenPadding,
+            paddingBottom: Math.max(insets.bottom, 26),
+            gap: 16,
+          },
+          sheetShadow,
+        ]}
       >
         <View style={{ alignItems: "center" }}>
           <View style={{ width: 38, height: 4, borderRadius: 2, backgroundColor: colors.borderStrong }} />
@@ -56,7 +67,7 @@ export function ActionSheet({ visible, onClose, header, actions }: Props) {
         {header}
 
         <ScrollView bounces={false} style={{ maxHeight: 320 }}>
-          <View style={{ gap: spacing[1] }}>
+          <View style={{ gap: 4 }}>
             {actions.map((action) => (
               <Pressable
                 key={action.label}
@@ -69,9 +80,9 @@ export function ActionSheet({ visible, onClose, header, actions }: Props) {
                 style={({ pressed }) => ({
                   flexDirection: "row",
                   alignItems: "center",
-                  gap: spacing[3] + 1,
-                  paddingVertical: spacing[3],
-                  paddingHorizontal: spacing[1],
+                  gap: 13,
+                  paddingVertical: 12,
+                  paddingHorizontal: 4,
                   borderRadius: radii.md,
                   backgroundColor: pressed ? colors.surface2 : "transparent",
                 })}
@@ -92,9 +103,12 @@ export function ActionSheet({ visible, onClose, header, actions }: Props) {
                   />
                 </View>
                 <Text
-                  variant="bodyStrong"
                   color={action.destructive ? "danger" : "textPrimary"}
-                  style={{ flex: 1 }}
+                  style={{
+                    flex: 1,
+                    fontFamily: nativeFonts.bodySemiBold,
+                    fontSize: fontSize.field,
+                  }}
                 >
                   {action.label}
                 </Text>
@@ -107,14 +121,19 @@ export function ActionSheet({ visible, onClose, header, actions }: Props) {
           accessibilityRole="button"
           onPress={onClose}
           style={{
-            height: 52,
+            height: 54,
             alignItems: "center",
             justifyContent: "center",
             borderRadius: radii.md,
             backgroundColor: colors.surface2,
           }}
         >
-          <Text variant="title">Cancelar</Text>
+          <Text
+            variant="title"
+            style={{ fontSize: fontSize.button, letterSpacing: letterSpacing.hairline }}
+          >
+            Cancelar
+          </Text>
         </Pressable>
       </View>
     </Modal>

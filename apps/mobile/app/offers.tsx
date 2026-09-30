@@ -5,13 +5,27 @@ import {
   setOfferActive,
   type DiscountType,
   type ProviderOffer,
+  type RecommendedProvider,
 } from "@eufaco/shared";
-import { Badge, Button, Card, Text, Toggle, useTheme } from "@eufaco/design-system/native";
+import {
+  Badge,
+  Button,
+  Card,
+  Text,
+  fontSize,
+  letterSpacing,
+  lineHeight,
+  nativeFonts,
+  Toggle,
+  useShadow,
+  useTheme,
+} from "@eufaco/design-system/native";
 import { useRouter } from "expo-router";
-import { Banknote, Calendar, Percent, Sparkles, Tag } from "lucide-react-native";
+import { ArrowRight, Banknote, Calendar, Percent, Sparkles, Tag } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 import { AppBar } from "@/components/AppBar";
+import { FeaturedCard } from "@/components/FeaturedCard";
 import { Field } from "@/components/Field";
 import { SignInPrompt } from "@/components/SignInPrompt";
 import { useProviderAccount } from "@/hooks/useProviderAccount";
@@ -36,6 +50,7 @@ function formatValidUntil(iso: string): string {
 
 export default function OffersScreen() {
   const { colors, radii, spacing, layout } = useTheme();
+  const segmentShadow = useShadow("hairline");
   const router = useRouter();
   const { session, loading: sessionLoading } = useSession();
   const { provider, usage, loading: accountLoading } = useProviderAccount();
@@ -143,6 +158,28 @@ export default function OffersScreen() {
   const isPro = usage?.plan === "pro";
   const activeOffer = offers.find((o) => o.is_active);
 
+  // Espelho do card da busca com o que já foi digitado, para a pessoa
+  // ver o desconto no lugar em que ele realmente aparece.
+  const numericValue = Number(value.replace(",", "."));
+  const preview: RecommendedProvider | null =
+    provider && title.trim() && numericValue > 0
+      ? {
+          provider,
+          offer: {
+            id: "preview",
+            provider_id: provider.id,
+            title: title.trim(),
+            discount_type: discountType,
+            discount_value: discountType === "percent" ? numericValue : numericValue * 100,
+            valid_until: parseDate(validUntil) ?? new Date().toISOString(),
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          coverUrl: provider.portfolio[0]?.image_url ?? null,
+        }
+      : null;
+
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <AppBar title="Ofertas e descontos" />
@@ -150,9 +187,9 @@ export default function OffersScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: layout.screenPadding,
-          paddingTop: spacing[3],
-          paddingBottom: spacing[8],
-          gap: spacing[5],
+          paddingTop: 10,
+          paddingBottom: 24,
+          gap: 20,
         }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -162,16 +199,25 @@ export default function OffersScreen() {
           style={{
             flexDirection: "row",
             alignItems: "center",
-            gap: spacing[2] + 2,
+            gap: 10,
             backgroundColor: isPro ? colors.primarySoft : colors.accentSoft,
-            padding: spacing[3] + 1,
+            padding: 13,
+            borderRadius: radii.md,
           }}
         >
           <Sparkles size={17} color={isPro ? colors.primaryStrong : colors.accent} />
-          <Text variant="caption" color="textSecondary" style={{ flex: 1 }}>
+          <Text
+            variant="captionStrong"
+            color="textSecondary"
+            style={{ flex: 1, fontSize: fontSize.note, lineHeight: fontSize.note * lineHeight.snug }}
+          >
             Recurso exclusivo do plano Profissional
           </Text>
-          <Badge label={isPro ? "Ativo" : "Bloqueado"} tone={isPro ? "success" : "accent"} />
+          <Badge
+            label={isPro ? "Ativo" : "Bloqueado"}
+            tone={isPro ? "success" : "accent"}
+            style={{ paddingVertical: 4, paddingHorizontal: 9 }}
+          />
         </Card>
 
         {!isPro ? (
@@ -187,10 +233,12 @@ export default function OffersScreen() {
         ) : null}
 
         {activeOffer ? (
-          <View style={{ gap: spacing[3] }}>
-            <Text variant="h3">Oferta ativa</Text>
-            <Card style={{ gap: spacing[3], borderColor: colors.accent, borderWidth: 1.5 }}>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[3] }}>
+          <View style={{ gap: 10 }}>
+            <Text variant="h3" style={{ fontSize: fontSize.subtitle }}>
+              Oferta ativa
+            </Text>
+            <Card style={{ gap: 12, padding: 15, borderColor: colors.accent, borderWidth: 1 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 11 }}>
                 <View
                   style={{
                     minWidth: 52,
@@ -202,12 +250,23 @@ export default function OffersScreen() {
                     justifyContent: "center",
                   }}
                 >
-                  <Text variant="title" style={{ color: "#FFFFFF" }}>
+                  <Text
+                    style={{
+                      color: "#FFFFFF",
+                      fontFamily: nativeFonts.displayExtraBold,
+                      fontSize: fontSize.base,
+                    }}
+                  >
                     {formatDiscount(activeOffer)}
                   </Text>
                 </View>
                 <View style={{ flex: 1, gap: 2 }}>
-                  <Text variant="title">{activeOffer.title}</Text>
+                  <Text
+                    variant="title"
+                    style={{ fontSize: fontSize.base, letterSpacing: letterSpacing.subtle }}
+                  >
+                    {activeOffer.title}
+                  </Text>
                   <Text variant="caption" color="textMuted">
                     Válida até {formatValidUntil(activeOffer.valid_until)}
                   </Text>
@@ -223,17 +282,19 @@ export default function OffersScreen() {
         ) : null}
 
         {isPro ? (
-          <View style={{ gap: spacing[4] }}>
-            <Text variant="h3">{activeOffer ? "Substituir por uma nova" : "Criar oferta"}</Text>
+          <View style={{ gap: 14 }}>
+            <Text variant="h3" style={{ fontSize: fontSize.subtitle }}>
+              {activeOffer ? "Substituir por uma nova" : "Criar nova oferta"}
+            </Text>
 
-            <View style={{ gap: spacing[1] + 3 }}>
+            <View style={{ gap: 7 }}>
               <Text variant="label" color="textSecondary">
                 Tipo de desconto
               </Text>
               <View
                 style={{
                   flexDirection: "row",
-                  gap: spacing[1],
+                  gap: 4,
                   padding: 4,
                   borderRadius: radii.full,
                   backgroundColor: colors.surface2,
@@ -252,19 +313,28 @@ export default function OffersScreen() {
                       accessibilityRole="radio"
                       accessibilityState={{ selected }}
                       onPress={() => setDiscountType(option.value)}
-                      style={{
-                        flex: 1,
-                        height: 40,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: spacing[1] + 2,
-                        borderRadius: radii.full,
-                        backgroundColor: selected ? colors.surface : "transparent",
-                      }}
+                      style={[
+                        selected ? segmentShadow : null,
+                        {
+                          flex: 1,
+                          height: 40,
+                          flexDirection: "row",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 6,
+                          borderRadius: radii.full,
+                          backgroundColor: selected ? colors.surface : "transparent",
+                        },
+                      ]}
                     >
                       <option.icon size={15} color={selected ? colors.primaryStrong : colors.textMuted} />
-                      <Text variant="label" color={selected ? "textPrimary" : "textMuted"}>
+                      <Text
+                        color={selected ? "textPrimary" : "textMuted"}
+                        style={{
+                          fontFamily: selected ? nativeFonts.bodyBold : nativeFonts.bodyMedium,
+                          fontSize: fontSize.name,
+                        }}
+                      >
                         {option.label}
                       </Text>
                     </Pressable>
@@ -273,7 +343,7 @@ export default function OffersScreen() {
               </View>
             </View>
 
-            <View style={{ flexDirection: "row", gap: spacing[2] + 2 }}>
+            <View style={{ flexDirection: "row", gap: 10 }}>
               <View style={{ flex: 1 }}>
                 <Field
                   label={discountType === "percent" ? "Desconto (%)" : "Desconto (R$)"}
@@ -305,13 +375,39 @@ export default function OffersScreen() {
               error={error}
             />
 
-            <Button label="Publicar oferta" loading={saving} onPress={() => void submit()} />
+            {preview ? (
+              <View style={{ gap: 9 }}>
+                <Text variant="label" color="textSecondary">
+                  Como os clientes veem
+                </Text>
+                <View
+                  style={{
+                    alignItems: "center",
+                    paddingVertical: 14,
+                    borderRadius: radii.lg,
+                    backgroundColor: colors.surface2,
+                  }}
+                >
+                  <FeaturedCard item={preview} />
+                </View>
+              </View>
+            ) : null}
+
+            <Button
+              label="Publicar oferta"
+              loading={saving}
+              icon={<ArrowRight size={18} color={colors.onPrimary} />}
+              iconPosition="right"
+              onPress={() => void submit()}
+            />
           </View>
         ) : null}
 
         {offers.filter((o) => !o.is_active).length > 0 ? (
-          <View style={{ gap: spacing[3] }}>
-            <Text variant="h3">Encerradas</Text>
+          <View style={{ gap: 10 }}>
+            <Text variant="h3" style={{ fontSize: fontSize.subtitle }}>
+              Encerradas
+            </Text>
             {offers
               .filter((o) => !o.is_active)
               .map((offer) => (

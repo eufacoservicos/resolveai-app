@@ -1,38 +1,49 @@
-import { Badge, Button, Card, Text, useTheme } from "@eufaco/design-system/native";
+import {
+  Badge,
+  Button,
+  Card,
+  Text,
+  fontSize,
+  letterSpacing,
+  lineHeight,
+  nativeFonts,
+  useShadow,
+  useTheme,
+} from "@eufaco/design-system/native";
 import { useRouter } from "expo-router";
-import { CircleAlert, CircleCheck, ShieldCheck, Sparkles, X } from "lucide-react-native";
-import type { ComponentType } from "react";
+import { ArrowRight, ShieldCheck, Sparkles } from "lucide-react-native";
 import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
 import { AppBar } from "@/components/AppBar";
+import { FeatureRow, type FeatureTone } from "@/components/FeatureRow";
 import { SignInPrompt } from "@/components/SignInPrompt";
 import { useProviderAccount } from "@/hooks/useProviderAccount";
 import { useSession } from "@/lib/session";
-import type { ColorToken } from "@eufaco/design-system";
 
 const PRICE = "R$ 29,90";
 
 interface Feature {
   label: string;
-  icon: ComponentType<{ size?: number; color?: string }>;
-  tone: ColorToken;
+  tone: FeatureTone;
 }
 
 const FREE_FEATURES: Feature[] = [
-  { label: "Perfil profissional completo", icon: CircleCheck, tone: "success" },
-  { label: "Portfólio com até 10 fotos", icon: CircleCheck, tone: "success" },
-  { label: "Máximo de 10 orçamentos por mês", icon: CircleAlert, tone: "accent" },
-  { label: "Sem destaque na home", icon: X, tone: "textMuted" },
+  { label: "Perfil profissional completo", tone: "included" },
+  { label: "Portfólio com até 10 fotos", tone: "included" },
+  { label: "Máximo de 10 orçamentos por mês", tone: "limited" },
+  { label: "Sem destaque na home", tone: "missing" },
 ];
 
 const PRO_FEATURES: Feature[] = [
-  { label: "Orçamentos ilimitados", icon: CircleCheck, tone: "primaryStrong" },
-  { label: "Destaque em Profissionais recomendados", icon: CircleCheck, tone: "primaryStrong" },
-  { label: "Ofertas e descontos no seu perfil", icon: CircleCheck, tone: "primaryStrong" },
-  { label: "Prioridade nos resultados de busca", icon: CircleCheck, tone: "primaryStrong" },
+  { label: "Orçamentos ilimitados", tone: "highlight" },
+  { label: "Destaque em Profissionais recomendados", tone: "highlight" },
+  { label: "Ofertas e descontos no seu perfil", tone: "highlight" },
+  { label: "Prioridade nos resultados de busca", tone: "highlight" },
+  { label: "Selo de destaque no card", tone: "highlight" },
 ];
 
 export default function PlansScreen() {
-  const { colors, spacing, layout } = useTheme();
+  const { colors, layout } = useTheme();
+  const proShadow = useShadow("raised");
   const router = useRouter();
   const { session, loading: sessionLoading } = useSession();
   const { provider, usage, loading } = useProviderAccount();
@@ -73,16 +84,25 @@ export default function PlansScreen() {
   const isPro = usage?.plan === "pro";
 
   const renderFeatures = (features: Feature[]) => (
-    <View style={{ gap: spacing[2] + 1 }}>
+    <View style={{ gap: 9 }}>
       {features.map((feature) => (
-        <View key={feature.label} style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] + 1 }}>
-          <feature.icon size={15} color={colors[feature.tone]} />
-          <Text variant="caption" color="textSecondary" style={{ flex: 1 }}>
-            {feature.label}
-          </Text>
-        </View>
+        <FeatureRow key={feature.label} label={feature.label} tone={feature.tone} />
       ))}
     </View>
+  );
+
+  /** Nome do plano no cabeçalho do cartão. */
+  const planName = (name: string) => (
+    <Text
+      variant="h2"
+      style={{
+        fontSize: fontSize.subtitle,
+        letterSpacing: letterSpacing.snug,
+        lineHeight: fontSize.subtitle * lineHeight.tight,
+      }}
+    >
+      {name}
+    </Text>
   );
 
   return (
@@ -92,37 +112,47 @@ export default function PlansScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: layout.screenPadding,
-          paddingTop: spacing[3],
-          paddingBottom: spacing[8],
-          gap: spacing[4],
+          paddingTop: 10,
+          paddingBottom: 24,
+          gap: 16,
         }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={{ gap: spacing[2] }}>
-          <Text variant="h1">Receba mais clientes</Text>
-          {!provider ? (
-            <Text color="textSecondary">
-              Crie seu perfil profissional para começar a receber orçamentos.
-            </Text>
-          ) : usage && usage.quota !== null ? (
-            <Text color="textSecondary">
-              Você usou {usage.used} dos {usage.quota} orçamentos do plano Grátis este mês.
-            </Text>
-          ) : (
-            <Text color="textSecondary">Seus orçamentos são ilimitados neste plano.</Text>
-          )}
+        <View style={{ gap: 5 }}>
+          <Text
+            variant="h1"
+            style={{ fontSize: 24, letterSpacing: letterSpacing.headline, lineHeight: 24 * 1.2 }}
+          >
+            Receba mais clientes
+          </Text>
+          <Text
+            color="textSecondary"
+            style={{ fontSize: fontSize.chip, lineHeight: fontSize.chip * lineHeight.normal }}
+          >
+            {!provider
+              ? "Crie seu perfil profissional para começar a receber orçamentos."
+              : usage && usage.quota !== null
+                ? `Você usou ${usage.used} dos ${usage.quota} orçamentos do plano Grátis este mês.`
+                : "Seus orçamentos são ilimitados neste plano."}
+          </Text>
         </View>
 
         {/* Grátis */}
-        <Card style={{ gap: spacing[3], padding: spacing[4] }}>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] }}>
+        <Card style={{ gap: 13, padding: 16 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
             <View style={{ flex: 1, gap: 2 }}>
-              <Text variant="h3">Grátis</Text>
+              {planName("Grátis")}
               <Text variant="caption" color="textMuted">
                 R$ 0 · para sempre
               </Text>
             </View>
-            {!isPro ? <Badge label="Plano atual" tone="neutral" /> : null}
+            {!isPro ? (
+              <Badge
+                label="Plano atual"
+                tone="neutral"
+                style={{ paddingVertical: 5, paddingHorizontal: 10 }}
+              />
+            ) : null}
           </View>
           <View style={{ height: 1, backgroundColor: colors.border }} />
           {renderFeatures(FREE_FEATURES)}
@@ -130,41 +160,66 @@ export default function PlansScreen() {
 
         {/* Profissional */}
         <Card
-          style={{
-            gap: spacing[3],
-            padding: spacing[4],
-            borderColor: colors.primary,
-            borderWidth: 2,
-          }}
+          style={[
+            { gap: 13, padding: 16, borderColor: colors.primary, borderWidth: 1 },
+            proShadow,
+          ]}
         >
-          <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
             <View style={{ flex: 1, gap: 3 }}>
-              <Text variant="h3">Profissional</Text>
+              {planName("Profissional")}
               <View style={{ flexDirection: "row", alignItems: "flex-end", gap: 3 }}>
                 <Text variant="h1">{PRICE}</Text>
-                <Text variant="caption" color="textMuted" style={{ paddingBottom: 4 }}>
+                <Text
+                  color="textMuted"
+                  style={{
+                    paddingBottom: 4,
+                    fontFamily: nativeFonts.bodyMedium,
+                    fontSize: fontSize.note,
+                  }}
+                >
                   /mês
                 </Text>
               </View>
             </View>
-            {isPro ? <Badge label="Plano atual" tone="success" /> : <Badge label="Recomendado" tone="primary" />}
+            {isPro ? (
+              <Badge
+                label="Plano atual"
+                tone="success"
+                style={{ paddingVertical: 5, paddingHorizontal: 10 }}
+              />
+            ) : (
+              <Badge
+                label="Recomendado"
+                tone="primarySolid"
+                icon={<Sparkles size={11} color={colors.onPrimary} />}
+                style={{ paddingVertical: 5, paddingHorizontal: 10, gap: 4 }}
+              />
+            )}
           </View>
 
           <View style={{ height: 1, backgroundColor: colors.border }} />
           {renderFeatures(PRO_FEATURES)}
 
           {isPro ? (
-            <Button label="Gerenciar assinatura" variant="secondary" onPress={() => router.push("/subscription")} />
+            <Button
+              label="Gerenciar assinatura"
+              variant="secondary"
+              onPress={() => router.push("/subscription")}
+            />
           ) : (
             <Button
               label="Assinar agora"
-              icon={<Sparkles size={18} color={colors.onPrimary} />}
+              icon={<ArrowRight size={18} color={colors.onPrimary} />}
+              iconPosition="right"
               onPress={startSubscription}
             />
           )}
         </Card>
 
-        <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", gap: spacing[1] + 2 }}>
+        <View
+          style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 6 }}
+        >
           <ShieldCheck size={13} color={colors.textMuted} />
           <Text variant="caption" color="textMuted">
             Cancele quando quiser, sem multa

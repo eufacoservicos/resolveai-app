@@ -3,9 +3,19 @@ import {
   updateProviderProfile,
   type Category,
 } from "@eufaco/shared";
-import { Button, Card, Text, Toggle, nativeFonts, useTheme } from "@eufaco/design-system/native";
+import {
+  Button,
+  Card,
+  Text,
+  Toggle,
+  fontSize,
+  letterSpacing,
+  nativeFonts,
+  useShadow,
+  useTheme,
+} from "@eufaco/design-system/native";
 import { useRouter } from "expo-router";
-import { AtSign, Briefcase, MapPin, Phone, Plus, UserRound } from "lucide-react-native";
+import { ArrowRight, AtSign, Briefcase, MapPin, Phone, Plus, UserRound, X } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, TextInput, View } from "react-native";
 import { AppBar } from "@/components/AppBar";
@@ -26,6 +36,7 @@ function maskPhone(value: string): string {
 
 export default function ProviderProfileScreen() {
   const { colors, radii, spacing, layout } = useTheme();
+  const segmentShadow = useShadow("hairline");
   const router = useRouter();
   const { session, loading: sessionLoading } = useSession();
   const { provider, loading: accountLoading, refresh } = useProviderAccount();
@@ -143,9 +154,9 @@ export default function ProviderProfileScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: layout.screenPadding,
-          paddingTop: spacing[3],
-          paddingBottom: spacing[8],
-          gap: spacing[5],
+          paddingTop: 10,
+          paddingBottom: 24,
+          gap: 20,
         }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -155,13 +166,18 @@ export default function ProviderProfileScreen() {
           style={{
             flexDirection: "row",
             alignItems: "center",
-            gap: spacing[3],
+            gap: 12,
             backgroundColor: isActive ? colors.successSoft : colors.surface2,
-            padding: spacing[4],
+            padding: 14,
           }}
         >
           <View style={{ flex: 1, gap: 2 }}>
-            <Text variant="title">Perfil visível na busca</Text>
+            <Text
+              variant="title"
+              style={{ fontSize: fontSize.base, letterSpacing: letterSpacing.subtle }}
+            >
+              Perfil visível na busca
+            </Text>
             <Text variant="caption" color="textSecondary">
               Desative para pausar seu perfil
             </Text>
@@ -169,14 +185,14 @@ export default function ProviderProfileScreen() {
           <Toggle accessibilityLabel="Perfil visível na busca" value={isActive} onValueChange={setIsActive} />
         </Card>
 
-        <View style={{ gap: spacing[1] + 3 }}>
+        <View style={{ gap: 7 }}>
           <Text variant="label" color="textSecondary">
             Tipo de cadastro
           </Text>
           <View
             style={{
               flexDirection: "row",
-              gap: spacing[1],
+              gap: 4,
               padding: 4,
               borderRadius: radii.full,
               backgroundColor: colors.surface2,
@@ -195,19 +211,25 @@ export default function ProviderProfileScreen() {
                   accessibilityRole="radio"
                   accessibilityState={{ selected }}
                   onPress={() => setProviderType(option.value)}
-                  style={{
+                  style={[selected ? segmentShadow : null, {
                     flex: 1,
                     height: 40,
                     flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: spacing[1] + 2,
+                    gap: 6,
                     borderRadius: radii.full,
                     backgroundColor: selected ? colors.surface : "transparent",
-                  }}
+                  }]}
                 >
                   <option.icon size={15} color={selected ? colors.primaryStrong : colors.textMuted} />
-                  <Text variant="label" color={selected ? "textPrimary" : "textMuted"}>
+                  <Text
+                    color={selected ? "textPrimary" : "textMuted"}
+                    style={{
+                      fontFamily: selected ? nativeFonts.bodyBold : nativeFonts.bodyMedium,
+                      fontSize: fontSize.name,
+                    }}
+                  >
                     {option.label}
                   </Text>
                 </Pressable>
@@ -216,7 +238,7 @@ export default function ProviderProfileScreen() {
           </View>
         </View>
 
-        <View style={{ gap: spacing[1] + 3 }}>
+        <View style={{ gap: 7 }}>
           <Text variant="label" color="textSecondary">
             Descrição do seu trabalho
           </Text>
@@ -227,7 +249,7 @@ export default function ProviderProfileScreen() {
               backgroundColor: colors.surface,
               borderWidth: 1.5,
               borderColor: colors.border,
-              padding: spacing[3] + 2,
+              padding: 14,
             }}
           >
             <TextInput
@@ -249,17 +271,21 @@ export default function ProviderProfileScreen() {
           </View>
         </View>
 
-        <View style={{ gap: spacing[2] + 1 }}>
+        <View style={{ gap: 8 }}>
           <Text variant="label" color="textSecondary">
             Categorias (até 5)
           </Text>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: spacing[2] }}>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
             {categories.map((category) => (
               <View
                 key={category.id}
                 style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 6,
                   paddingVertical: 8,
-                  paddingHorizontal: 12,
+                  paddingLeft: 12,
+                  paddingRight: 10,
                   borderRadius: radii.full,
                   backgroundColor: colors.primarySoft,
                 }}
@@ -267,6 +293,17 @@ export default function ProviderProfileScreen() {
                 <Text variant="label" color="primaryStrong">
                   {category.name}
                 </Text>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`Remover ${category.name}`}
+                  onPress={() => {
+                    setCategories((current) => current.filter((c) => c.id !== category.id));
+                    setCategoryIds((current) => current.filter((id) => id !== category.id));
+                  }}
+                  hitSlop={8}
+                >
+                  <X size={13} color={colors.primaryStrong} />
+                </Pressable>
               </View>
             ))}
 
@@ -277,7 +314,7 @@ export default function ProviderProfileScreen() {
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                gap: spacing[1] + 1,
+                gap: 5,
                 paddingVertical: 8,
                 paddingHorizontal: 12,
                 borderRadius: radii.full,
@@ -294,7 +331,7 @@ export default function ProviderProfileScreen() {
           </View>
         </View>
 
-        <View style={{ flexDirection: "row", gap: spacing[2] + 2 }}>
+        <View style={{ flexDirection: "row", gap: 10 }}>
           <View style={{ flex: 1 }}>
             <Field label="Cidade" icon={MapPin} value={city} onChangeText={setCity} placeholder="Belo Horizonte" />
           </View>
@@ -328,7 +365,13 @@ export default function ProviderProfileScreen() {
           error={error}
         />
 
-        <Button label="Salvar alterações" loading={saving} onPress={() => void submit()} />
+        <Button
+          label="Salvar alterações"
+          loading={saving}
+          icon={<ArrowRight size={18} color={colors.onPrimary} />}
+          iconPosition="right"
+          onPress={() => void submit()}
+        />
       </ScrollView>
 
       <CategoryPicker

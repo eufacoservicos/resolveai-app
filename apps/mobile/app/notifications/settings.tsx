@@ -116,9 +116,9 @@ export default function NotificationSettingsScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: layout.screenPadding,
-          paddingTop: spacing[3],
+          paddingTop: 10,
           paddingBottom: spacing[8],
-          gap: spacing[5],
+          gap: 20,
         }}
         showsVerticalScrollIndicator={false}
       >
@@ -127,9 +127,9 @@ export default function NotificationSettingsScreen() {
           style={{
             flexDirection: "row",
             alignItems: "center",
-            gap: spacing[3],
+            gap: 12,
             backgroundColor: colors.primarySoft,
-            padding: spacing[4],
+            padding: 15,
           }}
         >
           <View style={{ flex: 1, gap: 2 }}>
@@ -146,10 +146,10 @@ export default function NotificationSettingsScreen() {
         </Card>
 
         {/* Os controles finos ficam inertes com a chave mestra desligada */}
-        <View style={{ gap: spacing[5], opacity: master ? 1 : 0.45 }} pointerEvents={master ? "auto" : "none"}>
+        <View style={{ gap: 20, opacity: master ? 1 : 0.45 }} pointerEvents={master ? "auto" : "none"}>
           {GROUPS.map((group) => (
-            <View key={group.title} style={{ gap: spacing[3] }}>
-              <Text variant="h3">{group.title}</Text>
+            <View key={group.title} style={{ gap: 10 }}>
+              <Text variant="title">{group.title}</Text>
 
               <Card padded={false} style={{ overflow: "hidden" }}>
                 {group.items.map((item, index) => (
@@ -159,7 +159,7 @@ export default function NotificationSettingsScreen() {
                       style={{
                         flexDirection: "row",
                         alignItems: "center",
-                        gap: spacing[3],
+                        gap: 12,
                         paddingVertical: 13,
                         paddingHorizontal: 15,
                       }}
@@ -184,9 +184,9 @@ export default function NotificationSettingsScreen() {
             </View>
           ))}
 
-          <View style={{ gap: spacing[3] }}>
-            <Text variant="h3">Não perturbe</Text>
-            <Card style={{ flexDirection: "row", alignItems: "center", gap: spacing[3] }}>
+          <View style={{ gap: 10 }}>
+            <Text variant="title">Não perturbe</Text>
+            <Card style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 13, paddingHorizontal: 15 }}>
               <View
                 style={{
                   width: 36,
@@ -221,10 +221,10 @@ export default function NotificationSettingsScreen() {
           style={{
             flexDirection: "row",
             alignItems: "center",
-            gap: spacing[2] + 2,
+            gap: 10,
             backgroundColor: colors.primarySoft,
             borderRadius: radii.md,
-            padding: spacing[3] + 1,
+            padding: 13,
           }}
         >
           <Bell size={16} color={colors.primaryStrong} />
@@ -240,10 +240,10 @@ export default function NotificationSettingsScreen() {
           style={{
             flexDirection: "row",
             alignItems: "center",
-            gap: spacing[2] + 2,
+            gap: 10,
             backgroundColor: colors.surface2,
             borderRadius: radii.md,
-            padding: spacing[3] + 1,
+            padding: 13,
           }}
         >
           <Settings size={16} color={colors.textSecondary} />

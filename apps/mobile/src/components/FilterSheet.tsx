@@ -1,4 +1,14 @@
-import { Button, Text, Toggle, useTheme } from "@eufaco/design-system/native";
+import {
+  Button,
+  Text,
+  Toggle,
+  fontSize,
+  letterSpacing,
+  lineHeight,
+  nativeFonts,
+  useShadow,
+  useTheme,
+} from "@eufaco/design-system/native";
 import { Star, X } from "lucide-react-native";
 import { useState } from "react";
 import { Modal, Pressable, ScrollView, View } from "react-native";
@@ -59,6 +69,7 @@ interface Props {
 export function FilterSheet({ visible, initial, resultCount, onClose, onApply, radiusEnabled }: Props) {
   const { colors, radii, spacing, layout } = useTheme();
   const insets = useSafeAreaInsets();
+  const segmentShadow = useShadow("hairline");
   const [draft, setDraft] = useState<SearchFilters>(initial);
 
   // Reabrir sempre parte do que está valendo, não do último rascunho
@@ -93,7 +104,7 @@ export function FilterSheet({ visible, initial, resultCount, onClose, onApply, r
             <X size={19} color={colors.textPrimary} />
           </Pressable>
 
-          <Text variant="h3" style={{ flex: 1, textAlign: "center" }}>
+          <Text variant="screenTitle" style={{ flex: 1, textAlign: "center" }}>
             Filtros
           </Text>
 
@@ -112,16 +123,16 @@ export function FilterSheet({ visible, initial, resultCount, onClose, onApply, r
         <ScrollView
           contentContainerStyle={{
             paddingHorizontal: layout.screenPadding,
-            paddingTop: spacing[2],
-            paddingBottom: spacing[6],
-            gap: spacing[6],
+            paddingTop: 8,
+            paddingBottom: 20,
+            gap: 22,
           }}
           showsVerticalScrollIndicator={false}
         >
           {radiusEnabled ? (
-            <View style={{ gap: spacing[3] }}>
-              <Text variant="h3">Distância máxima</Text>
-              <View style={{ flexDirection: "row", gap: spacing[2] }}>
+            <View style={{ gap: 11 }}>
+              <Text variant="title">Distância máxima</Text>
+              <View style={{ flexDirection: "row", gap: 8 }}>
                 {RADII.map((km) => {
                   const selected = draft.radiusKm === km;
                   return (
@@ -150,9 +161,9 @@ export function FilterSheet({ visible, initial, resultCount, onClose, onApply, r
             </View>
           ) : null}
 
-          <View style={{ gap: spacing[3] }}>
-            <Text variant="h3">Avaliação mínima</Text>
-            <View style={{ flexDirection: "row", gap: spacing[2] }}>
+          <View style={{ gap: 11 }}>
+            <Text variant="title">Avaliação mínima</Text>
+            <View style={{ flexDirection: "row", gap: 8 }}>
               {RATINGS.map((option) => {
                 const selected = draft.minRating === option.value;
                 return (
@@ -190,12 +201,12 @@ export function FilterSheet({ visible, initial, resultCount, onClose, onApply, r
             </View>
           </View>
 
-          <View style={{ gap: spacing[3] }}>
-            <Text variant="h3">Tipo de profissional</Text>
+          <View style={{ gap: 11 }}>
+            <Text variant="title">Tipo de profissional</Text>
             <View
               style={{
                 flexDirection: "row",
-                gap: spacing[1],
+                gap: 4,
                 padding: 4,
                 borderRadius: radii.full,
                 backgroundColor: colors.surface2,
@@ -209,16 +220,25 @@ export function FilterSheet({ visible, initial, resultCount, onClose, onApply, r
                     accessibilityRole="radio"
                     accessibilityState={{ selected }}
                     onPress={() => setDraft({ ...draft, providerType: option.value })}
-                    style={{
-                      flex: 1,
-                      height: 38,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: radii.full,
-                      backgroundColor: selected ? colors.surface : "transparent",
-                    }}
+                    style={[
+                      selected ? segmentShadow : null,
+                      {
+                        flex: 1,
+                        height: 38,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: radii.full,
+                        backgroundColor: selected ? colors.surface : "transparent",
+                      },
+                    ]}
                   >
-                    <Text variant="label" color={selected ? "textPrimary" : "textMuted"}>
+                    <Text
+                      color={selected ? "textPrimary" : "textMuted"}
+                      style={{
+                        fontFamily: selected ? nativeFonts.bodyBold : nativeFonts.bodyMedium,
+                        fontSize: fontSize.chip,
+                      }}
+                    >
                       {option.label}
                     </Text>
                   </Pressable>
@@ -227,8 +247,8 @@ export function FilterSheet({ visible, initial, resultCount, onClose, onApply, r
             </View>
           </View>
 
-          <View style={{ gap: spacing[3] }}>
-            <Text variant="h3">Disponibilidade e ofertas</Text>
+          <View style={{ gap: 11 }}>
+            <Text variant="title">Disponibilidade e ofertas</Text>
 
             {(
               [
@@ -245,7 +265,7 @@ export function FilterSheet({ visible, initial, resultCount, onClose, onApply, r
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  gap: spacing[3],
+                  gap: 12,
                   paddingVertical: 13,
                   paddingHorizontal: 14,
                   borderRadius: radii.md,
@@ -256,7 +276,13 @@ export function FilterSheet({ visible, initial, resultCount, onClose, onApply, r
               >
                 <View style={{ flex: 1, gap: 2 }}>
                   <Text variant="bodyStrong">{item.label}</Text>
-                  <Text variant="caption" color="textMuted">
+                  <Text
+                    color="textMuted"
+                    style={{
+                      fontSize: fontSize.caption,
+                      lineHeight: fontSize.caption * lineHeight.snug,
+                    }}
+                  >
                     {item.hint}
                   </Text>
                 </View>
@@ -273,10 +299,10 @@ export function FilterSheet({ visible, initial, resultCount, onClose, onApply, r
         <View
           style={{
             flexDirection: "row",
-            gap: spacing[2] + 2,
+            gap: 10,
             paddingHorizontal: layout.screenPadding,
-            paddingTop: spacing[3],
-            paddingBottom: Math.max(insets.bottom, spacing[4]),
+            paddingTop: 12,
+            paddingBottom: Math.max(insets.bottom, 16),
             backgroundColor: colors.surface,
             borderTopWidth: 1,
             borderTopColor: colors.border,

@@ -55,7 +55,7 @@ export function AppBar({ title, showBack = true, action }: Props) {
         slot
       )}
 
-      <Text variant="h3" numberOfLines={1} style={{ flex: 1, textAlign: "center" }}>
+      <Text variant="screenTitle" numberOfLines={1} style={{ flex: 1, textAlign: "center" }}>
         {title ?? ""}
       </Text>
 

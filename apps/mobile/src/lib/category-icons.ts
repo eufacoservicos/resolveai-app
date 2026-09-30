@@ -8,11 +8,15 @@ import {
   Droplets,
   Dumbbell,
   Hammer,
+  Hand,
   HardHat,
   Heart,
+  HeartPulse,
   Leaf,
+  Lock,
   Monitor,
   Music,
+  Paintbrush,
   PaintRoller,
   Ruler,
   Scissors,
@@ -36,8 +40,8 @@ type Icon = ComponentType<{ size?: number; color?: string }>;
  */
 const BY_SLUG: Record<string, Icon> = {
   // Construção e reformas
-  pedreiro: HardHat,
-  pintor: PaintRoller,
+  pedreiro: Hammer,
+  pintor: Paintbrush,
   gesseiro: HardHat,
   azulejista: HardHat,
   marceneiro: Ruler,
@@ -68,7 +72,7 @@ const BY_SLUG: Record<string, Icon> = {
   piscineiro: Droplets,
 
   // Manutenção
-  chaveiro: Wrench,
+  chaveiro: Lock,
   "montador-moveis": Wrench,
   "tecnico-eletrodomesticos": Wrench,
   "tecnico-celular": Monitor,
@@ -79,12 +83,12 @@ const BY_SLUG: Record<string, Icon> = {
 
   // Beleza
   cabeleireira: Scissors,
-  manicure: Sparkles,
+  manicure: Hand,
   maquiadora: Sparkles,
   barbeiro: Scissors,
   "designer-sobrancelhas": Scissors,
   esteticista: Sparkles,
-  massagista: Heart,
+  massagista: HeartPulse,
 
   // Saúde
   "personal-trainer": Dumbbell,

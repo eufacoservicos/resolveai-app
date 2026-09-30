@@ -1,5 +1,13 @@
 import { REPORT_REASONS, createReport, getProviderById, type ProviderWithDetails, type ReportReason } from "@eufaco/shared";
-import { Button, Card, Text, nativeFonts, useTheme } from "@eufaco/design-system/native";
+import {
+  Button,
+  Card,
+  Text,
+  fontSize,
+  lineHeight,
+  nativeFonts,
+  useTheme,
+} from "@eufaco/design-system/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { CircleCheck, Lock } from "lucide-react-native";
 import { useEffect, useState } from "react";
@@ -135,14 +143,14 @@ export default function ReportScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: layout.screenPadding,
-          paddingTop: spacing[3],
+          paddingTop: 10,
           paddingBottom: spacing[8],
-          gap: spacing[5],
+          gap: 20,
         }}
         keyboardShouldPersistTaps="handled"
       >
         {provider ? (
-          <Card style={{ flexDirection: "row", alignItems: "center", gap: spacing[3] }}>
+          <Card style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
             <View
               style={{
                 width: 46,
@@ -166,8 +174,10 @@ export default function ReportScreen() {
           </Card>
         ) : null}
 
-        <View style={{ gap: spacing[2] + 1 }}>
-          <Text variant="h3">Por que você está denunciando?</Text>
+        <View style={{ gap: 9 }}>
+          <Text variant="h3" style={{ fontSize: fontSize.subtitle }}>
+            Por que você está denunciando?
+          </Text>
 
           {REPORT_REASONS.map((item) => {
             const selected = reason === item.value;
@@ -183,12 +193,12 @@ export default function ReportScreen() {
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  gap: spacing[3],
+                  gap: 12,
                   paddingVertical: 13,
                   paddingHorizontal: 14,
                   borderRadius: radii.md,
                   backgroundColor: colors.surface,
-                  borderWidth: selected ? 1.5 : 1,
+                  borderWidth: 1,
                   borderColor: selected ? colors.primary : colors.border,
                 }}
               >
@@ -197,7 +207,7 @@ export default function ReportScreen() {
                     width: 21,
                     height: 21,
                     borderRadius: radii.full,
-                    borderWidth: 2,
+                    borderWidth: 1.5,
                     borderColor: selected ? colors.primary : colors.borderStrong,
                     backgroundColor: selected ? colors.primary : "transparent",
                     alignItems: "center",
@@ -223,7 +233,7 @@ export default function ReportScreen() {
           })}
         </View>
 
-        <View style={{ gap: spacing[1] + 3 }}>
+        <View style={{ gap: 7 }}>
           <Text variant="label" color="textSecondary">
             Conte o que aconteceu (opcional)
           </Text>
@@ -234,7 +244,7 @@ export default function ReportScreen() {
               backgroundColor: colors.surface,
               borderWidth: 1.5,
               borderColor: colors.border,
-              padding: spacing[3] + 2,
+              padding: 14,
             }}
           >
             <TextInput
@@ -249,7 +259,7 @@ export default function ReportScreen() {
                 flex: 1,
                 color: colors.textPrimary,
                 fontFamily: nativeFonts.bodyRegular,
-                fontSize: 13.5,
+                fontSize: fontSize.name,
                 lineHeight: 20,
               }}
             />
@@ -268,10 +278,10 @@ export default function ReportScreen() {
           style={{
             flexDirection: "row",
             alignItems: "center",
-            gap: spacing[2] + 1,
+            gap: 9,
             backgroundColor: colors.surface2,
             borderRadius: radii.md,
-            padding: spacing[3],
+            padding: 12,
           }}
         >
           <Lock size={16} color={colors.textSecondary} />

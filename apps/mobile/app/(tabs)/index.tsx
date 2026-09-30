@@ -1,12 +1,29 @@
-import { SERVICE_CATEGORIES, getRecommendedProviders, type RecommendedProvider } from "@eufaco/shared";
-import { Button, Card, Text, useTheme } from "@eufaco/design-system/native";
-import { ArrowRight, Bell, ChevronDown, ChevronRight, MapPin, Search, Wrench } from "lucide-react-native";
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import {
+  SERVICE_CATEGORIES,
+  getRecommendedProviders,
+  getUnreadCount,
+  type RecommendedProvider,
+} from "@eufaco/shared";
+import {
+  Button,
+  Card,
+  Text,
+  fontSize,
+  letterSpacing,
+  lineHeight,
+  nativeFonts,
+  useShadow,
+  useTheme,
+} from "@eufaco/design-system/native";
+import { Bell, ChevronDown, ChevronRight, MapPin, Search, Wrench } from "lucide-react-native";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FeaturedCard } from "@/components/FeaturedCard";
 import { ProviderCard } from "@/components/ProviderCard";
+import { SectionHeader } from "@/components/SectionHeader";
+import { useTabBarClearance } from "@/components/TabBar";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useProviders } from "@/hooks/useProviders";
 import { iconForCategory } from "@/lib/category-icons";
@@ -32,6 +49,10 @@ export default function HomeScreen() {
   const { favoriteIds, toggle } = useFavorites();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [recommended, setRecommended] = useState<RecommendedProvider[]>([]);
+  const [unread, setUnread] = useState(0);
+  const panelShadow = useShadow("panel");
+  const searchShadow = useShadow("card");
+  const tabBarClearance = useTabBarClearance();
 
   const { providers, loading, error, refresh } = useProviders({
     categorySlug: activeCategory ?? undefined,
@@ -55,13 +76,31 @@ export default function HomeScreen() {
     };
   }, []);
 
+  const userId = session?.user.id;
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!userId) {
+        setUnread(0);
+        return;
+      }
+      let active = true;
+      void getUnreadCount(supabase, userId).then((count) => {
+        if (active) setUnread(count);
+      });
+      return () => {
+        active = false;
+      };
+    }, [userId]),
+  );
+
   const fullName = session?.user.user_metadata?.full_name as string | undefined;
   const firstName = firstNameOf(fullName);
 
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: colors.bg }}
-      contentContainerStyle={{ paddingBottom: 110 }}
+      contentContainerStyle={{ paddingBottom: tabBarClearance }}
       showsVerticalScrollIndicator={false}
       refreshControl={
         <RefreshControl
@@ -73,17 +112,27 @@ export default function HomeScreen() {
     >
       {/* Painel de cabeçalho: separa a busca do resto do conteúdo */}
       <View
-        style={{
-          backgroundColor: colors.surface,
-          borderBottomLeftRadius: radii.xl,
-          borderBottomRightRadius: radii.xl,
-          paddingTop: insets.top + spacing[2],
-          paddingHorizontal: layout.screenPadding,
-          paddingBottom: spacing[5],
-          gap: spacing[4],
-        }}
+        style={[
+          {
+            backgroundColor: colors.surface,
+            borderBottomLeftRadius: radii.xl,
+            borderBottomRightRadius: radii.xl,
+            paddingTop: insets.top + spacing[4],
+            paddingHorizontal: layout.screenPadding,
+            paddingBottom: spacing[5],
+            gap: spacing[4],
+          },
+          panelShadow,
+        ]}
       >
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 10,
+          }}
+        >
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Mudar localização"
@@ -91,7 +140,7 @@ export default function HomeScreen() {
             style={{
               flexDirection: "row",
               alignItems: "center",
-              gap: spacing[1] + 1,
+              gap: 5,
               backgroundColor: colors.surface2,
               borderRadius: radii.full,
               paddingVertical: 7,
@@ -109,7 +158,7 @@ export default function HomeScreen() {
           <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] }}>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Avisos"
+              accessibilityLabel={unread > 0 ? `Avisos, ${unread} não lidos` : "Avisos"}
               onPress={() => router.push("/notifications")}
               style={{
                 width: 38,
@@ -121,6 +170,22 @@ export default function HomeScreen() {
               }}
             >
               <Bell size={18} color={colors.textPrimary} />
+              {/* Marcador de aviso não lido, com anel da cor do painel */}
+              {unread > 0 ? (
+                <View
+                  style={{
+                    position: "absolute",
+                    top: 4,
+                    right: 3,
+                    width: 9,
+                    height: 9,
+                    borderRadius: radii.full,
+                    backgroundColor: colors.danger,
+                    borderWidth: 2,
+                    borderColor: colors.surface,
+                  }}
+                />
+              ) : null}
             </Pressable>
 
             <Pressable
@@ -136,7 +201,7 @@ export default function HomeScreen() {
                 justifyContent: "center",
               }}
             >
-              <Text variant="label" color="textSecondary">
+              <Text variant="initials" color="textSecondary">
                 {initialsOf(fullName ?? session?.user.email ?? "?")}
               </Text>
             </Pressable>
@@ -145,8 +210,11 @@ export default function HomeScreen() {
 
         <View style={{ gap: 2 }}>
           {firstName ? (
-            <Text variant="label" color="textSecondary">
-              Olá, {firstName}
+            <Text
+              color="textSecondary"
+              style={{ fontFamily: nativeFonts.bodyMedium, fontSize: fontSize.chip }}
+            >
+              Olá, {firstName} 👋
             </Text>
           ) : null}
           <Text variant="h1">Encontre o profissional ideal</Text>
@@ -156,42 +224,49 @@ export default function HomeScreen() {
           accessibilityRole="search"
           accessibilityLabel="Buscar profissionais"
           onPress={() => router.push("/search")}
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: spacing[2] + 2,
-            height: 52,
-            paddingHorizontal: spacing[4],
-            borderRadius: radii.full,
-            backgroundColor: colors.surface,
-            borderWidth: 1,
-            borderColor: colors.border,
-          }}
+          style={[
+            {
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 10,
+              height: 52,
+              paddingHorizontal: spacing[4],
+              borderRadius: radii.full,
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.border,
+            },
+            searchShadow,
+          ]}
         >
           <Search size={19} color={colors.textMuted} />
-          <Text color="textMuted">Eletricista, pintor, diarista...</Text>
+          <Text color="textMuted" style={{ fontSize: fontSize.field }}>
+            Eletricista, pintor, diarista...
+          </Text>
         </Pressable>
       </View>
 
-      <View style={{ paddingTop: spacing[6], gap: spacing[6] }}>
+      <View style={{ paddingTop: 22, gap: spacing[6] }}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: layout.screenPadding, gap: spacing[2] }}
         >
-          {[{ slug: null as string | null, name: "Todos" }, ...CHIPS].map((cat) => {
+          {CHIPS.map((cat) => {
             const active = activeCategory === cat.slug;
             const Icon = iconForCategory(cat.slug);
             return (
               <Pressable
-                key={cat.slug ?? "todos"}
+                key={cat.slug}
                 accessibilityRole="button"
                 accessibilityState={{ selected: active }}
-                onPress={() => setActiveCategory(cat.slug)}
+                // Tocar no chip aceso apaga o filtro: é o único jeito de
+                // voltar a "todos" sem um chip que o protótipo não tem.
+                onPress={() => setActiveCategory(active ? null : cat.slug)}
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  gap: spacing[1] + 2,
+                  gap: 6,
                   paddingVertical: 9,
                   paddingHorizontal: 14,
                   borderRadius: radii.full,
@@ -201,7 +276,7 @@ export default function HomeScreen() {
                 }}
               >
                 <Icon size={14} color={active ? colors.onPrimary : colors.textSecondary} />
-                <Text variant="label" color={active ? "onPrimary" : "textSecondary"}>
+                <Text variant="chip" color={active ? "onPrimary" : "textSecondary"}>
                   {cat.name}
                 </Text>
               </Pressable>
@@ -210,18 +285,20 @@ export default function HomeScreen() {
         </ScrollView>
 
         {recommended.length > 0 ? (
-          <View style={{ gap: spacing[3] }}>
-            <View style={{ paddingHorizontal: layout.screenPadding, gap: 2 }}>
-              <Text variant="h3">Profissionais recomendados</Text>
-              <Text variant="caption" color="textMuted">
-                Perfis em destaque com ofertas exclusivas
-              </Text>
+          <View style={{ gap: 11 }}>
+            <View style={{ paddingHorizontal: layout.screenPadding }}>
+              <SectionHeader
+                title="Profissionais recomendados"
+                subtitle="Perfis em destaque com ofertas exclusivas"
+                actionLabel="Ver todos"
+                onAction={() => router.push("/search")}
+              />
             </View>
 
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: layout.screenPadding, gap: spacing[3] - 2 }}
+              contentContainerStyle={{ paddingHorizontal: layout.screenPadding, gap: 10 }}
             >
               {recommended.map((item) => (
                 <FeaturedCard
@@ -234,20 +311,12 @@ export default function HomeScreen() {
           </View>
         ) : null}
 
-        <View style={{ paddingHorizontal: layout.screenPadding, gap: spacing[3] }}>
-          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-            <Text variant="h3">Perto de você</Text>
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => router.push("/search")}
-              style={{ flexDirection: "row", alignItems: "center", gap: 2 }}
-            >
-              <Text variant="label" color="primaryStrong">
-                Ver todos
-              </Text>
-              <ChevronRight size={14} color={colors.primaryStrong} />
-            </Pressable>
-          </View>
+        <View style={{ paddingHorizontal: layout.screenPadding, gap: 10 }}>
+          <SectionHeader
+            title="Perto de você"
+            actionLabel="Ver todos"
+            onAction={() => router.push("/search")}
+          />
 
           {loading && providers.length === 0 ? (
             <View style={{ paddingVertical: spacing[10], alignItems: "center" }}>
@@ -268,7 +337,7 @@ export default function HomeScreen() {
               </Text>
             </Card>
           ) : (
-            <View style={{ gap: spacing[3] - 2 }}>
+            <View style={{ gap: 10 }}>
               {providers.map((p) => (
                 <ProviderCard
                   key={p.id}
@@ -289,8 +358,8 @@ export default function HomeScreen() {
             style={{
               flexDirection: "row",
               alignItems: "center",
-              gap: spacing[3],
-              padding: spacing[3] + 2,
+              gap: 12,
+              padding: 14,
               borderRadius: radii.lg,
               backgroundColor: colors.primarySoft,
             }}
@@ -308,12 +377,20 @@ export default function HomeScreen() {
               <Wrench size={20} color={colors.primaryStrong} />
             </View>
             <View style={{ flex: 1, gap: 2 }}>
-              <Text variant="bodyStrong">Quer oferecer seus serviços?</Text>
-              <Text variant="caption" color="textSecondary">
+              <Text
+                variant="title"
+                style={{ fontSize: fontSize.base, letterSpacing: letterSpacing.subtle }}
+              >
+                Quer oferecer seus serviços?
+              </Text>
+              <Text
+                color="textSecondary"
+                style={{ fontSize: fontSize.note, lineHeight: fontSize.note * lineHeight.snug }}
+              >
                 Cadastre-se grátis e receba clientes
               </Text>
             </View>
-            <ArrowRight size={18} color={colors.primaryStrong} />
+            <ChevronRight size={18} color={colors.primaryStrong} />
           </Pressable>
         </View>
       </View>

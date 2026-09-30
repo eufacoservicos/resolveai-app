@@ -1,5 +1,11 @@
 import { getUserContacts, type ContactedProvider } from "@eufaco/shared";
-import { Card, Text, useTheme } from "@eufaco/design-system/native";
+import {
+  Card,
+  Text,
+  fontSize,
+  nativeFonts,
+  useTheme,
+} from "@eufaco/design-system/native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { MessageCircle, SquarePen, Star } from "lucide-react-native";
 import { useCallback, useState } from "react";
@@ -77,7 +83,7 @@ export default function ContactsScreen() {
     <Card
       key={contact.providerId}
       style={{
-        gap: spacing[3],
+        gap: 12,
         borderColor: contact.myRating === null ? colors.primary : colors.border,
         borderWidth: contact.myRating === null ? 1.5 : 1,
       }}
@@ -89,7 +95,7 @@ export default function ContactsScreen() {
         style={({ pressed }) => ({
           flexDirection: "row",
           alignItems: "center",
-          gap: spacing[3],
+          gap: 12,
           opacity: pressed ? 0.9 : 1,
         })}
       >
@@ -134,8 +140,8 @@ export default function ContactsScreen() {
       <View style={{ height: 1, backgroundColor: colors.border }} />
 
         {contact.myRating === null ? (
-          <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] + 1 }}>
-            <Text variant="label" style={{ flex: 1 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+            <Text variant="chip" style={{ flex: 1 }}>
               Como foi o serviço?
             </Text>
             <Pressable
@@ -145,7 +151,7 @@ export default function ContactsScreen() {
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                gap: spacing[1] + 2,
+                gap: 6,
                 paddingVertical: 9,
                 paddingHorizontal: 15,
                 borderRadius: radii.full,
@@ -153,13 +159,13 @@ export default function ContactsScreen() {
               }}
             >
               <Star size={14} color={colors.onPrimary} />
-              <Text variant="label" color="onPrimary">
+              <Text variant="titleSm" color="onPrimary" style={{ fontSize: fontSize.chip }}>
                 Avaliar
               </Text>
             </Pressable>
           </View>
         ) : (
-          <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
             <View style={{ flexDirection: "row", gap: 2 }}>
               {Array.from({ length: 5 }, (_, i) => (
                 <Star
@@ -170,7 +176,7 @@ export default function ContactsScreen() {
                 />
               ))}
             </View>
-            <Text variant="caption" color="textMuted" style={{ flex: 1 }}>
+            <Text color="textMuted" style={{ flex: 1, fontSize: fontSize.note }}>
               Você avaliou
             </Text>
           <SquarePen size={15} color={colors.textMuted} />
@@ -186,9 +192,9 @@ export default function ContactsScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: layout.screenPadding,
-          paddingTop: spacing[3],
+          paddingTop: 10,
           paddingBottom: spacing[8],
-          gap: spacing[5],
+          gap: 22,
         }}
         showsVerticalScrollIndicator={false}
       >
@@ -211,7 +217,7 @@ export default function ContactsScreen() {
 
             {pending.length > 0 ? (
               <View style={{ gap: spacing[3] }}>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] }}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
                   <Text variant="h3">Aguardando sua avaliação</Text>
                   <View
                     style={{
@@ -221,19 +227,24 @@ export default function ContactsScreen() {
                       backgroundColor: colors.primary,
                     }}
                   >
-                    <Text variant="caption" color="onPrimary">
+                    <Text
+                      color="onPrimary"
+                      style={{ fontFamily: nativeFonts.displayExtraBold, fontSize: fontSize.xs }}
+                    >
                       {pending.length}
                     </Text>
                   </View>
                 </View>
-                <View style={{ gap: spacing[3] - 1 }}>{pending.map(renderContact)}</View>
+                <View style={{ gap: 11 }}>{pending.map(renderContact)}</View>
               </View>
             ) : null}
 
             {reviewed.length > 0 ? (
-              <View style={{ gap: spacing[3] }}>
-                <Text variant="h3">Contatos anteriores</Text>
-                <View style={{ gap: spacing[3] - 1 }}>{reviewed.map(renderContact)}</View>
+              <View style={{ gap: 11 }}>
+                <Text variant="h3" style={{ fontSize: fontSize.subtitle }}>
+                  Contatos anteriores
+                </Text>
+                <View style={{ gap: 11 }}>{reviewed.map(renderContact)}</View>
               </View>
             ) : null}
           </>

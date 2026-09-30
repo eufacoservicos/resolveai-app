@@ -1,6 +1,7 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { CATEGORY_GROUPS } from "../domain/constants";
 import { isProviderOpenNow } from "../domain/business-hours";
+import { getBlockedProviderIds } from "./moderation";
 
 // ============================================
 // USER QUERIES
@@ -66,6 +67,10 @@ export async function getActiveProviders(
     pageSize?: number;
   }
 ) {
+  // Quem a pessoa bloqueou some da listagem: é o que o botão de bloquear
+  // promete. Sem sessão a RPC devolve conjunto vazio e nada é filtrado.
+  const blocked = new Set(await getBlockedProviderIds(supabase));
+
   // Proximity filter: get nearby provider IDs + distances via RPC
   let nearbyMap: Map<string, number> | null = null;
 
@@ -130,6 +135,10 @@ export async function getActiveProviders(
       }[],
       distance_km: nearbyMap?.get(p.id) ?? null,
     }));
+
+  if (blocked.size > 0) {
+    providers = providers.filter((p) => !blocked.has(p.id));
+  }
 
   // If proximity search active, filter to only nearby providers
   if (nearbyMap) {

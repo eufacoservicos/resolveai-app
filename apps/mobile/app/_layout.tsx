@@ -10,8 +10,11 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { ToastProvider } from "@/components/Toast";
 import { LocationProvider } from "@/lib/location";
+import { PushSync } from "@/lib/push-sync";
 import { SessionProvider } from "@/lib/session";
+import { ThemePreferenceProvider, useThemePreference } from "@/lib/theme-preference";
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -35,14 +38,27 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <ThemeProvider>
-        <SessionProvider>
-          <LocationProvider>
-            <RootNavigator />
-          </LocationProvider>
-        </SessionProvider>
-      </ThemeProvider>
+      <ThemePreferenceProvider>
+        <ThemedApp />
+      </ThemePreferenceProvider>
     </SafeAreaProvider>
+  );
+}
+
+/** Separado do root para poder ler a preferência antes de montar o tema. */
+function ThemedApp() {
+  const { scheme } = useThemePreference();
+  return (
+    <ThemeProvider scheme={scheme}>
+      <SessionProvider>
+        <LocationProvider>
+          <ToastProvider>
+            <PushSync />
+            <RootNavigator />
+          </ToastProvider>
+        </LocationProvider>
+      </SessionProvider>
+    </ThemeProvider>
   );
 }
 

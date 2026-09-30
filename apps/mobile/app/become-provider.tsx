@@ -5,9 +5,19 @@ import {
   setProviderCategories,
   type Category,
 } from "@eufaco/shared";
-import { Badge, Button, Card, Text, nativeFonts, useTheme } from "@eufaco/design-system/native";
+import {
+  Badge,
+  Button,
+  Card,
+  Text,
+  fontSize,
+  lineHeight,
+  nativeFonts,
+  useTheme,
+} from "@eufaco/design-system/native";
 import { useRouter } from "expo-router";
 import {
+  ArrowRight,
   BadgeCheck,
   Briefcase,
   Clock3,
@@ -19,9 +29,10 @@ import {
   Sparkles,
   UserRound,
 } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, TextInput, View } from "react-native";
 import { AppBar } from "@/components/AppBar";
+import { InfoCard } from "@/components/InfoCard";
 import { CategoryPicker } from "@/components/CategoryPicker";
 import { Field } from "@/components/Field";
 import { SignInPrompt } from "@/components/SignInPrompt";
@@ -55,6 +66,13 @@ export default function BecomeProviderScreen() {
   const [neighborhood, setNeighborhood] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [cpf, setCpf] = useState("");
+
+  // Telefone e CPF podem ter vindo do passo 1 (Completar Perfil)
+  useEffect(() => {
+    const meta = session?.user.user_metadata as { phone?: string; cpf?: string } | undefined;
+    if (meta?.phone) setWhatsapp((current) => current || meta.phone!);
+    if (meta?.cpf) setCpf((current) => current || meta.cpf!);
+  }, [session]);
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -126,58 +144,61 @@ export default function BecomeProviderScreen() {
         <ScrollView
           contentContainerStyle={{
             paddingHorizontal: spacing[6],
-            paddingTop: spacing[3],
-            paddingBottom: spacing[8],
-            gap: spacing[6],
+            paddingTop: 12,
+            paddingBottom: 28,
+            gap: 24,
           }}
           showsVerticalScrollIndicator={false}
         >
-          <Badge label="100% grátis" tone="success" />
+          <Badge
+            label="100% grátis"
+            tone="success"
+            icon={<Sparkles size={13} color={colors.success} />}
+            style={{ paddingVertical: 6, paddingLeft: 12, paddingRight: 12, gap: 6 }}
+          />
 
-          <View style={{ gap: spacing[2] }}>
-            <Text variant="h1">Comece a receber clientes da sua região</Text>
-            <Text color="textSecondary">
+          <View style={{ gap: 7 }}>
+            <Text
+              variant="h1"
+              style={{
+                fontSize: fontSize.hero,
+                letterSpacing: -1,
+                lineHeight: fontSize.hero * 1.18,
+              }}
+            >
+              Comece a receber clientes da sua região
+            </Text>
+            <Text
+              color="textSecondary"
+              style={{ fontSize: fontSize.base, lineHeight: fontSize.base * lineHeight.normal }}
+            >
               Crie seu perfil profissional e apareça para quem está procurando o seu serviço agora.
             </Text>
           </View>
 
-          <View style={{ gap: spacing[3] - 1 }}>
+          <View style={{ gap: 10 }}>
             {BENEFITS.map((benefit) => (
-              <Card
+              <InfoCard
                 key={benefit.title}
-                style={{ flexDirection: "row", alignItems: "center", gap: spacing[3] }}
-              >
-                <View
-                  style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: 12,
-                    backgroundColor: colors.primarySoft,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <benefit.icon size={18} color={colors.primaryStrong} />
-                </View>
-                <View style={{ flex: 1, gap: 2 }}>
-                  <Text variant="bodyStrong">{benefit.title}</Text>
-                  <Text variant="caption" color="textSecondary">
-                    {benefit.desc}
-                  </Text>
-                </View>
-              </Card>
+                icon={benefit.icon}
+                title={benefit.title}
+                description={benefit.desc}
+              />
             ))}
           </View>
 
           <Button
             label="Criar meu perfil"
-            icon={<Sparkles size={18} color={colors.onPrimary} />}
+            icon={<ArrowRight size={18} color={colors.onPrimary} />}
+            iconPosition="right"
             onPress={() => setStarted(true)}
           />
 
-          <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", gap: spacing[1] + 2 }}>
+          <View
+            style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 6 }}
+          >
             <Clock3 size={13} color={colors.textMuted} />
-            <Text variant="caption" color="textMuted">
+            <Text color="textMuted" style={{ fontSize: fontSize.note }}>
               Leva menos de 3 minutos
             </Text>
           </View>

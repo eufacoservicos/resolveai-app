@@ -16,7 +16,4 @@ config.resolver.nodeModulesPaths = [
   path.resolve(workspaceRoot, "node_modules"),
 ];
 
-// Evita que o Metro suba a árvore sozinho e pegue cópias duplicadas de react
-config.resolver.disableHierarchicalLookup = true;
-
 module.exports = config;

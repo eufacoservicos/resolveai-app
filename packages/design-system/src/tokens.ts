@@ -111,16 +111,56 @@ export const fonts = {
   body: "Inter",
 } as const;
 
-/** Escala tipográfica derivada das telas do Pen. */
+/**
+ * Escala tipográfica das telas do Pen.
+ *
+ * O protótipo trabalha em meios-pontos: 11,5 e 12,5 são corpos
+ * distintos e aparecem lado a lado no mesmo card. Os apelidos de
+ * camiseta cobrem a escala principal; os nomes por papel cobrem os
+ * degraus intermediários, que existem para um uso específico.
+ */
 export const fontSize = {
+  /** Selos sobre foto e rótulos da tab bar. */
+  micro: 9.5,
+  /** Rótulo do stat card. */
+  mini: 10.5,
+  /** Datas e contadores de avaliação. */
   xs: 11,
+  /** Legendas e metadados — o corpo pequeno mais usado do app. */
+  caption: 11.5,
+  /** Texto auxiliar de banner e apoio de bloco. */
+  note: 12,
+  /** Rótulos, links de seção e categorias. */
   sm: 12.5,
+  /** Chips, listas densas e comentários. */
+  chip: 13,
+  /** Nomes em cards compactos. */
+  name: 13.5,
+  /** Texto corrido. */
   base: 14,
+  /** Campos de formulário, busca e nome do card em destaque. */
+  field: 14.5,
+  /** Títulos de card. */
   md: 15,
+  /** Rótulo de botão. */
+  button: 15.5,
+  /** Subtítulos de bloco. */
+  subtitle: 16,
+  /** Títulos de seção e da app bar. */
   lg: 17,
+  /** Cabeçalho de folha e de diálogo. */
+  sheet: 18,
+  /** Títulos de destaque. */
   xl: 19,
+  /** Número do stat card. */
+  stat: 21,
+  /** Iniciais grandes de avatar. */
   "2xl": 22,
+  /** Headline de tela. */
   "3xl": 25,
+  /** Headline de tela vazia e de sucesso. */
+  hero: 26,
+  /** Títulos da landing. */
   "4xl": 30,
   "5xl": 38,
 } as const;
@@ -134,7 +174,11 @@ export const fontWeight = {
 } as const;
 
 export const lineHeight = {
+  /** Headline de tela: o Pen aperta mais que o `tight`. */
+  headline: 1.18,
   tight: 1.2,
+  /** Rótulo de duas linhas em tile de categoria. */
+  compact: 1.25,
   snug: 1.35,
   normal: 1.5,
   relaxed: 1.6,
@@ -143,11 +187,51 @@ export const lineHeight = {
 /** Ajuste ótico: quanto maior o corpo, mais negativo o tracking. */
 export const letterSpacing = {
   tighter: -0.9,
-  tight: -0.3,
+  /** Headline de tela. */
+  headline: -0.8,
+  tight: -0.5,
+  /** Títulos de seção. */
+  snug: -0.3,
+  /** Títulos de card e da app bar. */
+  subtle: -0.2,
+  /** Rótulo de botão. */
+  hairline: -0.1,
   normal: 0,
+  /** Rótulos de campo e da tab bar. */
+  nudge: 0.1,
   wide: 1.4,
   wider: 2.4,
 } as const;
+
+/**
+ * Sombras do protótipo, em pixels. A cor sai do token `shadow` do tema,
+ * que já carrega a opacidade — por isso só a geometria mora aqui.
+ *
+ * O `spread` é parte do desenho: sem ele a sombra do Pen fica larga
+ * demais na base dos cards. Use `useShadow` para montar o estilo.
+ */
+export const elevation = {
+  /** Divisórias e barras coladas no conteúdo. */
+  hairline: { y: 1, blur: 3, spread: 0 },
+  /** Selos e pílulas soltas. */
+  sm: { y: 2, blur: 6, spread: -2 },
+  /** Campo de busca. */
+  card: { y: 2, blur: 10, spread: -2 },
+  /** Card do carrossel de destaque. */
+  raised: { y: 4, blur: 14, spread: -4 },
+  /** Botão primário. */
+  button: { y: 6, blur: 16, spread: -4 },
+  /** Painel de cabeçalho da Home. */
+  panel: { y: 6, blur: 20, spread: -6 },
+  /** Tab bar flutuante. */
+  bar: { y: 8, blur: 24, spread: -4 },
+  /** Bottom sheet. */
+  sheet: { y: 8, blur: 24, spread: -6 },
+  /** Diálogo modal. */
+  modal: { y: 20, blur: 50, spread: -12 },
+} as const;
+
+export type ElevationName = keyof typeof elevation;
 
 /** Alvo mínimo de toque recomendado pelas diretrizes de acessibilidade. */
 export const minTouchTarget = 44;

@@ -149,9 +149,9 @@ export default function NotificationsScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: layout.screenPadding,
-          paddingTop: spacing[3],
+          paddingTop: 10,
           paddingBottom: spacing[8],
-          gap: spacing[2] + 2,
+          gap: 20,
         }}
         refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colors.primary} />}
         showsVerticalScrollIndicator={false}
@@ -160,7 +160,7 @@ export default function NotificationsScreen() {
           <Pressable
             accessibilityRole="button"
             onPress={markAll}
-            style={{ flexDirection: "row", alignItems: "center", gap: spacing[1] + 2, alignSelf: "flex-end" }}
+            style={{ flexDirection: "row", alignItems: "center", gap: 6, alignSelf: "flex-end" }}
             hitSlop={8}
           >
             <CheckCheck size={15} color={colors.primaryStrong} />
@@ -199,7 +199,7 @@ export default function NotificationsScreen() {
                   style={{
                     flexDirection: "row",
                     alignItems: "flex-start",
-                    gap: spacing[3],
+                    gap: 12,
                     backgroundColor: unread ? colors.primarySoft : colors.surface,
                   }}
                 >

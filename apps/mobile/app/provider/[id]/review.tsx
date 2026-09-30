@@ -1,7 +1,16 @@
 import { createReview, getProviderById, hasUserReviewedProvider, type ProviderWithDetails } from "@eufaco/shared";
-import { Button, Card, Text, nativeFonts, useTheme } from "@eufaco/design-system/native";
+import {
+  Button,
+  Card,
+  Text,
+  fontSize,
+  letterSpacing,
+  lineHeight,
+  nativeFonts,
+  useTheme,
+} from "@eufaco/design-system/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ShieldCheck, Star } from "lucide-react-native";
+import { ArrowRight, ShieldCheck, Star } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -148,13 +157,13 @@ export default function ReviewScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: layout.screenPadding,
-          paddingTop: spacing[3],
-          paddingBottom: spacing[8],
-          gap: spacing[5],
+          paddingTop: 20,
+          paddingBottom: 20,
+          gap: 20,
         }}
         keyboardShouldPersistTaps="handled"
       >
-        <Card style={{ flexDirection: "row", alignItems: "center", gap: spacing[3] }}>
+        <Card style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
           <View
             style={{
               width: 48,
@@ -165,22 +174,39 @@ export default function ReviewScreen() {
               justifyContent: "center",
             }}
           >
-            <Text variant="title" color="primaryStrong">
+            <Text variant="initials" color="primaryStrong" style={{ fontSize: fontSize.subtitle }}>
               {initialsOf(provider.user.full_name)}
             </Text>
           </View>
           <View style={{ flex: 1, gap: 2 }}>
             <Text variant="title">{provider.user.full_name}</Text>
-            <Text variant="caption" color="textSecondary">
+            <Text color="textSecondary" style={{ fontSize: fontSize.note }}>
               {[provider.categories[0]?.name, provider.neighborhood].filter(Boolean).join(" · ")}
             </Text>
           </View>
         </Card>
 
-        <Card style={{ alignItems: "center", gap: spacing[4], paddingVertical: spacing[6] }}>
-          <Text variant="h2">Como foi o serviço?</Text>
+        <Card
+          style={{
+            alignItems: "center",
+            gap: 14,
+            paddingVertical: 24,
+            paddingHorizontal: spacing[4],
+          }}
+        >
+          <Text
+            variant="h2"
+            style={{
+              fontFamily: nativeFonts.displayBold,
+              fontSize: fontSize.sheet,
+              letterSpacing: -0.4,
+              lineHeight: fontSize.sheet * lineHeight.tight,
+            }}
+          >
+            Como foi o serviço?
+          </Text>
 
-          <View style={{ flexDirection: "row", gap: spacing[2] + 2 }}>
+          <View style={{ flexDirection: "row", gap: 10 }}>
             {[1, 2, 3, 4, 5].map((value) => (
               <Pressable
                 key={value}
@@ -202,12 +228,16 @@ export default function ReviewScreen() {
             ))}
           </View>
 
-          <Text variant="title" color={rating > 0 ? "accent" : "textMuted"}>
+          <Text
+            variant="title"
+            color={rating > 0 ? "accent" : "textMuted"}
+            style={{ fontSize: fontSize.base, letterSpacing: letterSpacing.normal }}
+          >
             {rating > 0 ? RATING_LABELS[rating] : "Toque nas estrelas"}
           </Text>
         </Card>
 
-        <View style={{ gap: spacing[1] + 3 }}>
+        <View style={{ gap: 7 }}>
           <Text variant="label" color="textSecondary">
             Conte como foi (opcional)
           </Text>
@@ -218,7 +248,7 @@ export default function ReviewScreen() {
               backgroundColor: colors.surface,
               borderWidth: 1.5,
               borderColor: colors.border,
-              padding: spacing[3] + 2,
+              padding: 14,
             }}
           >
             <TextInput
@@ -233,12 +263,16 @@ export default function ReviewScreen() {
                 flex: 1,
                 color: colors.textPrimary,
                 fontFamily: nativeFonts.bodyRegular,
-                fontSize: 13.5,
-                lineHeight: 20,
+                fontSize: fontSize.name,
+                lineHeight: fontSize.name * lineHeight.normal,
               }}
             />
           </View>
-          <Text variant="caption" color="textMuted" style={{ textAlign: "right" }}>
+          <Text
+            variant="caption"
+            color="textMuted"
+            style={{ textAlign: "right", fontSize: fontSize.xs }}
+          >
             {comment.length} / {MAX_COMMENT}
           </Text>
         </View>
@@ -255,19 +289,29 @@ export default function ReviewScreen() {
           style={{
             flexDirection: "row",
             alignItems: "center",
-            gap: spacing[2] + 1,
+            gap: 9,
             backgroundColor: colors.surface2,
             borderRadius: radii.md,
-            padding: spacing[3],
+            padding: 12,
           }}
         >
           <ShieldCheck size={16} color={colors.textSecondary} />
-          <Text variant="caption" color="textSecondary" style={{ flex: 1 }}>
+          <Text
+            variant="caption"
+            color="textSecondary"
+            style={{ flex: 1, lineHeight: fontSize.caption * 1.4 }}
+          >
             Sua avaliação é pública e não pode ser editada depois.
           </Text>
         </View>
 
-        <Button label="Enviar avaliação" loading={saving} onPress={() => void submit()} />
+        <Button
+          label="Enviar avaliação"
+          loading={saving}
+          icon={<ArrowRight size={18} color={colors.onPrimary} />}
+          iconPosition="right"
+          onPress={() => void submit()}
+        />
       </ScrollView>
     </KeyboardAvoidingView>
   );

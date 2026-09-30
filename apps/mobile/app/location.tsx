@@ -1,10 +1,19 @@
 import { getCities } from "@eufaco/shared";
-import { Button, Card, Text, useTheme } from "@eufaco/design-system/native";
+import {
+  Button,
+  Card,
+  Text,
+  fontSize,
+  letterSpacing,
+  lineHeight,
+  useTheme,
+} from "@eufaco/design-system/native";
 import { useRouter } from "expo-router";
-import { Check, MapPin, Navigation } from "lucide-react-native";
+import { MapPin, Navigation } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ListRow } from "@/components/ListRow";
 import { useLocation } from "@/lib/location";
 import { supabase } from "@/lib/supabase";
 
@@ -55,10 +64,10 @@ export default function LocationScreen() {
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <ScrollView
         contentContainerStyle={{
-          paddingTop: insets.top + spacing[5],
+          paddingTop: insets.top + 18,
           paddingHorizontal: spacing[6],
-          paddingBottom: spacing[8],
-          gap: spacing[5],
+          paddingBottom: 28,
+          gap: 22,
           alignItems: "center",
         }}
         showsVerticalScrollIndicator={false}
@@ -72,7 +81,6 @@ export default function LocationScreen() {
               height: 150,
               borderRadius: radii.full,
               backgroundColor: colors.primarySoft,
-              opacity: 0.55,
             }}
           />
           <View
@@ -98,11 +106,18 @@ export default function LocationScreen() {
           </View>
         </View>
 
-        <View style={{ gap: spacing[2], alignItems: "center" }}>
+        <View style={{ gap: 6, alignItems: "center" }}>
           <Text variant="h1" style={{ textAlign: "center" }}>
             Onde você está?
           </Text>
-          <Text color="textSecondary" style={{ textAlign: "center" }}>
+          <Text
+            color="textSecondary"
+            style={{
+              textAlign: "center",
+              fontSize: fontSize.name,
+              lineHeight: fontSize.name * lineHeight.normal,
+            }}
+          >
             Assim mostramos apenas profissionais que atendem na sua região.
           </Text>
         </View>
@@ -112,6 +127,7 @@ export default function LocationScreen() {
             label="Usar minha localização"
             loading={locating}
             icon={<Navigation size={18} color={colors.onPrimary} />}
+            iconPosition="right"
             onPress={() => void detect()}
           />
         </View>
@@ -124,7 +140,7 @@ export default function LocationScreen() {
           </Card>
         ) : null}
 
-        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[3], alignSelf: "stretch" }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 12, alignSelf: "stretch" }}>
           <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
           <Text variant="caption" color="textMuted">
             ou escolha uma cidade
@@ -132,7 +148,7 @@ export default function LocationScreen() {
           <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
         </View>
 
-        <View style={{ alignSelf: "stretch", gap: spacing[2] }}>
+        <View style={{ alignSelf: "stretch", gap: 8 }}>
           {loadingCities ? (
             <View style={{ paddingVertical: spacing[6], alignItems: "center" }}>
               <ActivityIndicator color={colors.primary} />
@@ -147,49 +163,24 @@ export default function LocationScreen() {
             cities.map((city) => {
               const selected = location?.type === "city" && location.city === city;
               return (
-                <Pressable
+                <ListRow
                   key={city}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected }}
-                  accessibilityLabel={`Ver profissionais em ${city}`}
+                  label={city}
+                  icon={MapPin}
+                  badge={selected ? "Atual" : undefined}
                   onPress={() => void choose(city)}
-                  style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
-                >
-                  <Card
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: spacing[3],
-                      paddingVertical: spacing[3],
-                      borderColor: selected ? colors.primary : colors.border,
-                      borderWidth: selected ? 1.5 : 1,
-                    }}
-                  >
-                    <View
-                      style={{
-                        width: 34,
-                        height: 34,
-                        borderRadius: 10,
-                        backgroundColor: selected ? colors.primary : colors.surface2,
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <MapPin size={16} color={selected ? colors.onPrimary : colors.textSecondary} />
-                    </View>
-                    <Text variant="bodyStrong" style={{ flex: 1 }}>
-                      {city}
-                    </Text>
-                    {selected ? <Check size={18} color={colors.primaryStrong} /> : null}
-                  </Card>
-                </Pressable>
+                />
               );
             })
           )}
         </View>
 
         <Pressable accessibilityRole="button" onPress={() => router.back()} hitSlop={8}>
-          <Text variant="title" color="textMuted">
+          <Text
+            variant="titleSm"
+            color="textMuted"
+            style={{ fontSize: fontSize.chip, letterSpacing: letterSpacing.normal }}
+          >
             Agora não
           </Text>
         </Pressable>

@@ -1,4 +1,11 @@
-import { Text, useTheme } from "@eufaco/design-system/native";
+import {
+  Text,
+  fontSize,
+  lineHeight,
+  nativeFonts,
+  useShadow,
+  useTheme,
+} from "@eufaco/design-system/native";
 import { Check, MapPin, MessageCircle, Sparkles, Star } from "lucide-react-native";
 import type { ComponentType } from "react";
 import { Modal, Pressable, View } from "react-native";
@@ -37,8 +44,9 @@ interface Props {
 }
 
 export function SortSheet({ visible, value, distanceEnabled, onClose, onSelect }: Props) {
-  const { colors, radii, spacing, layout } = useTheme();
+  const { colors, radii, layout } = useTheme();
   const insets = useSafeAreaInsets();
+  const sheetShadow = useShadow("sheet");
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -50,23 +58,35 @@ export function SortSheet({ visible, value, distanceEnabled, onClose, onSelect }
       />
 
       <View
-        style={{
-          backgroundColor: colors.surface,
-          borderTopLeftRadius: radii.xl,
-          borderTopRightRadius: radii.xl,
-          paddingTop: spacing[2] + 2,
-          paddingHorizontal: layout.screenPadding,
-          paddingBottom: Math.max(insets.bottom, spacing[5]),
-          gap: spacing[4],
-        }}
+        style={[
+          {
+            backgroundColor: colors.surface,
+            borderTopLeftRadius: 26,
+            borderTopRightRadius: 26,
+            paddingTop: 10,
+            paddingHorizontal: layout.screenPadding,
+            paddingBottom: Math.max(insets.bottom, 26),
+            gap: 16,
+          },
+          sheetShadow,
+        ]}
       >
         <View style={{ alignItems: "center" }}>
           <View style={{ width: 38, height: 4, borderRadius: 2, backgroundColor: colors.borderStrong }} />
         </View>
 
-        <Text variant="h2">Ordenar por</Text>
+        <Text
+          variant="h2"
+          style={{
+            fontSize: fontSize.sheet,
+            letterSpacing: -0.4,
+            lineHeight: fontSize.sheet * lineHeight.tight,
+          }}
+        >
+          Ordenar por
+        </Text>
 
-        <View style={{ gap: spacing[1] + 2 }}>
+        <View style={{ gap: 6 }}>
           {OPTIONS.map((option) => {
             const selected = value === option.value;
             const disabled = option.value === "distance" && !distanceEnabled;
@@ -85,7 +105,7 @@ export function SortSheet({ visible, value, distanceEnabled, onClose, onSelect }
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  gap: spacing[3],
+                  gap: 12,
                   paddingVertical: 13,
                   paddingHorizontal: 14,
                   borderRadius: radii.md,
@@ -107,7 +127,15 @@ export function SortSheet({ visible, value, distanceEnabled, onClose, onSelect }
                 </View>
 
                 <View style={{ flex: 1, gap: 1 }}>
-                  <Text variant={selected ? "bodyStrong" : "body"}>{option.label}</Text>
+                  <Text
+                    style={{
+                      fontFamily: selected ? nativeFonts.bodyBold : nativeFonts.bodyMedium,
+                      fontSize: fontSize.field,
+                      color: colors.textPrimary,
+                    }}
+                  >
+                    {option.label}
+                  </Text>
                   <Text variant="caption" color="textMuted">
                     {disabled ? "Escolha sua localização para usar" : option.hint}
                   </Text>

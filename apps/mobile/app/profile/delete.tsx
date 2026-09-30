@@ -1,5 +1,11 @@
 import { deleteOwnAccount } from "@eufaco/shared";
-import { Button, Card, Text, useTheme } from "@eufaco/design-system/native";
+import {
+  Button,
+  Card,
+  Text,
+  fontSize,
+  useTheme,
+} from "@eufaco/design-system/native";
 import { useRouter } from "expo-router";
 import { TriangleAlert, X } from "lucide-react-native";
 import { useState } from "react";
@@ -58,9 +64,9 @@ export default function DeleteAccountScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: layout.screenPadding,
-          paddingTop: spacing[4],
+          paddingTop: 14,
           paddingBottom: spacing[8],
-          gap: spacing[5],
+          gap: 20,
         }}
         keyboardShouldPersistTaps="handled"
       >
@@ -77,21 +83,25 @@ export default function DeleteAccountScreen() {
           <TriangleAlert size={29} color={colors.danger} />
         </View>
 
-        <View style={{ gap: spacing[2] }}>
-          <Text variant="h1">Excluir sua conta?</Text>
+        <View style={{ gap: 6 }}>
+          <Text variant="h1" style={{ letterSpacing: -0.9, lineHeight: fontSize["3xl"] * 1.15 }}>
+            Excluir sua conta?
+          </Text>
           <Text color="textSecondary">
             Esta ação é permanente. Não conseguimos recuperar nada depois de confirmada.
           </Text>
         </View>
 
-        <Card variant="plain" style={{ backgroundColor: colors.dangerSoft, gap: spacing[3], padding: spacing[4] }}>
-          <Text variant="bodyStrong" color="danger">
+        <Card variant="plain" style={{ backgroundColor: colors.dangerSoft, gap: 11, padding: 16 }}>
+          <Text variant="titleSm" color="danger">
             O que você perde
           </Text>
           {CONSEQUENCES.map((item) => (
-            <View key={item} style={{ flexDirection: "row", alignItems: "center", gap: spacing[2] + 1 }}>
+            <View key={item} style={{ flexDirection: "row", alignItems: "center", gap: 9 }}>
               <X size={14} color={colors.danger} />
-              <Text variant="caption" style={{ flex: 1 }}>
+              <Text
+                style={{ flex: 1, fontSize: fontSize.chip, lineHeight: fontSize.chip * 1.4 }}
+              >
                 {item}
               </Text>
             </View>
@@ -99,6 +109,7 @@ export default function DeleteAccountScreen() {
         </Card>
 
         <Field
+          danger
           label={`Digite ${CONFIRMATION} para confirmar`}
           value={typed}
           onChangeText={(text) => {

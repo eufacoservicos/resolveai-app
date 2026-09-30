@@ -1,6 +1,7 @@
 import { ActivityIndicator, Pressable, StyleSheet, View, type PressableProps } from "react-native";
 import type { ReactNode } from "react";
 import { fontSize, letterSpacing, radii, spacing } from "../tokens";
+import { shadow } from "./shadow";
 import { nativeFonts } from "./fonts";
 import { useTheme } from "./theme";
 import { Text } from "./Text";
@@ -16,8 +17,10 @@ export interface ButtonProps extends Omit<PressableProps, "style" | "children"> 
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
-  /** Ícone à esquerda do rótulo. */
+  /** Ícone ao lado do rótulo. */
   icon?: ReactNode;
+  /** De que lado o ícone entra. O Pen usa os dois, conforme a ação. */
+  iconPosition?: "left" | "right";
   fullWidth?: boolean;
 }
 
@@ -27,6 +30,7 @@ export function Button({
   size = "lg",
   loading = false,
   icon,
+  iconPosition = "left",
   fullWidth = true,
   disabled,
   ...rest
@@ -43,6 +47,9 @@ export function Button({
 
   const tone = surface[variant];
   const isInactive = disabled || loading;
+  // Só o primário tem sombra no protótipo: é o único botão que o design
+  // levanta do fundo. WhatsApp, danger e secundário ficam rentes.
+  const lift = variant === "primary" && !isInactive ? shadow("button", colors.shadow) : null;
 
   return (
     <Pressable
@@ -61,6 +68,7 @@ export function Button({
           alignSelf: fullWidth ? "stretch" : "flex-start",
           paddingHorizontal: fullWidth ? spacing[4] : spacing[6],
         },
+        lift,
       ]}
       {...rest}
     >
@@ -68,18 +76,19 @@ export function Button({
         <ActivityIndicator color={colors[tone.fg]} />
       ) : (
         <View style={styles.content}>
-          {icon}
+          {iconPosition === "left" ? icon : null}
           <Text
             variant="title"
             color={tone.fg}
             style={{
               fontFamily: nativeFonts.displayBold,
-              fontSize: size === "lg" ? fontSize.md + 0.5 : fontSize.base,
-              letterSpacing: letterSpacing.tight,
+              fontSize: size === "lg" ? fontSize.button : fontSize.base,
+              letterSpacing: letterSpacing.hairline,
             }}
           >
             {label}
           </Text>
+          {iconPosition === "right" ? icon : null}
         </View>
       )}
     </Pressable>

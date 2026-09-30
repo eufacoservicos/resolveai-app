@@ -1,11 +1,19 @@
-import { updateUser, uploadAvatar } from "@eufaco/shared";
-import { Button, Card, Text, useTheme } from "@eufaco/design-system/native";
+import { acceptTerms, formatCpf, updateUser, uploadAvatar } from "@eufaco/shared";
+import {
+  Button,
+  Card,
+  Text,
+  fontSize,
+  letterSpacing,
+  useTheme,
+} from "@eufaco/design-system/native";
 import { useRouter } from "expo-router";
-import { Briefcase, Camera, Search, UserRound } from "lucide-react-native";
+import { ArrowRight, Briefcase, Camera, Check, CreditCard, Phone, Search, UserRound } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Image, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppBar } from "@/components/AppBar";
+import { Field } from "@/components/Field";
 import { SignInPrompt } from "@/components/SignInPrompt";
 import { initialsOf } from "@/lib/format";
 import { useSession } from "@/lib/session";
@@ -26,10 +34,15 @@ export default function CompleteProfileScreen() {
   const { session, loading: sessionLoading } = useSession();
 
   const [role, setRole] = useState<Role>("CLIENT");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [cpf, setCpf] = useState("");
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Quem entra pelo Google ou pela Apple nunca viu os termos: o cadastro por
+  // e-mail pede o aceite, o OAuth não tem onde pedir. É aqui ou em lugar nenhum.
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const fullName = session?.user.user_metadata?.full_name as string | undefined;
 
@@ -60,13 +73,35 @@ export default function CompleteProfileScreen() {
     }
   };
 
+  /** Aceita os termos e vai para a Home, sem gravar os campos opcionais. */
+  const skip = async () => {
+    if (!session) return;
+    setSaving(true);
+    await acceptTerms(supabase, session.user.id);
+    setSaving(false);
+    router.replace("/");
+  };
+
   const submit = async () => {
     if (!session) return;
+    if (!termsAccepted) return setError("É preciso aceitar os Termos de Uso para continuar.");
 
     setSaving(true);
     setError(null);
 
+    await acceptTerms(supabase, session.user.id);
+
     const { error: updateError } = await updateUser(supabase, session.user.id, { role });
+
+    // Telefone e CPF ainda não têm dono no banco: `provider_profiles` só
+    // nasce no cadastro profissional. Guardamos no metadado da conta para
+    // o passo 2 já vir preenchido.
+    if (whatsapp.trim() || cpf.trim()) {
+      await supabase.auth.updateUser({
+        data: { phone: whatsapp.trim() || null, cpf: cpf.trim() || null },
+      });
+    }
+
     setSaving(false);
 
     if (updateError) {
@@ -103,29 +138,27 @@ export default function CompleteProfileScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <AppBar showBack={false} title="Complete seu perfil" />
-
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: spacing[5],
-          paddingTop: spacing[2],
-          paddingBottom: Math.max(insets.bottom, spacing[6]),
-          gap: spacing[5],
+          paddingTop: insets.top + 8,
+          paddingBottom: Math.max(insets.bottom, 26),
+          gap: 22,
         }}
         showsVerticalScrollIndicator={false}
       >
         {/* Progresso: esta é a etapa 1; a 2 é o cadastro profissional, quando houver */}
-        <View style={{ gap: spacing[1] + 3 }}>
-          <View style={{ flexDirection: "row", gap: spacing[1] + 2 }}>
+        <View style={{ gap: 7 }}>
+          <View style={{ flexDirection: "row", gap: 6 }}>
             <View style={{ flex: 1, height: 5, borderRadius: 3, backgroundColor: colors.primary }} />
             <View style={{ flex: 1, height: 5, borderRadius: 3, backgroundColor: colors.surface3 }} />
           </View>
-          <Text variant="caption" color="textMuted">
+          <Text variant="captionStrong" color="textMuted">
             Passo 1 de 2
           </Text>
         </View>
 
-        <View style={{ alignItems: "center", gap: spacing[2] }}>
+        <View style={{ alignItems: "center", gap: 8 }}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Adicionar foto de perfil"
@@ -187,10 +220,29 @@ export default function CompleteProfileScreen() {
           </Text>
         </View>
 
-        <View style={{ gap: spacing[3] }}>
+        <View style={{ gap: 14 }}>
+          <Field
+            label="Telefone / WhatsApp"
+            icon={Phone}
+            value={whatsapp}
+            onChangeText={setWhatsapp}
+            placeholder="(31) 99999-9999"
+            keyboardType="phone-pad"
+          />
+          <Field
+            label="CPF"
+            icon={CreditCard}
+            value={cpf}
+            onChangeText={(text) => setCpf(formatCpf(text))}
+            placeholder="000.000.000-00"
+            keyboardType="number-pad"
+          />
+        </View>
+
+        <View style={{ gap: 10 }}>
           <Text variant="title">O que você quer fazer?</Text>
 
-          <View style={{ flexDirection: "row", gap: spacing[2] + 2 }}>
+          <View style={{ flexDirection: "row", gap: 10 }}>
             {ROLES.map((option) => {
               const selected = role === option.value;
               return (
@@ -202,11 +254,11 @@ export default function CompleteProfileScreen() {
                   onPress={() => setRole(option.value)}
                   style={{
                     flex: 1,
-                    gap: spacing[2],
-                    padding: spacing[3] + 2,
+                    gap: 8,
+                    padding: 14,
                     borderRadius: radii.md,
                     backgroundColor: selected ? colors.primarySoft : colors.surface,
-                    borderWidth: selected ? 2 : 1.5,
+                    borderWidth: 1,
                     borderColor: selected ? colors.primary : colors.border,
                   }}
                 >
@@ -222,7 +274,12 @@ export default function CompleteProfileScreen() {
                   >
                     <option.icon size={17} color={selected ? colors.onPrimary : colors.textSecondary} />
                   </View>
-                  <Text variant="title">{option.title}</Text>
+                  <Text
+                    variant="title"
+                    style={{ fontSize: fontSize.field, letterSpacing: letterSpacing.subtle }}
+                  >
+                    {option.title}
+                  </Text>
                   <Text variant="caption" color="textSecondary">
                     {option.desc}
                   </Text>
@@ -232,6 +289,39 @@ export default function CompleteProfileScreen() {
           </View>
         </View>
 
+        <Pressable
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: termsAccepted }}
+          accessibilityLabel="Aceito os Termos de Uso e a Política de Privacidade"
+          onPress={() => {
+            setTermsAccepted((v) => !v);
+            setError(null);
+          }}
+          style={{ flexDirection: "row", alignItems: "flex-start", gap: 10 }}
+        >
+          <View
+            style={{
+              width: 20,
+              height: 20,
+              borderRadius: 6,
+              marginTop: 2,
+              backgroundColor: termsAccepted ? colors.primary : "transparent",
+              borderWidth: termsAccepted ? 0 : 1.5,
+              borderColor: colors.borderStrong,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {termsAccepted ? <Check size={13} color={colors.onPrimary} /> : null}
+          </View>
+          <Text
+            color="textSecondary"
+            style={{ flex: 1, fontSize: fontSize.note, lineHeight: fontSize.note * 1.45 }}
+          >
+            Li e aceito os Termos de Uso e a Política de Privacidade da plataforma.
+          </Text>
+        </Pressable>
+
         {error ? (
           <Card variant="plain" style={{ backgroundColor: colors.dangerSoft }}>
             <Text variant="bodyStrong" color="danger">
@@ -240,11 +330,25 @@ export default function CompleteProfileScreen() {
           </Card>
         ) : null}
 
-        <Button label="Continuar" loading={saving} onPress={() => void submit()} />
+        <Button
+          label="Continuar"
+          loading={saving}
+          icon={<ArrowRight size={18} color={colors.onPrimary} />}
+          iconPosition="right"
+          onPress={() => void submit()}
+        />
 
+        {/* Pular deixa foto, telefone e CPF para depois — mas o aceite dos
+            termos não é opcional, então ele passa pelo mesmo submit. */}
         <Pressable
           accessibilityRole="button"
-          onPress={() => router.replace("/")}
+          onPress={() => {
+            if (!termsAccepted) {
+              setError("É preciso aceitar os Termos de Uso para continuar.");
+              return;
+            }
+            void skip();
+          }}
           hitSlop={8}
           style={{ alignItems: "center" }}
         >

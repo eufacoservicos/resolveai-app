@@ -1,4 +1,4 @@
-import { Text, nativeFonts, useTheme } from "@eufaco/design-system/native";
+import { Text, fontSize, nativeFonts, useTheme } from "@eufaco/design-system/native";
 import { Eye, EyeOff } from "lucide-react-native";
 import type { ComponentType } from "react";
 import { useState } from "react";
@@ -11,15 +11,20 @@ interface Props extends Omit<TextInputProps, "style"> {
   error?: string | null;
   /** Adiciona o botão de mostrar/ocultar e liga secureTextEntry. */
   password?: boolean;
+  /** Borda vermelha permanente, para confirmações destrutivas. */
+  danger?: boolean;
 }
 
-export function Field({ label, icon: Icon, error, password = false, ...rest }: Props) {
+export function Field({ label, icon: Icon, error, password = false, danger = false, ...rest }: Props) {
   const { colors, radii, spacing } = useTheme();
   const [visible, setVisible] = useState(false);
 
+  // O Pen desenha o campo travado com fundo apagado, não com opacidade
+  const locked = rest.editable === false;
+
   return (
     <View style={{ gap: spacing[1] + 3 }}>
-      <Text variant="label" color="textSecondary">
+      <Text variant="label" color="textSecondary" style={{ letterSpacing: 0.1 }}>
         {label}
       </Text>
 
@@ -31,9 +36,9 @@ export function Field({ label, icon: Icon, error, password = false, ...rest }: P
           height: 52,
           paddingHorizontal: 15,
           borderRadius: radii.md,
-          backgroundColor: colors.surface,
+          backgroundColor: locked ? colors.surface2 : colors.surface,
           borderWidth: 1.5,
-          borderColor: error ? colors.danger : colors.border,
+          borderColor: error || danger ? colors.danger : colors.border,
         }}
       >
         {Icon ? <Icon size={18} color={colors.textMuted} /> : null}
@@ -43,9 +48,10 @@ export function Field({ label, icon: Icon, error, password = false, ...rest }: P
           secureTextEntry={password && !visible}
           style={{
             flex: 1,
-            color: colors.textPrimary,
-            fontFamily: nativeFonts.bodyRegular,
-            fontSize: 14.5,
+            color: locked ? colors.textMuted : colors.textPrimary,
+            // Valor preenchido é semibold no Pen; travado, regular e apagado
+            fontFamily: locked ? nativeFonts.bodyRegular : nativeFonts.bodySemiBold,
+            fontSize: fontSize.field,
           }}
           {...rest}
         />

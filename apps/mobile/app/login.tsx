@@ -1,12 +1,38 @@
-import { Button, Text, useTheme } from "@eufaco/design-system/native";
+import {
+  Button,
+  Text,
+  fontSize,
+  letterSpacing,
+  lineHeight,
+  nativeFonts,
+  useTheme,
+} from "@eufaco/design-system/native";
+import { getCurrentUser, type User } from "@eufaco/shared";
 import { useRouter } from "expo-router";
-import { Lock, Mail } from "lucide-react-native";
+import { Apple, ArrowRight, Lock, Mail } from "lucide-react-native";
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from "react-native";
 import { AppBar } from "@/components/AppBar";
 import { Field } from "@/components/Field";
-import { signInWithGoogleNative } from "@/lib/oauth";
+import { signInWithAppleNative, signInWithGoogleNative } from "@/lib/oauth";
 import { supabase } from "@/lib/supabase";
+
+/**
+ * Para onde ir depois de entrar.
+ *
+ * Quem chegou pelo Google ou pela Apple nunca passou pelo cadastro, então
+ * não tem aceite dos termos nem escolha de papel — vai para o passo de
+ * completar o perfil. Quem já completou vai direto para a Home.
+ */
+async function destinationAfterSignIn(): Promise<"/" | "/complete-profile"> {
+  try {
+    const user = (await getCurrentUser(supabase)) as User | null;
+    return user?.accepted_terms_at ? "/" : "/complete-profile";
+  } catch {
+    // Falhar aqui não pode prender a pessoa na tela de login
+    return "/";
+  }
+}
 
 /** Traduz os erros do Supabase para algo que diga o que fazer. */
 function messageFor(error: string): string {
@@ -18,14 +44,17 @@ function messageFor(error: string): string {
 }
 
 export default function LoginScreen() {
-  const { colors, spacing, layout } = useTheme();
+  const { colors, radii, spacing } = useTheme();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<"google" | "apple" | null>(null);
+
+  // Entrar com Apple só existe no iOS, onde a loja exige o botão
+  const showApple = Platform.OS === "ios";
 
   const submit = async () => {
     if (!email.trim()) return setError("Informe seu e-mail.");
@@ -39,26 +68,32 @@ export default function LoginScreen() {
       password,
     });
 
-    setLoading(false);
-
     if (authError) {
+      setLoading(false);
       setError(messageFor(authError.message));
       return;
     }
-    router.replace("/");
+
+    const destination = await destinationAfterSignIn();
+    setLoading(false);
+    router.replace(destination);
   };
 
-  const withGoogle = async () => {
-    setGoogleLoading(true);
+  const withProvider = async (provider: "google" | "apple") => {
+    setSocialLoading(provider);
     setError(null);
-    const message = await signInWithGoogleNative();
-    setGoogleLoading(false);
+    const message =
+      provider === "google" ? await signInWithGoogleNative() : await signInWithAppleNative();
 
     if (message) {
+      setSocialLoading(null);
       setError(message);
       return;
     }
-    router.replace("/");
+
+    const destination = await destinationAfterSignIn();
+    setSocialLoading(null);
+    router.replace(destination);
   };
 
   return (
@@ -66,30 +101,50 @@ export default function LoginScreen() {
       style={{ flex: 1, backgroundColor: colors.bg }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <AppBar />
+      {/* O protótipo entra direto no formulário; a barra só aparece
+          quando o login foi aberto de dentro do app e há para onde voltar. */}
+      {router.canGoBack() ? <AppBar /> : null}
+
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: spacing[6],
-          paddingTop: spacing[4],
-          paddingBottom: spacing[8],
-          gap: spacing[6],
+          paddingTop: 28,
+          paddingBottom: 28,
+          gap: 26,
         }}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={{ gap: spacing[2] }}>
-          <View style={{ flexDirection: "row" }}>
-            <Text variant="h1">eufaço</Text>
-            <Text variant="h1" color="primary">
+        <View style={{ gap: 14 }}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text
+              variant="h1"
+              style={{ fontSize: fontSize["4xl"], letterSpacing: -1.2, lineHeight: fontSize["4xl"] * 1.2 }}
+            >
+              eufaço
+            </Text>
+            <Text
+              variant="h1"
+              color="primary"
+              style={{ fontSize: fontSize["4xl"], letterSpacing: -1.2, lineHeight: fontSize["4xl"] * 1.2 }}
+            >
               !
             </Text>
           </View>
-          <Text variant="h1">Bem-vindo de volta</Text>
-          <Text color="textSecondary">
-            Entre para salvar favoritos e avaliar quem te atendeu.
-          </Text>
+
+          <View style={{ gap: 5 }}>
+            <Text variant="h1" style={{ lineHeight: fontSize["3xl"] * lineHeight.tight }}>
+              Bem-vindo de volta
+            </Text>
+            <Text
+              color="textSecondary"
+              style={{ fontSize: fontSize.name, lineHeight: fontSize.name * lineHeight.normal }}
+            >
+              Entre para encontrar profissionais de confiança perto de você.
+            </Text>
+          </View>
         </View>
 
-        <View style={{ gap: spacing[4] }}>
+        <View style={{ gap: 14 }}>
           <Field
             label="E-mail"
             icon={Mail}
@@ -110,22 +165,28 @@ export default function LoginScreen() {
             autoComplete="current-password"
             password
           />
+
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push("/forgot-password")}
+            hitSlop={6}
+            style={{ alignSelf: "flex-end" }}
+          >
+            <Text variant="label" color="primaryStrong">
+              Esqueci minha senha
+            </Text>
+          </Pressable>
         </View>
 
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => router.push("/forgot-password")}
-          hitSlop={6}
-          style={{ alignSelf: "flex-end" }}
-        >
-          <Text variant="label" color="primaryStrong">
-            Esqueci minha senha
-          </Text>
-        </Pressable>
+        <Button
+          label="Entrar"
+          loading={loading}
+          icon={<ArrowRight size={18} color={colors.onPrimary} />}
+          iconPosition="right"
+          onPress={() => void submit()}
+        />
 
-        <Button label="Entrar" loading={loading} onPress={() => void submit()} />
-
-        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[3] }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
           <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
           <Text variant="caption" color="textMuted">
             ou continue com
@@ -133,22 +194,76 @@ export default function LoginScreen() {
           <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
         </View>
 
-        <Button
-          label="Google"
-          variant="secondary"
-          loading={googleLoading}
-          icon={
-            <Text variant="title" color="textPrimary">
+        <View style={{ flexDirection: "row", gap: 10 }}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Entrar com Google"
+            accessibilityState={{ busy: socialLoading === "google" }}
+            disabled={socialLoading !== null}
+            onPress={() => void withProvider("google")}
+            style={({ pressed }) => ({
+              flex: 1,
+              height: 50,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              borderRadius: radii.md,
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.border,
+              opacity: socialLoading !== null ? 0.55 : pressed ? 0.88 : 1,
+            })}
+          >
+            <Text
+              style={{
+                color: colors.textPrimary,
+                fontFamily: nativeFonts.displayExtraBold,
+                fontSize: fontSize.lg,
+              }}
+            >
               G
             </Text>
-          }
-          onPress={() => void withGoogle()}
-        />
+            <Text variant="bodyStrong">Google</Text>
+          </Pressable>
 
-        <View style={{ flexDirection: "row", justifyContent: "center", gap: spacing[1] + 1 }}>
-          <Text color="textSecondary">Não tem uma conta?</Text>
+          {showApple ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Entrar com Apple"
+              accessibilityState={{ busy: socialLoading === "apple" }}
+              disabled={socialLoading !== null}
+              onPress={() => void withProvider("apple")}
+              style={({ pressed }) => ({
+                flex: 1,
+                height: 50,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                borderRadius: radii.md,
+                backgroundColor: colors.surface,
+                borderWidth: 1,
+                borderColor: colors.border,
+                opacity: socialLoading !== null ? 0.55 : pressed ? 0.88 : 1,
+              })}
+            >
+              <Apple size={18} color={colors.textPrimary} />
+              <Text variant="bodyStrong">Apple</Text>
+            </Pressable>
+          ) : null}
+        </View>
+
+        <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 5 }}>
+          <Text color="textSecondary" style={{ fontSize: fontSize.chip }}>
+            Não tem uma conta?
+          </Text>
           <Pressable accessibilityRole="button" onPress={() => router.replace("/register")} hitSlop={6}>
-            <Text variant="bodyStrong" color="primaryStrong">
+            <Text
+              variant="titleSm"
+              color="primaryStrong"
+              style={{ fontSize: fontSize.chip, letterSpacing: letterSpacing.normal }}
+            >
               Cadastre-se
             </Text>
           </Pressable>

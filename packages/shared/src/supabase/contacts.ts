@@ -92,6 +92,24 @@ export async function getUserContacts(
   }));
 }
 
+/**
+ * Registra a visita a um perfil. Alimenta o painel do prestador.
+ *
+ * `viewerId` é null para quem não entrou — a policy de insert aceita anônimo
+ * de propósito, senão o painel só contaria visita de gente logada.
+ */
+export async function trackProfileView(
+  supabase: SupabaseClient,
+  providerId: string,
+  viewerId: string | null,
+) {
+  const { error } = await supabase
+    .from("profile_views")
+    .insert({ provider_id: providerId, viewer_id: viewerId });
+
+  return { error };
+}
+
 /** Registra o clique no botão de orçamento. Alimenta a cota e o histórico. */
 export async function trackWhatsAppClick(
   supabase: SupabaseClient,

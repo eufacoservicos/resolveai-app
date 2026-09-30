@@ -81,6 +81,26 @@ export async function signInWithGoogle(
   return { data, error };
 }
 
+/**
+ * Login com Apple. Mesma mecânica do Google, sem os `queryParams`
+ * específicos dele. Exige o provider Apple habilitado no painel do
+ * Supabase — sem isso a chamada volta com erro, e não em silêncio.
+ */
+export async function signInWithApple(
+  supabase: SupabaseClient,
+  redirectTo: string,
+  options?: { skipBrowserRedirect?: boolean },
+) {
+  return supabase.auth.signInWithOAuth({
+    provider: "apple",
+    options: {
+      redirectTo,
+      skipBrowserRedirect: options?.skipBrowserRedirect ?? false,
+    },
+  });
+}
+
+
 export async function signOut(supabase: SupabaseClient) {
   const { error } = await supabase.auth.signOut();
   return { error };

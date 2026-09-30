@@ -1,4 +1,4 @@
-import { useTheme, Text, nativeFonts } from "@eufaco/design-system/native";
+import { letterSpacing, nativeFonts, Text, useShadow, useTheme } from "@eufaco/design-system/native";
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -34,9 +34,24 @@ interface TabBarProps {
   };
 }
 
+/** Altura da cápsula, como no Pen. */
+const CAPSULE_HEIGHT = 58;
+/** Folga do Pen entre o fim do conteúdo e a cápsula. */
+const CONTENT_GAP = 22;
+
+/**
+ * Espaço livre que uma tela de aba precisa deixar no fim da rolagem
+ * para a barra flutuante não cobrir o último item.
+ */
+export function useTabBarClearance(): number {
+  const insets = useSafeAreaInsets();
+  return CONTENT_GAP + CAPSULE_HEIGHT + Math.max(insets.bottom, 12);
+}
+
 export function TabBar({ state, descriptors, navigation }: TabBarProps) {
   const { colors, radii, spacing } = useTheme();
   const insets = useSafeAreaInsets();
+  const lift = useShadow("bar");
 
   return (
     <View
@@ -53,8 +68,8 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
             backgroundColor: colors.surface,
             borderColor: colors.border,
             borderRadius: radii.full,
-            shadowColor: "#0B1421",
           },
+          lift,
         ]}
       >
         {state.routes.map((route, index) => {
@@ -95,9 +110,10 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
               <Text
                 numberOfLines={1}
                 color={focused ? "primaryStrong" : "textMuted"}
+                variant="micro"
                 style={{
                   fontFamily: focused ? nativeFonts.bodyBold : nativeFonts.bodyMedium,
-                  fontSize: 9.5,
+                  letterSpacing: letterSpacing.nudge,
                 }}
               >
                 {label}
@@ -115,14 +131,10 @@ const styles = StyleSheet.create({
   capsule: {
     flexDirection: "row",
     alignItems: "center",
-    height: 58,
+    height: CAPSULE_HEIGHT,
     padding: 5,
     gap: 2,
     borderWidth: 1,
-    shadowOpacity: 0.1,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 8,
   },
   item: { flex: 1, height: "100%", alignItems: "center", justifyContent: "center", gap: 3 },
 });
