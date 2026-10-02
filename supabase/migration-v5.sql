@@ -31,9 +31,12 @@ WHERE slug IN ('arquiteto', 'engenheiro-civil', 'designer-de-interiores', 'paisa
 -- 3. Create "Outros" parent category group
 -- ============================================
 
+-- Sem alvo no ON CONFLICT de propósito: `categories.name` também é unique, e
+-- a v2 já cadastrou ('Outros', 'outros'). Mirando só no slug, a inserção
+-- estourava em categories_name_key e a migração não aplicava numa base nova.
 INSERT INTO public.categories (name, slug, parent_id, display_order) VALUES
   ('Outros', 'outros-servicos', NULL, 12)
-ON CONFLICT (slug) DO NOTHING;
+ON CONFLICT DO NOTHING;
 
 -- Assign orphan categories to "Outros" parent
 UPDATE public.categories

@@ -1,0 +1,70 @@
+/**
+ * Tokens do eufaço! em CSS.
+ * Espelha packages/design-system/src/tokens.ts — mudou lá, mude aqui.
+ * A landing mapeia estes valores para os nomes que os componentes usam.
+ */
+
+:root {
+  --ef-bg: #f5f8fc;
+  --ef-surface: #ffffff;
+  --ef-surface-2: #eef3f9;
+  --ef-surface-3: #e3ebf4;
+  --ef-border: #e2eaf3;
+  --ef-border-strong: #cbd8e6;
+  --ef-text-primary: #0b1421;
+  --ef-text-secondary: #54677f;
+  --ef-text-muted: #8698af;
+  --ef-primary: #0ea5e9;
+  --ef-primary-strong: #0273ab;
+  --ef-primary-soft: #e1f3fd;
+  --ef-on-primary: #ffffff;
+  --ef-accent: #f59e0b;
+  --ef-accent-soft: #fef3dc;
+  --ef-success: #0f9d6e;
+  --ef-success-soft: #dcf5ec;
+  --ef-danger: #e23d3d;
+  --ef-danger-soft: #fde7e7;
+  --ef-whatsapp: #1fb855;
+  --ef-shadow: #0b142112;
+  --ef-overlay: #0b1421a6;
+
+  /* Fixas nos dois temas */
+  --ef-ink: #0a1220;
+  --ef-ink-2: #141f30;
+  --ef-on-ink: #f2f6fa;
+  --ef-on-ink-muted: #8da2bc;
+
+  --ef-font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --ef-font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --ef-radius-sm: 10px;
+  --ef-radius-md: 14px;
+  --ef-radius-lg: 20px;
+  --ef-radius-xl: 28px;
+  --ef-radius-full: 999px;
+}
+
+.dark {
+  --ef-bg: #070c14;
+  --ef-surface: #111a25;
+  --ef-surface-2: #18232f;
+  --ef-surface-3: #1f2c3a;
+  --ef-border: #22303f;
+  --ef-border-strong: #2e3e4f;
+  --ef-text-primary: #f2f6fa;
+  --ef-text-secondary: #9db0c6;
+  --ef-text-muted: #63768c;
+  --ef-primary: #38bdf8;
+  --ef-primary-strong: #7dd3fc;
+  --ef-primary-soft: #0c2c40;
+  --ef-on-primary: #04212f;
+  --ef-accent: #fbbf24;
+  --ef-accent-soft: #3a2c0c;
+  --ef-success: #34d399;
+  --ef-success-soft: #0b2e24;
+  --ef-danger: #f87171;
+  --ef-danger-soft: #3a1616;
+  --ef-whatsapp: #25d366;
+  --ef-shadow: #00000055;
+  --ef-overlay: #000000c4;
+}

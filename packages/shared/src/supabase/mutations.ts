@@ -1,0 +1,550 @@
+import { SupabaseClient } from "@supabase/supabase-js";
+import { UserRole } from "../types";
+import { getDefaultBusinessHours } from "../domain/business-hours";
+import { containsProfanity, PROFANITY_ERROR_MESSAGE } from "../domain/profanity";
+
+// ============================================
+// AUTH MUTATIONS
+// ============================================
+
+export async function signUpWithEmail(
+  supabase: SupabaseClient,
+  email: string,
+  password: string,
+  fullName: string,
+  role: UserRole,
+  providerData?: {
+    description: string;
+    cpf: string;
+    provider_type?: "individual" | "company";
+    whatsapp: string;
+    cep: string;
+    city: string;
+    state: string;
+    neighborhood: string;
+    latitude: number | null;
+    longitude: number | null;
+    categoryIds: string[];
+  }
+) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: fullName,
+        role,
+        accepted_terms_at: new Date().toISOString(),
+        ...(providerData ? { provider_data: providerData } : {}),
+      },
+    },
+  });
+  return { data, error };
+}
+
+export async function signInWithEmail(
+  supabase: SupabaseClient,
+  email: string,
+  password: string
+) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+  return { data, error };
+}
+
+/**
+ * Inicia o OAuth do Google.
+ *
+ * O destino do retorno vem por argumento porque cada plataforma tem o seu:
+ * a web usa a origem do navegador, o app usa um deep link do próprio
+ * esquema. Ler `window` aqui quebraria no React Native.
+ */
+export async function signInWithGoogle(
+  supabase: SupabaseClient,
+  redirectTo: string,
+  /** O app precisa da URL de volta para abrir o navegador ele mesmo. */
+  options?: { skipBrowserRedirect?: boolean },
+) {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo,
+      skipBrowserRedirect: options?.skipBrowserRedirect ?? false,
+      queryParams: {
+        access_type: "offline",
+        prompt: "consent",
+      },
+    },
+  });
+  return { data, error };
+}
+
+/**
+ * Login com Apple. Mesma mecânica do Google, sem os `queryParams`
+ * específicos dele. Exige o provider Apple habilitado no painel do
+ * Supabase — sem isso a chamada volta com erro, e não em silêncio.
+ */
+export async function signInWithApple(
+  supabase: SupabaseClient,
+  redirectTo: string,
+  options?: { skipBrowserRedirect?: boolean },
+) {
+  return supabase.auth.signInWithOAuth({
+    provider: "apple",
+    options: {
+      redirectTo,
+      skipBrowserRedirect: options?.skipBrowserRedirect ?? false,
+    },
+  });
+}
+
+
+export async function signOut(supabase: SupabaseClient) {
+  const { error } = await supabase.auth.signOut();
+  return { error };
+}
+
+// ============================================
+// USER MUTATIONS
+// ============================================
+
+export async function updateUser(
+  supabase: SupabaseClient,
+  userId: string,
+  data: { full_name?: string; avatar_url?: string | null; role?: UserRole }
+) {
+  const { error } = await supabase
+    .from("users")
+    .update({ ...data, updated_at: new Date().toISOString() })
+    .eq("id", userId);
+  return { error };
+}
+
+export async function acceptTerms(
+  supabase: SupabaseClient,
+  userId: string
+) {
+  const { error } = await supabase
+    .from("users")
+    .update({ accepted_terms_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+    .eq("id", userId);
+  return { error };
+}
+
+// ============================================
+// AVATAR MUTATIONS
+// ============================================
+
+/**
+ * Arquivo pronto para upload, no formato que funciona nas duas plataformas.
+ *
+ * `File` e `Blob` são APIs de navegador e não existem no React Native, então
+ * o contrato é o binário cru: a web converte com `file.arrayBuffer()`, o app
+ * lê o arquivo escolhido e decodifica para ArrayBuffer.
+ */
+export interface UploadFile {
+  body: ArrayBuffer | Uint8Array;
+  /** Extensão sem ponto, ex.: "jpg". */
+  extension: string;
+  /** Ex.: "image/jpeg". O storage precisa disso para servir o arquivo certo. */
+  contentType: string;
+}
+
+export async function uploadAvatar(
+  supabase: SupabaseClient,
+  userId: string,
+  file: UploadFile
+) {
+  const fileName = `${userId}/avatar.${file.extension}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("avatars")
+    .upload(fileName, file.body, { upsert: true, contentType: file.contentType });
+
+  if (uploadError) return { error: uploadError, url: null };
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("avatars").getPublicUrl(fileName);
+
+  const avatarUrl = `${publicUrl}?t=${Date.now()}`;
+
+  const { error: dbError } = await supabase
+    .from("users")
+    .update({ avatar_url: avatarUrl, updated_at: new Date().toISOString() })
+    .eq("id", userId);
+
+  return { error: dbError, url: avatarUrl };
+}
+
+// ============================================
+// PROVIDER MUTATIONS
+// ============================================
+
+export async function createProviderProfile(
+  supabase: SupabaseClient,
+  userId: string,
+  data: {
+    description: string;
+    city: string;
+    neighborhood?: string;
+    cep?: string;
+    state?: string;
+    latitude?: number | null;
+    longitude?: number | null;
+    whatsapp: string;
+    cpf?: string;
+    provider_type?: "individual" | "company";
+    instagram?: string;
+  }
+) {
+  const rawDocument = (data.cpf ?? "").replace(/\D/g, "");
+  const resolvedCpf =
+    rawDocument.length === 11 || rawDocument.length === 14
+      ? rawDocument
+      : `PENDING-${userId}`;
+  const resolvedProviderType =
+    data.provider_type ?? (rawDocument.length === 14 ? "company" : "individual");
+
+  // Update user role to PROVIDER
+  // Note: this triggers `on_user_role_change` which creates a minimal provider_profiles row.
+  const { error: roleError } = await supabase
+    .from("users")
+    .update({ role: "PROVIDER" as UserRole, updated_at: new Date().toISOString() })
+    .eq("id", userId);
+
+  if (roleError) return { error: roleError, profileId: null };
+
+  // Upsert provider profile to handle the trigger-created row
+  const { data: profile, error } = await supabase
+    .from("provider_profiles")
+    .upsert(
+      {
+        user_id: userId,
+        description: data.description,
+        city: data.city,
+        neighborhood: data.neighborhood ?? "",
+        cep: data.cep ?? null,
+        state: data.state ?? null,
+        latitude: data.latitude ?? null,
+        longitude: data.longitude ?? null,
+        whatsapp: data.whatsapp,
+        cpf: resolvedCpf,
+        provider_type: resolvedProviderType,
+        instagram: data.instagram ?? null,
+        is_active: true,
+      },
+      { onConflict: "user_id" }
+    )
+    .select("id")
+    .single();
+
+  if (error || !profile) {
+    // Rollback role change if profile creation fails
+    await supabase
+      .from("users")
+      .update({ role: "CLIENT" as UserRole, updated_at: new Date().toISOString() })
+      .eq("id", userId);
+    return { error, profileId: null };
+  }
+
+  // Create default business hours (Mon-Fri 08:00-18:00, Sat-Sun closed)
+  const defaultHours = getDefaultBusinessHours().map((h) => ({
+    provider_id: profile.id,
+    day_of_week: h.day_of_week,
+    open_time: h.is_closed ? null : h.open_time,
+    close_time: h.is_closed ? null : h.close_time,
+    is_closed: h.is_closed,
+  }));
+
+  await supabase
+    .from("business_hours")
+    .upsert(defaultHours, { onConflict: "provider_id,day_of_week" });
+
+  return { error: null, profileId: profile.id };
+}
+
+export async function updateProviderProfile(
+  supabase: SupabaseClient,
+  profileId: string,
+  data: {
+    description?: string;
+    city?: string;
+    neighborhood?: string;
+    cep?: string;
+    state?: string;
+    latitude?: number | null;
+    longitude?: number | null;
+    whatsapp?: string;
+    cpf?: string | null;
+    provider_type?: "individual" | "company";
+    instagram?: string | null;
+    is_active?: boolean;
+  }
+) {
+  const { error } = await supabase
+    .from("provider_profiles")
+    .update({ ...data, updated_at: new Date().toISOString() })
+    .eq("id", profileId);
+  return { error };
+}
+
+export async function setProviderCategories(
+  supabase: SupabaseClient,
+  providerId: string,
+  categoryIds: string[]
+) {
+  // Delete existing
+  await supabase
+    .from("provider_categories")
+    .delete()
+    .eq("provider_id", providerId);
+
+  // Insert new
+  if (categoryIds.length > 0) {
+    const { error } = await supabase.from("provider_categories").insert(
+      categoryIds.map((categoryId) => ({
+        provider_id: providerId,
+        category_id: categoryId,
+      }))
+    );
+    return { error };
+  }
+
+  return { error: null };
+}
+
+// ============================================
+// CATEGORY MUTATIONS
+// ============================================
+
+export async function createCustomCategory(
+  supabase: SupabaseClient,
+  name: string
+) {
+  if (containsProfanity(name)) {
+    return { data: null, error: { message: PROFANITY_ERROR_MESSAGE, code: "PROFANITY" } };
+  }
+
+  const slug = name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  // Find "Outros" parent category
+  const { data: outrosParent } = await supabase
+    .from("categories")
+    .select("id")
+    .eq("slug", "outros-servicos")
+    .single();
+
+  // Try to insert the new category
+  const { data, error } = await supabase
+    .from("categories")
+    .insert({
+      name,
+      slug,
+      parent_id: outrosParent?.id ?? null,
+    })
+    .select("id, name, slug")
+    .single();
+
+  // If slug conflict, return the existing category
+  if (error && error.code === "23505") {
+    const { data: existing } = await supabase
+      .from("categories")
+      .select("id, name, slug")
+      .eq("slug", slug)
+      .single();
+    return { data: existing, error: null };
+  }
+
+  return { data, error };
+}
+
+// ============================================
+// PORTFOLIO MUTATIONS
+// ============================================
+
+const MAX_PORTFOLIO_IMAGES = 10;
+
+export async function uploadPortfolioImage(
+  supabase: SupabaseClient,
+  providerId: string,
+  userId: string,
+  file: UploadFile
+) {
+  // Check limit
+  const { count } = await supabase
+    .from("portfolio_images")
+    .select("id", { count: "exact", head: true })
+    .eq("provider_id", providerId);
+
+  if ((count ?? 0) >= MAX_PORTFOLIO_IMAGES) {
+    return { error: { message: `Limite de ${MAX_PORTFOLIO_IMAGES} imagens atingido.` } };
+  }
+
+  const fileName = `${userId}/${Date.now()}.${file.extension}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("portfolio")
+    .upload(fileName, file.body, { contentType: file.contentType });
+
+  if (uploadError) return { error: uploadError };
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("portfolio").getPublicUrl(fileName);
+
+  const { data, error: dbError } = await supabase
+    .from("portfolio_images")
+    .insert({
+      provider_id: providerId,
+      image_url: publicUrl,
+    })
+    .select("id, image_url, created_at")
+    .single();
+
+  return { data, error: dbError };
+}
+
+export async function deletePortfolioImage(
+  supabase: SupabaseClient,
+  imageId: string,
+  imageUrl: string
+) {
+  // Extract path from URL
+  const urlParts = imageUrl.split("/portfolio/");
+  const filePath = urlParts[urlParts.length - 1];
+
+  if (filePath) {
+    await supabase.storage.from("portfolio").remove([filePath]);
+  }
+
+  const { error } = await supabase
+    .from("portfolio_images")
+    .delete()
+    .eq("id", imageId);
+
+  return { error };
+}
+
+// ============================================
+// FAVORITE MUTATIONS
+// ============================================
+
+export async function toggleFavorite(
+  supabase: SupabaseClient,
+  userId: string,
+  providerId: string
+) {
+  // Check if already favorited
+  const { data: existing } = await supabase
+    .from("favorites")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("provider_id", providerId)
+    .maybeSingle();
+
+  if (existing) {
+    const { error } = await supabase
+      .from("favorites")
+      .delete()
+      .eq("id", existing.id);
+    return { isFavorited: false, error };
+  } else {
+    const { error } = await supabase.from("favorites").insert({
+      user_id: userId,
+      provider_id: providerId,
+    });
+    return { isFavorited: true, error };
+  }
+}
+
+// ============================================
+// REVIEW MUTATIONS
+// ============================================
+
+export async function createReview(
+  supabase: SupabaseClient,
+  providerId: string,
+  clientId: string,
+  rating: number,
+  comment: string | null
+) {
+  const { error } = await supabase.from("reviews").insert({
+    provider_id: providerId,
+    client_id: clientId,
+    rating,
+    comment,
+  });
+  return { error };
+}
+
+export async function createReviewReply(
+  supabase: SupabaseClient,
+  reviewId: string,
+  providerId: string,
+  content: string
+) {
+  const { error } = await supabase.from("review_replies").upsert(
+    {
+      review_id: reviewId,
+      provider_id: providerId,
+      content,
+    },
+    { onConflict: "review_id" }
+  );
+  return { error };
+}
+
+/**
+ * Apaga a conta do próprio usuário, incluindo os arquivos no storage.
+ *
+ * Chama a função `delete_own_account` (migration v15), que roda com
+ * privilégio elevado no servidor mas só age sobre `auth.uid()`. É assim que
+ * o app consegue excluir contas sem carregar a service role key, que daria
+ * poder total sobre o banco a quem descompilasse o APK.
+ */
+export async function deleteOwnAccount(supabase: SupabaseClient) {
+  const { error } = await supabase.rpc("delete_own_account");
+  if (error) return { error };
+
+  await supabase.auth.signOut();
+  return { error: null };
+}
+
+/**
+ * Grava a semana inteira de horários de uma vez.
+ *
+ * Upsert por (provider_id, day_of_week): a linha de cada dia já existe
+ * desde a criação do perfil, então isto substitui em vez de duplicar.
+ */
+export async function setBusinessHours(
+  supabase: SupabaseClient,
+  providerId: string,
+  hours: {
+    day_of_week: number;
+    open_time: string | null;
+    close_time: string | null;
+    is_closed: boolean;
+  }[],
+) {
+  const rows = hours.map((h) => ({
+    provider_id: providerId,
+    day_of_week: h.day_of_week,
+    open_time: h.is_closed ? null : h.open_time,
+    close_time: h.is_closed ? null : h.close_time,
+    is_closed: h.is_closed,
+  }));
+
+  const { error } = await supabase
+    .from("business_hours")
+    .upsert(rows, { onConflict: "provider_id,day_of_week" });
+
+  return { error };
+}

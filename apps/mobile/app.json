@@ -1,0 +1,73 @@
+{
+  "expo": {
+    "name": "eufaço!",
+    "slug": "eufaco",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "eufaco",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "br.com.eufaco.app"
+    },
+    "android": {
+      "package": "br.com.eufaco.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#0EA5E9",
+          "imageWidth": 200
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "O eufaço! usa sua localização para mostrar os profissionais mais próximos de você."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O eufaço! acessa suas fotos para você escolher a foto de perfil e as do portfólio.",
+          "cameraPermission": "O eufaço! usa a câmera para você tirar a foto de perfil e as do portfólio."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#0EA5E9"
+        }
+      ],
+      "expo-web-browser"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "63aedcdc-e2ea-40ce-965f-f56b05b656d9"
+      }
+    },
+    "owner": "lgustdev"
+  }
+}

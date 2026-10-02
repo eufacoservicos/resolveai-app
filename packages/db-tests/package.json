@@ -1,0 +1,15 @@
+{
+  "name": "@eufaco/db-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Roda o schema e as migrações num Postgres de verdade e verifica os gatilhos.",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "typescript": "^5",
+    "vitest": "^4.1.0"
+  }
+}

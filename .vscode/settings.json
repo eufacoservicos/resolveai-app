@@ -1,0 +1,4 @@
+{
+  "//": "As Edge Functions rodam em Deno, não em Node. Isto liga o language server do Deno SÓ em supabase/functions; o resto do monorepo continua no TypeScript do VS Code. Requer a extensão denoland.vscode-deno.",
+  "deno.enablePaths": ["./supabase/functions"]
+}
